@@ -2,7 +2,7 @@ import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
@@ -15,7 +15,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { UserService } from '@/app/features/users/services/user.service';
-import { User, UserProfile, UsersMeta } from '@/app/features/users/models/user.model';
+import { User, UsersMeta } from '@/app/features/users/models/user.model';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 
 interface Column {
@@ -29,19 +29,13 @@ interface ExportColumn {
     dataKey: string;
 }
 
-type EditableUser = Partial<User> & {
-    password?: string;
-    profile?: UserProfile;
-};
-
-
 @Component({
     selector: 'app-users-crud',
     standalone: true,
     imports: [
         CommonModule,
         TableModule,
-        FormsModule,
+        ReactiveFormsModule,
         ButtonModule,
         RippleModule,
         ToastModule,
@@ -139,56 +133,60 @@ type EditableUser = Partial<User> & {
 
         <p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="User Details" [modal]="true">
             <ng-template #content>
-                <div class="flex flex-col gap-6">
-                    <div>
-                        <label for="username" class="block font-bold mb-3">Username</label>
-                        <input type="text" pInputText id="username" [(ngModel)]="user.username" required autofocus fluid [readonly]="viewOnly" [disabled]="submitting" />
-                        <small class="text-red-500" *ngIf="submitted && !user.username">Username is required.</small>
+                <form [formGroup]="userForm">
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <label for="username" class="block font-bold mb-3">Username</label>
+                            <input type="text" pInputText id="username" formControlName="username" required autofocus fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <small class="text-red-500" *ngIf="submitted && userForm.get('username')?.invalid">Username is required.</small>
+                        </div>
+                        <div>
+                            <label for="email" class="block font-bold mb-3">Email</label>
+                            <input type="text" pInputText id="email" formControlName="email" required fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <small class="text-red-500" *ngIf="submitted && userForm.get('email')?.invalid">Email is required.</small>
+                        </div>
+                        <div>
+                            <label for="phone" class="block font-bold mb-3">Phone</label>
+                            <input type="text" pInputText id="phone" formControlName="phone" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                        </div>
+                        <div *ngIf="!currentUserId">
+                            <label for="password" class="block font-bold mb-3">Password</label>
+                            <input type="password" pInputText id="password" formControlName="password" required fluid [disabled]="submitting" />
+                            <small class="text-red-500" *ngIf="submitted && userForm.get('password')?.invalid">Password is required.</small>
+                        </div>
+                        <div>
+                            <label for="roleId" class="block font-bold mb-3">Role ID</label>
+                            <input type="text" pInputText id="roleId" formControlName="roleId" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                        </div>
+                        <div>
+                            <label for="accountStatus" class="block font-bold mb-3">Account Status</label>
+                            <p-select
+                                id="accountStatus"
+                                [options]="accountStatusOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                formControlName="accountStatus"
+                                [disabled]="submitting || viewOnly"
+                                placeholder="Select Status"
+                                fluid
+                            />
+                        </div>
+                        <div formGroupName="profile" class="flex flex-col gap-6">
+                            <div>
+                                <label for="firstName" class="block font-bold mb-3">First Name</label>
+                                <input type="text" pInputText id="firstName" formControlName="firstName" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            </div>
+                            <div>
+                                <label for="lastName" class="block font-bold mb-3">Last Name</label>
+                                <input type="text" pInputText id="lastName" formControlName="lastName" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            </div>
+                            <div>
+                                <label for="nationalId" class="block font-bold mb-3">National ID</label>
+                                <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label for="email" class="block font-bold mb-3">Email</label>
-                        <input type="text" pInputText id="email" [(ngModel)]="user.email" required fluid [readonly]="viewOnly" [disabled]="submitting" />
-                        <small class="text-red-500" *ngIf="submitted && !user.email">Email is required.</small>
-                    </div>
-                    <div>
-                        <label for="phone" class="block font-bold mb-3">Phone</label>
-                        <input type="text" pInputText id="phone" [(ngModel)]="user.phone" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                    </div>
-                    <div *ngIf="!user.id">
-                        <label for="password" class="block font-bold mb-3">Password</label>
-                        <input type="password" pInputText id="password" [(ngModel)]="user.password" required fluid [disabled]="submitting" />
-                        <small class="text-red-500" *ngIf="submitted && !user.password">Password is required.</small>
-                    </div>
-                    <div>
-                        <label for="roleId" class="block font-bold mb-3">Role ID</label>
-                        <input type="text" pInputText id="roleId" [(ngModel)]="user.roleId" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                    </div>
-                    <div>
-                        <label for="accountStatus" class="block font-bold mb-3">Account Status</label>
-                        <p-select
-                            id="accountStatus"
-                            [options]="accountStatusOptions"
-                            optionLabel="label"
-                            optionValue="value"
-                            [(ngModel)]="user.accountStatus"
-                            [disabled]="submitting || viewOnly"
-                            placeholder="Select Status"
-                            fluid
-                        />
-                    </div>
-                    <div>
-                        <label for="firstName" class="block font-bold mb-3">First Name</label>
-                        <input type="text" pInputText id="firstName" [(ngModel)]="profile.firstName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                    </div>
-                    <div>
-                        <label for="lastName" class="block font-bold mb-3">Last Name</label>
-                        <input type="text" pInputText id="lastName" [(ngModel)]="profile.lastName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                    </div>
-                    <div>
-                        <label for="nationalId" class="block font-bold mb-3">National ID</label>
-                        <input type="text" pInputText id="nationalId" [(ngModel)]="profile.nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                    </div>
-                </div>
+                </form>
             </ng-template>
 
             <ng-template #footer>
@@ -209,8 +207,8 @@ export class UsersCrud implements OnInit {
     users = signal<User[]>([]);
     meta = signal<UsersMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
 
-    user: EditableUser = { profile: {} };
-    profile: UserProfile = {};
+    userForm: FormGroup;
+    currentUserId?: string;
 
     selectedUsers!: User[] | null;
 
@@ -227,8 +225,23 @@ export class UsersCrud implements OnInit {
     constructor(
         private userService: UserService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
-    ) {}
+        private confirmationService: ConfirmationService,
+        private fb: FormBuilder
+    ) {
+        this.userForm = this.fb.group({
+            username: ['', Validators.required],
+            email: ['', Validators.required],
+            phone: [''],
+            password: [''],
+            roleId: [''],
+            accountStatus: [''],
+            profile: this.fb.group({
+                firstName: [''],
+                lastName: [''],
+                nationalId: ['']
+            })
+        });
+    }
 
     exportCSV() {
         this.dt.exportCSV();
@@ -260,9 +273,25 @@ export class UsersCrud implements OnInit {
 
     openNew() {
         this.viewOnly = false;
-        this.user = { profile: {} };
-        this.profile = {};
+        this.currentUserId = undefined;
         this.submitted = false;
+        this.userForm.reset({
+            username: '',
+            email: '',
+            phone: '',
+            password: '',
+            roleId: '',
+            accountStatus: '',
+            profile: {
+                firstName: '',
+                lastName: '',
+                nationalId: ''
+            }
+        });
+        const passwordControl = this.userForm.get('password');
+        passwordControl?.setValidators([Validators.required]);
+        passwordControl?.updateValueAndValidity();
+        this.userForm.enable();
         this.userDialog = true;
     }
 
@@ -270,8 +299,24 @@ export class UsersCrud implements OnInit {
         this.viewOnly = false;
         this.userDialog = true;
         this.userService.get(user.id).subscribe((data) => {
-            this.user = { ...data, profile: data.profile ?? {} };
-            this.profile = this.user.profile ?? {};
+            this.currentUserId = data.id;
+            this.userForm.reset({
+                username: data.username ?? '',
+                email: data.email ?? '',
+                phone: data.phone ?? '',
+                password: '',
+                roleId: data.roleId ?? '',
+                accountStatus: data.accountStatus ?? '',
+                profile: {
+                    firstName: data.profile?.firstName ?? '',
+                    lastName: data.profile?.lastName ?? '',
+                    nationalId: data.profile?.nationalId ?? ''
+                }
+            });
+            const passwordControl = this.userForm.get('password');
+            passwordControl?.clearValidators();
+            passwordControl?.updateValueAndValidity();
+            this.userForm.enable();
         });
     }
 
@@ -279,8 +324,24 @@ export class UsersCrud implements OnInit {
         this.viewOnly = true;
         this.userDialog = true;
         this.userService.get(user.id).subscribe((data) => {
-            this.user = { ...data, profile: data.profile ?? {} };
-            this.profile = this.user.profile ?? {};
+            this.currentUserId = data.id;
+            this.userForm.reset({
+                username: data.username ?? '',
+                email: data.email ?? '',
+                phone: data.phone ?? '',
+                password: '',
+                roleId: data.roleId ?? '',
+                accountStatus: data.accountStatus ?? '',
+                profile: {
+                    firstName: data.profile?.firstName ?? '',
+                    lastName: data.profile?.lastName ?? '',
+                    nationalId: data.profile?.nationalId ?? ''
+                }
+            });
+            const passwordControl = this.userForm.get('password');
+            passwordControl?.clearValidators();
+            passwordControl?.updateValueAndValidity();
+            this.userForm.disable();
         });
     }
 
@@ -318,6 +379,7 @@ export class UsersCrud implements OnInit {
         this.userDialog = false;
         this.submitted = false;
         this.viewOnly = false;
+        this.userForm.enable();
     }
 
     deleteUser(user: User) {
@@ -344,26 +406,28 @@ export class UsersCrud implements OnInit {
     saveUser() {
         this.submitted = true;
         if (this.submitting) return;
-        if (!this.user.username || !this.user.email) {
-            return;
+        if (this.userForm.invalid) return;
+
+        const formValue = this.userForm.getRawValue();
+        const payload: any = {
+            username: formValue.username,
+            email: formValue.email,
+            phone: formValue.phone || undefined,
+            accountStatus: formValue.accountStatus || undefined,
+            roleId: formValue.roleId || undefined,
+            profile: formValue.profile
+        };
+        if (formValue.password) {
+            payload.password = formValue.password;
         }
 
-        if (this.user.id) {
-            const payload: any = {
-                username: this.user.username,
-                email: this.user.email,
-                phone: this.user.phone,
-                accountStatus: this.user.accountStatus,
-                roleId: this.user.roleId,
-                profile: this.user.profile
-            };
-            if (this.user.password) {
-                payload.password = this.user.password;
-            }
-            this.submitting = true;
-            this.userService
-                .update(this.user.id, payload)
-                .subscribe({
+        this.submitting = true;
+        if (!this.viewOnly) {
+            this.userForm.disable();
+        }
+
+        if (this.currentUserId) {
+            this.userService.update(this.currentUserId, payload).subscribe({
                 next: () => {
                     this.messageService.add({
                         severity: 'success',
@@ -372,47 +436,36 @@ export class UsersCrud implements OnInit {
                         life: 3000
                     });
                     this.userDialog = false;
-                    this.user = { profile: {} };
-                    this.profile = {};
                     this.loadUsers(this.meta().page, this.meta().perPage);
                     this.submitting = false;
+                    this.userForm.enable();
                 },
                 error: () => {
                     this.submitting = false;
+                    this.userForm.enable();
                 }
             });
-        } else {
-            if (!this.user.password) return;
-            this.submitting = true;
-            this.userService
-                .create({
-                    username: this.user.username!,
-                    email: this.user.email!,
-                    password: this.user.password,
-                    phone: this.user.phone,
-                    accountStatus: this.user.accountStatus,
-                    roleId: this.user.roleId,
-                    profile: this.profile
-                })
-                .subscribe({
-                next: () => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Successful',
-                        detail: 'User Created',
-                        life: 3000
-                    });
-                    this.userDialog = false;
-                    this.user = { profile: {} };
-                    this.profile = {};
-                    this.loadUsers(this.meta().page, this.meta().perPage);
-                    this.submitting = false;
-                },
-                error: () => {
-                    this.submitting = false;
-                }
-            });
+            return;
         }
+
+        this.userService.create(payload).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Successful',
+                    detail: 'User Created',
+                    life: 3000
+                });
+                this.userDialog = false;
+                this.loadUsers(this.meta().page, this.meta().perPage);
+                this.submitting = false;
+                this.userForm.enable();
+            },
+            error: () => {
+                this.submitting = false;
+                this.userForm.enable();
+            }
+        });
     }
 
     onPage(event: { first: number; rows: number }) {
