@@ -1,0 +1,32 @@
+{
+    "menu": {
+        "main": "الرئيسية",
+        "dashboard": "لوحة التحكم",
+        "management": "الإدارة",
+        "users": "المستخدمون",
+        "roles": "الأدوار"
+    },
+    "auth": {
+        "welcome": "مرحبًا بك",
+        "sign_in_to_continue": "سجّل الدخول للمتابعة",
+        "username": "اسم المستخدم",
+        "username_placeholder": "اسم المستخدم",
+        "email": "البريد الإلكتروني",
+        "email_placeholder": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "password_placeholder": "كلمة المرور",
+        "remember_me": "تذكرني",
+        "forgot_password": "نسيت كلمة المرور؟",
+        "sign_in": "تسجيل الدخول",
+        "access_denied": "تم رفض الوصول",
+        "access_denied_message": "ليس لديك الصلاحيات اللازمة. يرجى التواصل مع المدير.",
+        "go_to_dashboard": "العودة إلى لوحة التحكم",
+        "error_title": "حدث خطأ",
+        "error_message": "المورد المطلوب غير متاح."
+    },
+    "notfound": {
+        "title": "الصفحة غير موجودة",
+        "message": "المورد المطلوب غير متاح.",
+        "go_dashboard": "العودة إلى لوحة التحكم"
+    }
+}

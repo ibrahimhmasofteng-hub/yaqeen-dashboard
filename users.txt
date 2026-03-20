@@ -1,0 +1,207 @@
+create user
+/api/v1/actors
+POST
+request body
+{
+  "username": "customUserName1234",
+  "password": "12345678",
+  "email": "user@gmail.com",
+  "phone": "0953464571",
+  "accountStatus": "ACTIVE",
+  "roleId": "string",
+  "profile": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "midName": "Michael",
+    "additionalName": "Jr.",
+    "birthDate": "1990-05-15T00:00:00.000Z",
+    "birthPlace": "Damascus",
+    "nationalId": "1234567890",
+    "imageId": "1234567890",
+    "job": "Engineer",
+    "education": "Bachelor's Degree",
+    "address": "Damascus, Syria",
+    "distinguishingSigns": "Has a scar on left hand",
+    "note": "Important note about this person"
+  }
+}
+
+response body 
+{
+  "id": "string",
+  "username": "string",
+  "email": "string",
+  "phone": "string",
+  "accountStatus": "ACTIVE",
+  "profile": {
+    "id": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "midName": "string",
+    "additionalName": "string",
+    "birthDate": "2026-03-20T16:49:45.752Z",
+    "birthPlace": "string",
+    "nationalId": "string",
+    "job": "string",
+    "education": "string",
+    "address": "string",
+    "distinguishingSigns": "string",
+    "note": "string",
+    "image": {
+      "id": "string",
+      "url": "string",
+      "fileName": "string",
+      "type": "video",
+      "size": 0
+    }
+  },
+  "createdAt": "2026-03-20T16:49:45.752Z"
+}
+
+users list
+/api/v1/actors
+http://82.112.254.98:3000/api/v1/actors?page=1&perPage=10
+curl -X 'GET' \
+  'http://82.112.254.98:3000/api/v1/actors?page=1&perPage=10' \
+  -H 'accept: application/json' \
+  -H 'Accept-Language: en' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLWlkIiwiaWF0IjoxNzc0MDI1MjI0LCJleHAiOjE3NzQxOTgwMjR9.3oAzi7FXfansdLPQ1DeU9Tt0p6SJCvrnO9PqVXMQHnE'
+
+{
+  "data": [
+    {
+      "id": "string",
+      "username": "string",
+      "email": "string",
+      "phone": "string",
+      "accountStatus": "ACTIVE",
+      "profile": {
+        "id": "string",
+        "firstName": "string",
+        "lastName": "string",
+        "midName": "string",
+        "additionalName": "string",
+        "birthDate": "2026-03-20T16:58:29.061Z",
+        "birthPlace": "string",
+        "nationalId": "string",
+        "job": "string",
+        "education": "string",
+        "address": "string",
+        "distinguishingSigns": "string",
+        "note": "string",
+        "image": {
+          "id": "string",
+          "url": "string",
+          "fileName": "string",
+          "type": "video",
+          "size": 0
+        }
+      },
+      "createdAt": "2026-03-20T16:58:29.061Z"
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "perPage": 0,
+    "nextPage": 0,
+    "previousPage": 0,
+    "total": 0
+  }
+}
+
+edit user
+/api/v1/actors/{actorId}
+PATCH
+requst body 
+{
+  "username": "customUserName1234",
+  "password": "12345678",
+  "email": "user@gmail.com",
+  "phone": "0953464571",
+  "accountStatus": "ACTIVE",
+  "roleId": "string",
+  "profile": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "midName": "Michael",
+    "additionalName": "Jr.",
+    "birthDate": "1990-05-15T00:00:00.000Z",
+    "birthPlace": "Damascus",
+    "nationalId": "1234567890",
+    "imageId": "1234567890",
+    "job": "Engineer",
+    "education": "Bachelor's Degree",
+    "address": "Damascus, Syria",
+    "distinguishingSigns": "Has a scar on left hand",
+    "note": "Important note about this person"
+  }
+}
+
+response body 
+{
+  "id": "string",
+  "username": "string",
+  "email": "string",
+  "phone": "string",
+  "accountStatus": "ACTIVE",
+  "profile": {
+    "id": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "midName": "string",
+    "additionalName": "string",
+    "birthDate": "2026-03-20T17:06:23.004Z",
+    "birthPlace": "string",
+    "nationalId": "string",
+    "job": "string",
+    "education": "string",
+    "address": "string",
+    "distinguishingSigns": "string",
+    "note": "string",
+    "image": {
+      "id": "string",
+      "url": "string",
+      "fileName": "string",
+      "type": "video",
+      "size": 0
+    }
+  },
+  "createdAt": "2026-03-20T17:06:23.004Z"
+}
+
+
+user details
+/api/v1/actors/{actorId}
+GET
+response body
+{
+  "id": "string",
+  "username": "string",
+  "email": "string",
+  "phone": "string",
+  "accountStatus": "ACTIVE",
+  "profile": {
+    "id": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "midName": "string",
+    "additionalName": "string",
+    "birthDate": "2026-03-20T17:08:24.196Z",
+    "birthPlace": "string",
+    "nationalId": "string",
+    "job": "string",
+    "education": "string",
+    "address": "string",
+    "distinguishingSigns": "string",
+    "note": "string",
+    "image": {
+      "id": "string",
+      "url": "string",
+      "fileName": "string",
+      "type": "video",
+      "size": 0
+    }
+  },
+  "createdAt": "2026-03-20T17:08:24.196Z"
+}
+
