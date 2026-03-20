@@ -1,0 +1,32 @@
+{
+    "menu": {
+        "main": "Main",
+        "dashboard": "Dashboard",
+        "management": "Management",
+        "users": "Users",
+        "roles": "Roles"
+    },
+    "auth": {
+        "welcome": "Welcome",
+        "sign_in_to_continue": "Sign in to continue",
+        "username": "Username",
+        "username_placeholder": "Username",
+        "email": "Email",
+        "email_placeholder": "Email address",
+        "password": "Password",
+        "password_placeholder": "Password",
+        "remember_me": "Remember me",
+        "forgot_password": "Forgot password?",
+        "sign_in": "Sign In",
+        "access_denied": "Access Denied",
+        "access_denied_message": "You do not have the necessary permissions. Please contact admins.",
+        "go_to_dashboard": "Go to Dashboard",
+        "error_title": "Error Occurred",
+        "error_message": "Requested resource is not available."
+    },
+    "notfound": {
+        "title": "Not Found",
+        "message": "Requested resource is not available.",
+        "go_dashboard": "Go to Dashboard"
+    }
+}
