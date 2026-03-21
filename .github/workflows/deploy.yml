@@ -58,12 +58,12 @@ jobs:
             source: "./dist/angular-dist.tar.gz"
             target: "/tmp/angular-dist.tar.gz"
             script: |
-            set -e
-            APP_PATH=${{ secrets.APP_PATH }}
-            mkdir -p $APP_PATH
-            rm -rf $APP_PATH/*
-            tar -xzf /tmp/angular-dist.tar.gz -C $APP_PATH
-            sudo systemctl reload nginx
+              set -e
+              APP_PATH=${{ secrets.APP_PATH }}
+              mkdir -p $APP_PATH
+              rm -rf $APP_PATH/*
+              tar -xzf /tmp/angular-dist.tar.gz -C $APP_PATH
+              sudo systemctl reload nginx
 
   notify:
     needs: [build, deploy]
