@@ -28,7 +28,7 @@ jobs:
         run: tar -czf angular-dist.tar.gz -C dist/$(ls dist) .
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: angular-dist
           path: angular-dist.tar.gz
@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: angular-dist
           path: ./dist
