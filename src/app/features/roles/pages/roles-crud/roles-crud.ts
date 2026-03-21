@@ -17,6 +17,7 @@ import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role, RolePermission, RolesMeta } from '@/app/features/roles/models/role.model';
 import { Permission } from '@/app/features/permissions/models/permission.model';
 import { PermissionService } from '@/app/features/permissions/services/permission.service';
+import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
 
 interface Column {
     field: string;
@@ -45,7 +46,8 @@ interface ExportColumn {
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
-        CheckboxModule
+        CheckboxModule,
+        FormErrors
     ],
     template: `
         <p-toolbar styleClass="mb-6">
@@ -121,9 +123,9 @@ interface ExportColumn {
                 <form [formGroup]="roleForm">
                     <div class="flex flex-col gap-6">
                         <div>
-                            <label for="name" class="block font-bold mb-3">Name</label>
+                            <label for="name" class="block font-bold mb-3">Name <span class="text-red-500">*</span></label>
                             <input type="text" pInputText id="name" formControlName="name" required autofocus fluid [readonly]="viewOnly" [disabled]="submitting" />
-                            <small class="text-red-500" *ngIf="submitted && roleForm.get('name')?.invalid">Name is required.</small>
+                            <app-form-errors [control]="roleForm.get('name')" [show]="submitted"></app-form-errors>
                         </div>
 
                         <div formArrayName="permissions" class="flex flex-col gap-4">

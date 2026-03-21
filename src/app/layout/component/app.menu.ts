@@ -29,6 +29,7 @@ export class AppMenu {
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
                     { label: 'Roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
+                    { label: 'Supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
                     { label: 'Audit Logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
                 ]
             }

@@ -19,6 +19,7 @@ import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role } from '@/app/features/roles/models/role.model';
 import { User, UsersMeta } from '@/app/features/users/models/user.model';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
+import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
 
 interface Column {
     field: string;
@@ -48,7 +49,8 @@ interface ExportColumn {
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
-        TagModule
+        TagModule,
+        FormErrors
     ],
     template: `
         <p-toolbar styleClass="mb-6">
@@ -139,23 +141,23 @@ interface ExportColumn {
                 <form [formGroup]="userForm">
                     <div class="flex flex-col gap-6">
                         <div>
-                            <label for="username" class="block font-bold mb-3">Username</label>
+                            <label for="username" class="block font-bold mb-3">Username <span class="text-red-500">*</span></label>
                             <input type="text" pInputText id="username" formControlName="username" required autofocus fluid [readonly]="viewOnly" [disabled]="submitting" />
-                            <small class="text-red-500" *ngIf="submitted && userForm.get('username')?.invalid">Username is required.</small>
+                            <app-form-errors [control]="userForm.get('username')" [show]="submitted"></app-form-errors>
                         </div>
                         <div>
-                            <label for="email" class="block font-bold mb-3">Email</label>
+                            <label for="email" class="block font-bold mb-3">Email <span class="text-red-500">*</span></label>
                             <input type="text" pInputText id="email" formControlName="email" required fluid [readonly]="viewOnly" [disabled]="submitting" />
-                            <small class="text-red-500" *ngIf="submitted && userForm.get('email')?.invalid">Email is required.</small>
+                            <app-form-errors [control]="userForm.get('email')" [show]="submitted"></app-form-errors>
                         </div>
                         <div>
                             <label for="phone" class="block font-bold mb-3">Phone</label>
                             <input type="text" pInputText id="phone" formControlName="phone" fluid [readonly]="viewOnly" [disabled]="submitting" />
                         </div>
                         <div *ngIf="!currentUserId">
-                            <label for="password" class="block font-bold mb-3">Password</label>
+                            <label for="password" class="block font-bold mb-3">Password <span class="text-red-500">*</span></label>
                             <input type="password" pInputText id="password" formControlName="password" required fluid [disabled]="submitting" />
-                            <small class="text-red-500" *ngIf="submitted && userForm.get('password')?.invalid">Password is required.</small>
+                            <app-form-errors [control]="userForm.get('password')" [show]="submitted"></app-form-errors>
                         </div>
                         <div>
                             <label for="roleId" class="block font-bold mb-3">Role</label>
@@ -246,7 +248,7 @@ export class UsersCrud implements OnInit {
     ) {
         this.userForm = this.fb.group({
             username: ['', Validators.required],
-            email: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
             phone: [''],
             password: [''],
             roleId: [''],
