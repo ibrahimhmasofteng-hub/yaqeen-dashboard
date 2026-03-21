@@ -25,7 +25,11 @@ jobs:
         run: npm run build
 
       - name: Archive production build
-        run: tar -czf angular-dist.tar.gz -C dist/$(ls dist) .
+        # Angular builds into dist/<project-name>, we grab that folder dynamically
+        run: |
+          DIST_DIR=$(ls dist)
+          echo "Archiving dist/$DIST_DIR"
+          tar -czf angular-dist.tar.gz -C dist/$DIST_DIR .
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -51,12 +55,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          source: "./dist/angular-dist.tar.gz"
+          target: "${{ secrets.APP_PATH }}/angular-dist.tar.gz"
           script: |
             set -e
-            APP_PATH=${{ secrets.APP_PATH }}   # e.g., /var/www/yaqeen-dashboard
+            APP_PATH=${{ secrets.APP_PATH }}
             mkdir -p $APP_PATH
             rm -rf $APP_PATH/*
-            tar -xzf ./dist/angular-dist.tar.gz -C $APP_PATH
+            tar -xzf $APP_PATH/angular-dist.tar.gz -C $APP_PATH
             sudo systemctl reload nginx
 
   notify:
@@ -80,7 +86,7 @@ jobs:
 
           MESSAGE="$ICON CI/CD Finished
           Repo: ${{ github.repository }}
-          Branch: master
+          Branch: ${{ github.ref_name }}
           Build: $BUILD_STATUS
           Deploy: $DEPLOY_STATUS"
 
