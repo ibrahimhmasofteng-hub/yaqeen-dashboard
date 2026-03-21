@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Empty } from '@/app/shared/components/empty/empty';
+import { RolesCrud } from './pages/roles-crud/roles-crud';
 
 export default [
-    { path: '', component: Empty }
+    { path: '', component: RolesCrud }
 ] as Routes;

@@ -1,0 +1,171 @@
+url http://82.112.254.98:3000/api/v1/audit-logs?page=1&perPage=10
+
+curl -X 'GET' \
+  'http://82.112.254.98:3000/api/v1/audit-logs?page=1&perPage=10' \
+  -H 'accept: application/json' \
+  -H 'Accept-Language: en' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkbWluLWlkIiwiaWF0IjoxNzc0MDI1MjI0LCJleHAiOjE3NzQxOTgwMjR9.3oAzi7FXfansdLPQ1DeU9Tt0p6SJCvrnO9PqVXMQHnE'
+
+
+  response
+  {
+  "data": [
+    {
+      "id": "315c2cc4-029e-4ab2-aed4-2ab5ad8063f4",
+      "method": "POST",
+      "url": "/api/v1/role",
+      "statusCode": 201,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "5ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:26:25.786Z"
+    },
+    {
+      "id": "6bd3bf3b-1a8b-4c4c-adfc-5fefd40105f3",
+      "method": "POST",
+      "url": "/api/v1/role",
+      "statusCode": 201,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "7ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:25:44.714Z"
+    },
+    {
+      "id": "79ef7597-8b53-463c-a7d5-bfb195b797b2",
+      "method": "POST",
+      "url": "/api/v1/role",
+      "statusCode": 201,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "16ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:20:02.856Z"
+    },
+    {
+      "id": "ed2d4664-634e-4565-9e78-ad951ec9d04b",
+      "method": "POST",
+      "url": "/api/v1/role",
+      "statusCode": 201,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "4ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:19:16.415Z"
+    },
+    {
+      "id": "dc51e127-e0a2-4088-bb00-91c224cdbc64",
+      "method": "POST",
+      "url": "/api/v1/role",
+      "statusCode": 201,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "5ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:15:55.425Z"
+    },
+    {
+      "id": "d6939ccc-f1f5-4a95-afd9-1978bd250447",
+      "method": "POST",
+      "url": "/api/v1/role",
+      "statusCode": 500,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "56ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": "\nInvalid `this._globalFacadeService.prismaService.role.create()` invocation in\n/usr/app/src/app/modules/role/repositories/role.repository.ts:15:57\n\n  12 constructor(private readonly _globalFacadeService: GlobalFacadeService) {}\n  13 \n  14 async create(createRoleDTO: CreateRoleDTO) {\n→ 15   return this._globalFacadeService.prismaService.role.create(\nUnique constraint failed on the fields: (`name`)",
+      "errorStack": "PrismaClientKnownRequestError: \nInvalid `this._globalFacadeService.prismaService.role.create()` invocation in\n/usr/app/src/app/modules/role/repositories/role.repository.ts:15:57\n\n  12 constructor(private readonly _globalFacadeService: GlobalFacadeService) {}\n  13 \n  14 async create(createRoleDTO: CreateRoleDTO) {\n→ 15   return this._globalFacadeService.prismaService.role.create(\nUnique constraint failed on the fields: (`name`)\n    at ei.handleRequestError (/usr/app/node_modules/.pnpm/@prisma+client@6.18.0_prisma@6.19.0_typescript@5.9.3__typescript@5.9.3/node_modules/@prisma/client/src/runtime/RequestHandler.ts:228:13)\n    at ei.handleAndLogRequestError (/usr/app/node_modules/.pnpm/@prisma+client@6.18.0_prisma@6.19.0_typescript@5.9.3__typescript@5.9.3/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)\n    at ei.request (/usr/app/node_modules/.pnpm/@prisma+client@6.18.0_prisma@6.19.0_typescript@5.9.3__typescript@5.9.3/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)\n    at async a (/usr/app/node_modules/.pnpm/@prisma+client@6.18.0_prisma@6.19.0_typescript@5.9.3__typescript@5.9.3/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)\n    at async RoleController.create (/usr/app/src/app/modules/role/controllers/role.controller.ts:26:7)",
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:15:50.313Z"
+    },
+    {
+      "id": "96e6c32f-196b-4896-8cdc-76d97285371d",
+      "method": "PATCH",
+      "url": "/api/v1/role/87c27a87-da24-4459-a99b-0a9bf947ad9c",
+      "statusCode": 200,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "10ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:12:59.760Z"
+    },
+    {
+      "id": "f4fa3c77-eb6e-43a4-8284-8cfef83c3c40",
+      "method": "PATCH",
+      "url": "/api/v1/role/95a132c7-2183-4623-94b8-e9136cfa91f3",
+      "statusCode": 200,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "8ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:12:45.026Z"
+    },
+    {
+      "id": "de74a2d1-afaf-496a-a9ce-48f25e7026a1",
+      "method": "PATCH",
+      "url": "/api/v1/role/d3c5ee5c-d1b8-48b5-b59c-4b277d4d1578",
+      "statusCode": 200,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "11ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:12:37.454Z"
+    },
+    {
+      "id": "c9b6549b-7af7-4c6e-8963-bcc7a8d3e170",
+      "method": "PATCH",
+      "url": "/api/v1/role/d3c5ee5c-d1b8-48b5-b59c-4b277d4d1578",
+      "statusCode": 200,
+      "ip": "::ffff:89.39.107.203",
+      "platform": null,
+      "duration": "14ms",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+      "errorMessage": null,
+      "errorStack": null,
+      "actorId": "admin-id",
+      "actorName": "admin-user",
+      "createdAt": "2026-03-20T19:11:32.488Z"
+    }
+  ],
+  "meta": {
+    "total": 554,
+    "perPage": 10,
+    "page": 1,
+    "previousPage": 1,
+    "nextPage": 2
+  }
+}
