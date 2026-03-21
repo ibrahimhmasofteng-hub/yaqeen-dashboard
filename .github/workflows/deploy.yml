@@ -1,4 +1,4 @@
-name: Angular CI/CD Deploy
+name: Angular CI/CD Deploy on VPS
 
 on:
   push:
@@ -6,49 +6,14 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Angular app
-        run: npm run build
-
-      - name: Archive production build
-        # Angular builds into dist/<project-name>, we grab that folder dynamically
-        run: |
-          DIST_DIR=$(ls dist)
-          echo "Archiving dist/$DIST_DIR"
-          tar -czf angular-dist.tar.gz -C dist/$DIST_DIR .
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: angular-dist
-          path: angular-dist.tar.gz
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: angular-dist
-          path: ./dist
-
-      - name: Deploy to VPS
+      - name: Deploy & build on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
             host: ${{ secrets.SSH_HOST }}
@@ -66,17 +31,16 @@ jobs:
               sudo systemctl reload nginx
 
   notify:
-    needs: [build, deploy]
+    needs: deploy
     if: always()
     runs-on: ubuntu-latest
 
     steps:
       - name: Notify CI/CD result
         run: |
-          BUILD_STATUS="${{ needs.build.result }}"
           DEPLOY_STATUS="${{ needs.deploy.result }}"
 
-          if [ "$BUILD_STATUS" = "success" ] && [ "$DEPLOY_STATUS" = "success" ]; then
+          if [ "$DEPLOY_STATUS" = "success" ]; then
             ICON="🚀✅"
             STATUS="Build & Deploy succeeded"
           else
@@ -87,7 +51,6 @@ jobs:
           MESSAGE="$ICON CI/CD Finished
           Repo: ${{ github.repository }}
           Branch: ${{ github.ref_name }}
-          Build: $BUILD_STATUS
           Deploy: $DEPLOY_STATUS"
 
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
