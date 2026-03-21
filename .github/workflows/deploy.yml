@@ -23,22 +23,28 @@ jobs:
           script: |
             set -e
 
-            # Path on VPS where your app lives
-            APP_PATH=${{ secrets.APP_PATH }}
+            # Paths on VPS
+            APP_CODE_PATH=${{ secrets.APP_CODE_PATH }}   # /home/apps/yaqeen-dashboard
+            APP_PATH=${{ secrets.APP_PATH }}             # /var/www/yaqeen-dashboard
 
-            # Ensure folder exists
+            # Create folders if they don't exist
+            mkdir -p $APP_CODE_PATH
             mkdir -p $APP_PATH
 
-            # Navigate to the app folder
-            cd $APP_PATH
+            # Navigate to code folder
+            cd $APP_CODE_PATH
 
-            # Remove old code (optional, if you want a clean build)
-            rm -rf ./*
+            # If repo already exists, pull latest code; else clone
+            if [ -d ".git" ]; then
+              git reset --hard
+              git clean -fd
+              git checkout main
+              git pull origin main
+            else
+              git clone -b main https://github.com/${{ github.repository }} .
+            fi
 
-            # Clone the latest code from GitHub
-            git clone -b main https://github.com/${{ github.repository }} .
-
-            # Install Node.js (if not installed, assume Node 22 for Angular)
+            # Install Node.js if not installed
             if ! command -v node >/dev/null 2>&1; then
               curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
               sudo apt-get install -y nodejs
@@ -50,12 +56,14 @@ jobs:
             # Build Angular app
             npm run build
 
-            # The Angular dist folder (dynamic)
+            # Determine Angular dist folder dynamically
             DIST_DIR=$(ls dist)
-            echo "Deploying $DIST_DIR to $APP_PATH"
+            echo "Deploying dist/$DIST_DIR to $APP_PATH"
 
-            # Remove old deployment and copy new build
+            # Remove old deployment
             rm -rf $APP_PATH/*
+
+            # Copy new build to deployment folder
             cp -r dist/$DIST_DIR/* $APP_PATH/
 
             # Reload Nginx
