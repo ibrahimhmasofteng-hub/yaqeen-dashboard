@@ -51,18 +51,18 @@ jobs:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "./dist/angular-dist.tar.gz"
-          target: "${{ secrets.APP_PATH }}/angular-dist.tar.gz"
-          script: |
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USER }}
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            port: ${{ secrets.SSH_PORT }}
+            source: "./dist/angular-dist.tar.gz"
+            target: "/tmp/angular-dist.tar.gz"
+            script: |
             set -e
             APP_PATH=${{ secrets.APP_PATH }}
             mkdir -p $APP_PATH
             rm -rf $APP_PATH/*
-            tar -xzf $APP_PATH/angular-dist.tar.gz -C $APP_PATH
+            tar -xzf /tmp/angular-dist.tar.gz -C $APP_PATH
             sudo systemctl reload nginx
 
   notify:
