@@ -16,19 +16,50 @@ jobs:
       - name: Deploy & build on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
-            host: ${{ secrets.SSH_HOST }}
-            username: ${{ secrets.SSH_USER }}
-            key: ${{ secrets.SSH_PRIVATE_KEY }}
-            port: ${{ secrets.SSH_PORT }}
-            source: "./dist/angular-dist.tar.gz"
-            target: "/tmp/angular-dist.tar.gz"
-            script: |
-              set -e
-              APP_PATH=${{ secrets.APP_PATH }}
-              mkdir -p $APP_PATH
-              rm -rf $APP_PATH/*
-              tar -xzf /tmp/angular-dist.tar.gz -C $APP_PATH
-              sudo systemctl reload nginx
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+
+            # Path on VPS where your app lives
+            APP_PATH=${{ secrets.APP_PATH }}
+
+            # Ensure folder exists
+            mkdir -p $APP_PATH
+
+            # Navigate to the app folder
+            cd $APP_PATH
+
+            # Remove old code (optional, if you want a clean build)
+            rm -rf ./*
+
+            # Clone the latest code from GitHub
+            git clone -b main https://github.com/${{ github.repository }} .
+
+            # Install Node.js (if not installed, assume Node 22 for Angular)
+            if ! command -v node >/dev/null 2>&1; then
+              curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+
+            # Install dependencies
+            npm install
+
+            # Build Angular app
+            npm run build
+
+            # The Angular dist folder (dynamic)
+            DIST_DIR=$(ls dist)
+            echo "Deploying $DIST_DIR to $APP_PATH"
+
+            # Remove old deployment and copy new build
+            rm -rf $APP_PATH/*
+            cp -r dist/$DIST_DIR/* $APP_PATH/
+
+            # Reload Nginx
+            sudo systemctl reload nginx
 
   notify:
     needs: deploy
