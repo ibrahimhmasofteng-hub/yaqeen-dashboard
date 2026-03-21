@@ -44,12 +44,17 @@ jobs:
               git clone -b main https://github.com/${{ github.repository }} .
             fi
 
-            # Install Node.js if not installed
-            if ! command -v node >/dev/null 2>&1; then
+            # Install Node.js 22.x globally if not installed or wrong version
+            REQUIRED_NODE_VERSION="v22"
+            if ! command -v node >/dev/null 2>&1 || [[ "$(node -v)" != $REQUIRED_NODE_VERSION* ]]; then
               curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
               sudo apt-get install -y nodejs
             fi
-            nvm use 22.18.0
+
+            # Verify Node.js and npm
+            node -v
+            npm -v
+
             # Install dependencies
             npm install
 
