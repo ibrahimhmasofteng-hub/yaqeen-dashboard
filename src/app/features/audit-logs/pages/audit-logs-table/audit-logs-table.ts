@@ -47,6 +47,7 @@ interface ExportColumn {
         <p-table
             #dt
             [value]="logs()"
+            [loading]="loading"
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
@@ -123,6 +124,7 @@ interface ExportColumn {
 export class AuditLogsTable implements OnInit {
     logs = signal<AuditLog[]>([]);
     meta = signal<AuditLogsMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
+    loading: boolean = false;
 
     @ViewChild('dt') dt!: Table;
 
@@ -149,9 +151,17 @@ export class AuditLogsTable implements OnInit {
     }
 
     loadLogs(page: number, perPage: number) {
-        this.auditLogsService.list(page, perPage).subscribe((res) => {
-            this.logs.set(res?.data ?? []);
-            this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
+        if (this.loading) return;
+        this.loading = true;
+        this.auditLogsService.list(page, perPage).subscribe({
+            next: (res) => {
+                this.logs.set(res?.data ?? []);
+                this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
+                this.loading = false;
+            },
+            error: () => {
+                this.loading = false;
+            }
         });
     }
 

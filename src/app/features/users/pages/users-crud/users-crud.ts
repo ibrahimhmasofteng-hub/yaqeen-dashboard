@@ -63,6 +63,7 @@ interface ExportColumn {
         <p-table
             #dt
             [value]="users()"
+            [loading]="loading"
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
@@ -206,6 +207,7 @@ export class UsersCrud implements OnInit {
 
     users = signal<User[]>([]);
     meta = signal<UsersMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
+    loading: boolean = false;
 
     userForm: FormGroup;
     currentUserId?: string;
@@ -261,9 +263,17 @@ export class UsersCrud implements OnInit {
     }
 
     loadUsers(page: number, perPage: number) {
-        this.userService.list(page, perPage).subscribe((res) => {
-            this.users.set(res?.data ?? []);
-            this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
+        if (this.loading) return;
+        this.loading = true;
+        this.userService.list(page, perPage).subscribe({
+            next: (res) => {
+                this.users.set(res?.data ?? []);
+                this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
+                this.loading = false;
+            },
+            error: () => {
+                this.loading = false;
+            }
         });
     }
 
