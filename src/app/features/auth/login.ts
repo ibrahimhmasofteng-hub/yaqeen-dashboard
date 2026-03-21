@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -10,12 +10,16 @@ import { RippleModule } from 'primeng/ripple';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '@/app/core/services/auth.service';
 import { NotificationService } from '@/app/core/services/notification.service';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { LoadingService } from '@/app/core/services/loading.service';
+import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule, RippleModule, TranslateModule],
+    imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule, RippleModule, TranslateModule, ProgressBarModule],
     template: `
+        <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -59,6 +63,8 @@ export class Login {
     private router = inject(Router);
     private notify = inject(NotificationService);
     private fb = inject(FormBuilder);
+    private loadingService = inject(LoadingService);
+    isLoading = computed(() => this.loadingService.loading() > 0);
 
     constructor() {
         this.loginForm = this.fb.group({
@@ -77,6 +83,11 @@ export class Login {
         this.auth.login({ username, password }).subscribe({
             next: () => {
                 this.submitting = false;
+                const status = this.auth.user()?.accountStatus;
+                if (status === AccountStatus.COMPLETE_REGISTRATION_REQUIRED) {
+                    this.router.navigate(['/auth/complete-registration']);
+                    return;
+                }
                 this.router.navigate(['/']);
             },
             error: () => {

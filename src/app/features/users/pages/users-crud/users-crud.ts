@@ -15,6 +15,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { UserService } from '@/app/features/users/services/user.service';
+import { RoleService } from '@/app/features/roles/services/role.service';
+import { Role } from '@/app/features/roles/models/role.model';
 import { User, UsersMeta } from '@/app/features/users/models/user.model';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 
@@ -156,8 +158,17 @@ interface ExportColumn {
                             <small class="text-red-500" *ngIf="submitted && userForm.get('password')?.invalid">Password is required.</small>
                         </div>
                         <div>
-                            <label for="roleId" class="block font-bold mb-3">Role ID</label>
-                            <input type="text" pInputText id="roleId" formControlName="roleId" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <label for="roleId" class="block font-bold mb-3">Role</label>
+                            <p-select
+                                id="roleId"
+                                [options]="roles()"
+                                optionLabel="name"
+                                optionValue="id"
+                                formControlName="roleId"
+                                [disabled]="submitting || viewOnly"
+                                placeholder="Select Role"
+                                fluid
+                            />
                         </div>
                         <div>
                             <label for="accountStatus" class="block font-bold mb-3">Account Status</label>
@@ -208,6 +219,8 @@ export class UsersCrud implements OnInit {
     users = signal<User[]>([]);
     meta = signal<UsersMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
     loading: boolean = false;
+    roles = signal<Role[]>([]);
+    rolesLoading: boolean = false;
 
     userForm: FormGroup;
     currentUserId?: string;
@@ -226,6 +239,7 @@ export class UsersCrud implements OnInit {
 
     constructor(
         private userService: UserService,
+        private roleService: RoleService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private fb: FormBuilder
@@ -251,6 +265,7 @@ export class UsersCrud implements OnInit {
 
     ngOnInit() {
         this.loadUsers(1, 10);
+        this.loadRoles();
 
         this.cols = [
             { field: 'username', header: 'Username' },
@@ -260,6 +275,20 @@ export class UsersCrud implements OnInit {
         ];
 
         this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+    }
+
+    loadRoles() {
+        if (this.rolesLoading) return;
+        this.rolesLoading = true;
+        this.roleService.list(1, 100).subscribe({
+            next: (res) => {
+                this.roles.set(res?.data ?? []);
+                this.rolesLoading = false;
+            },
+            error: () => {
+                this.rolesLoading = false;
+            }
+        });
     }
 
     loadUsers(page: number, perPage: number) {

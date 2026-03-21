@@ -5,12 +5,15 @@ import { AppTopbar } from './app.topbar';
 import { AppSidebar } from './app.sidebar';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { LoadingService } from '@/app/core/services/loading.service';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, ProgressBarModule],
     template: `<div class="layout-wrapper" [ngClass]="containerClass()">
+        <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">
@@ -24,6 +27,8 @@ import { LayoutService } from '@/app/layout/service/layout.service';
 })
 export class AppLayout {
     layoutService = inject(LayoutService);
+    loadingService = inject(LoadingService);
+    isLoading = computed(() => this.loadingService.loading() > 0);
 
     constructor() {
         effect(() => {

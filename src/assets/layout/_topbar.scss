@@ -96,6 +96,24 @@
     }
 }
 
+.layout-top-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    border-radius: 0;
+
+    .p-progressbar {
+        height: 3px;
+        background: transparent;
+    }
+
+    .p-progressbar-value {
+        background: var(--primary-color);
+    }
+}
+
 @media (max-width: 991px) {
     .layout-topbar {
         padding: 0 2rem;

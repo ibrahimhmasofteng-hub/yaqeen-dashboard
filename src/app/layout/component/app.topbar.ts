@@ -5,11 +5,13 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { MenuModule } from 'primeng/menu';
+import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-topbar',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -56,10 +58,11 @@ import { LayoutService } from '@/app/layout/service/layout.service';
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" class="layout-topbar-action" (click)="profileMenu.toggle($event)">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
+                    <p-menu #profileMenu [popup]="true" [model]="profileItems"></p-menu>
                 </div>
             </div>
         </div>
@@ -69,6 +72,15 @@ export class AppTopbar {
     items!: MenuItem[];
 
     layoutService = inject(LayoutService);
+    private auth = inject(AuthService);
+
+    profileItems: MenuItem[] = [
+        {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+            command: () => this.auth.logoutLocal(true)
+        }
+    ];
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({

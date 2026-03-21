@@ -37,6 +37,17 @@ export class AuthService {
         );
     }
 
+    completeRegistration(password: string): Observable<User> {
+        return this.api.post<User>('actors/complete-registration', { password }).pipe(
+            tap((user) => {
+                if (user) {
+                    this.tokens.setUser(user);
+                    this.user.set(user);
+                }
+            })
+        );
+    }
+
     logout(redirectToLogin: boolean = true): void {
         if (this.loggingOut) {
             this.finishLogout(redirectToLogin);
