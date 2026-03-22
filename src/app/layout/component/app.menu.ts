@@ -27,10 +27,18 @@ export class AppMenu {
                 label: 'Main',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-                    { label: 'Users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
+                    {
+                        label: 'Management',
+                        icon: 'pi pi-fw pi-briefcase',
+                        path: 'management',
+                        items: [
+                            { label: 'Users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
+                            { label: 'Supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
+                            { label: 'Teachers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/teachers'] },
+                            { label: 'Students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] }
+                        ]
+                    },
                     { label: 'Roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
-                    { label: 'Supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
-                    { label: 'Teachers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/teachers'] },
                     { label: 'Audit Logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
                 ]
             }
