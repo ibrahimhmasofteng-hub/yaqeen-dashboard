@@ -127,7 +127,7 @@ interface ExportColumn {
                     <td style="min-width: 18rem">{{ user.email }}</td>
                     <td style="min-width: 14rem">{{ user.phone }}</td>
                     <td style="min-width: 10rem">
-                        <p-tag *ngIf="user.accountStatus" [value]="user.accountStatus" />
+                        {{ accountStatusLabel(user.accountStatus) }}
                     </td>
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewUser(user)" />
@@ -241,7 +241,7 @@ export class UsersCrud implements OnInit {
     exportColumns!: ExportColumn[];
 
     cols!: Column[];
-    accountStatusOptions = Object.values(AccountStatus).map((value) => ({ label: value, value }));
+    accountStatusOptions: { label: string; value: AccountStatus }[] = [];
 
     constructor(
         private userService: UserService,
@@ -274,7 +274,11 @@ export class UsersCrud implements OnInit {
         this.loadUsers(1, 10);
         this.loadRoles();
         this.setColumns();
-        this.translate.onLangChange.subscribe(() => this.setColumns());
+        this.setAccountStatusOptions();
+        this.translate.onLangChange.subscribe(() => {
+            this.setColumns();
+            this.setAccountStatusOptions();
+        });
     }
 
     loadRoles() {
@@ -526,6 +530,17 @@ export class UsersCrud implements OnInit {
         ];
 
         this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+    }
+
+    private setAccountStatusOptions() {
+        this.accountStatusOptions = Object.values(AccountStatus).map((value) => ({
+            label: this.translate.instant(`enums.account_status.${value}`),
+            value
+        }));
+    }
+
+    accountStatusLabel(value: AccountStatus) {
+        return this.translate.instant(`enums.account_status.${value}`);
     }
 
 }

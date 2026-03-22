@@ -13,13 +13,27 @@ import { NotificationService } from '@/app/core/services/notification.service';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { LoadingService } from '@/app/core/services/loading.service';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
+import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconfigurator';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule, RippleModule, TranslateModule, ProgressBarModule],
+    imports: [
+        CommonModule,
+        ButtonModule,
+        CheckboxModule,
+        InputTextModule,
+        PasswordModule,
+        ReactiveFormsModule,
+        RouterModule,
+        RippleModule,
+        TranslateModule,
+        ProgressBarModule,
+        AppFloatingConfigurator
+    ],
     template: `
         <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
+        <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -32,14 +46,14 @@ import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 
                         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                             <label for="username1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{ 'auth.username' | translate }}</label>
-                            <input pInputText id="username1" type="text" [placeholder]="'auth.username_placeholder' | translate" class="w-full md:w-120 mb-2" formControlName="username" />
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && _username?.invalid">
+                            <input pInputText id="username1" type="text" [placeholder]="'auth.username_placeholder' | translate" class="w-full md:w-120 mb-8" formControlName="username" />
+                            <small class="text-red-500 block -mt-6 mb-6" *ngIf="submitted && _username?.invalid">
                                 {{ 'validation.required' | translate: { field: ('auth.username' | translate) } }}
                             </small>
 
                             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">{{ 'auth.password' | translate }}</label>
-                            <p-password id="password1" formControlName="password" [placeholder]="'auth.password_placeholder' | translate" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false"></p-password>
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && _password?.invalid">
+                            <p-password id="password1" formControlName="password" [placeholder]="'auth.password_placeholder' | translate" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
+                            <small class="text-red-500 block -mt-2 mb-6" *ngIf="submitted && _password?.invalid">
                                 {{ 'validation.required' | translate: { field: ('auth.password' | translate) } }}
                             </small>
 

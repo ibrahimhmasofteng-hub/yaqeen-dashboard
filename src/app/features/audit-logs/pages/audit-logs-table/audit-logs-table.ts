@@ -115,13 +115,27 @@ interface ExportColumn {
                     <td style="min-width: 8rem">{{ log.statusCode }}</td>
                     <td style="min-width: 12rem">{{ log.ip }}</td>
                     <td style="min-width: 8rem">{{ log.duration }}</td>
-                    <td style="min-width: 20rem">{{ log.errorMessage || '-' }}</td>
+                    <td style="min-width: 20rem">
+                        <span class="audit-error-cell" [title]="log.errorMessage || ''">{{ log.errorMessage || '-' }}</span>
+                    </td>
                     <td style="min-width: 12rem">{{ log.actorName || '-' }}</td>
                     <td style="min-width: 14rem">{{ log.createdAt | date: 'medium' }}</td>
                 </tr>
             </ng-template>
         </p-table>
-    `
+    `,
+    styles: [
+        `
+            .audit-error-cell {
+                display: inline-block;
+                max-width: 28rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                vertical-align: middle;
+            }
+        `
+    ]
 })
 export class AuditLogsTable implements OnInit {
     logs = signal<AuditLog[]>([]);

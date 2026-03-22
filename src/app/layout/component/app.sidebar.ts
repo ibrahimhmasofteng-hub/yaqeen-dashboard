@@ -66,9 +66,11 @@ export class AppSidebar implements OnInit, OnDestroy {
     }
 
     private onRouteChange(path: string) {
+        const currentActivePath = this.layoutService.layoutState().activePath;
+        const nextActivePath = currentActivePath ?? 'management';
         this.layoutService.layoutState.update((val) => ({
             ...val,
-            activePath: path,
+            activePath: nextActivePath,
             overlayMenuActive: false,
             staticMenuMobileActive: false,
             mobileMenuActive: false,

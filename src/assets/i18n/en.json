@@ -104,6 +104,15 @@
         "actor_name": "Actor Name",
         "created_at": "Created At"
     },
+    "enums": {
+        "account_status": {
+            "ACTIVE": "Active",
+            "NOT_ACTIVE": "Not Active",
+            "COMPLETE_REGISTRATION_REQUIRED": "Complete Registration Required",
+            "BLOCKED": "Blocked",
+            "DELETED": "Deleted"
+        }
+    },
     "entities": {
         "user": "User",
         "users": "Users",
@@ -162,6 +171,7 @@
         "messages": "Messages",
         "profile": "Profile",
         "logout": "Logout",
+        "brand": "Yaqeen",
         "lang_en": "English",
         "lang_ar": "العربية"
     },

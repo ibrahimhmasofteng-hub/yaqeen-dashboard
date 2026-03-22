@@ -21,7 +21,7 @@ import { Menu } from 'primeng/menu';
             </button>
             <a class="layout-topbar-logo" routerLink="/">
                 <img src="assets/images/logo.png" alt="Logo" class="h-8 w-auto" />
-                <span>Yaqeen</span>
+                <span>{{ 'topbar.brand' | translate }}</span>
             </a>
         </div>
 
@@ -46,10 +46,12 @@ import { Menu } from 'primeng/menu';
                 </div>
             </div>
 
-            <button type="button" class="layout-topbar-action" (click)="langMenu.toggle($event)">
-                <i class="pi pi-globe"></i>
-            </button>
-            <p-menu #langMenu [popup]="true" [model]="languageItems"></p-menu>
+            <div class="layout-topbar-menu-trigger">
+                <button type="button" class="layout-topbar-action" (click)="langMenu.toggle($event)">
+                    <i class="pi pi-globe"></i>
+                </button>
+                <p-menu #langMenu [popup]="true" [model]="languageItems" appendTo="body"></p-menu>
+            </div>
 
             <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
                 <i class="pi pi-ellipsis-v"></i>
@@ -65,11 +67,13 @@ import { Menu } from 'primeng/menu';
                         <i class="pi pi-inbox"></i>
                         <span>{{ 'topbar.messages' | translate }}</span>
                     </button>
-                    <button type="button" class="layout-topbar-action" (click)="profileMenu.toggle($event)">
-                        <i class="pi pi-user"></i>
-                        <span>{{ 'topbar.profile' | translate }}</span>
-                    </button>
-                    <p-menu #profileMenu [popup]="true" [model]="profileItems"></p-menu>
+                    <div class="layout-topbar-menu-trigger">
+                        <button type="button" class="layout-topbar-action" (click)="profileMenu.toggle($event)">
+                            <i class="pi pi-user"></i>
+                            <span>{{ 'topbar.profile' | translate }}</span>
+                        </button>
+                        <p-menu #profileMenu [popup]="true" [model]="profileItems" appendTo="body"></p-menu>
+                    </div>
                 </div>
             </div>
         </div>
@@ -113,6 +117,7 @@ export class AppTopbar implements OnInit {
 
     setLang(lang: 'en' | 'ar') {
         this.translate.use(lang);
+        localStorage.setItem('lang', lang);
         if (this.langMenu) this.langMenu.hide();
     }
 

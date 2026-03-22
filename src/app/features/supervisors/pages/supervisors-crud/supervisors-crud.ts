@@ -128,7 +128,7 @@ interface ExportColumn {
                     <td style="min-width: 16rem">{{ supervisor.username }}</td>
                     <td style="min-width: 18rem">{{ supervisor.email }}</td>
                     <td style="min-width: 14rem">{{ supervisor.phone }}</td>
-                    <td style="min-width: 10rem">{{ supervisor.accountStatus }}</td>
+                    <td style="min-width: 10rem">{{ accountStatusLabel(supervisor.accountStatus) }}</td>
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewSupervisor(supervisor)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editSupervisor(supervisor)" />
@@ -201,7 +201,7 @@ interface ExportColumn {
                                         </div>
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
-                                        <p-button [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -244,8 +244,8 @@ interface ExportColumn {
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
-                                        <p-button [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -274,7 +274,7 @@ interface ExportColumn {
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
                                         <p-button [label]="'common.save' | translate" icon="pi pi-check" (onClick)="saveSupervisor()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
@@ -315,7 +315,7 @@ export class SupervisorsCrud implements OnInit {
 
     exportColumns!: ExportColumn[];
     cols!: Column[];
-    accountStatusOptions = Object.values(AccountStatus).map((value) => ({ label: value, value }));
+    accountStatusOptions: { label: string; value: AccountStatus }[] = [];
 
     constructor(
         private supervisorService: SupervisorService,
@@ -359,7 +359,11 @@ export class SupervisorsCrud implements OnInit {
         this.loadRoles();
 
         this.setColumns();
-        this.translate.onLangChange.subscribe(() => this.setColumns());
+        this.setAccountStatusOptions();
+        this.translate.onLangChange.subscribe(() => {
+            this.setColumns();
+            this.setAccountStatusOptions();
+        });
     }
 
     loadSupervisors(page: number, perPage: number) {
@@ -678,6 +682,18 @@ export class SupervisorsCrud implements OnInit {
         ];
 
         this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+    }
+
+    private setAccountStatusOptions() {
+        this.accountStatusOptions = Object.values(AccountStatus).map((value) => ({
+            label: this.translate.instant(`enums.account_status.${value}`),
+            value
+        }));
+    }
+
+    accountStatusLabel(value?: AccountStatus) {
+        if (!value) return '';
+        return this.translate.instant(`enums.account_status.${value}`);
     }
 
     private stripEmpty<T extends Record<string, any>>(value: T): Partial<T> {

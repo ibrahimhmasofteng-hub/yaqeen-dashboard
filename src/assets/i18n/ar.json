@@ -104,6 +104,15 @@
         "actor_name": "اسم المستخدم",
         "created_at": "تاريخ الإنشاء"
     },
+    "enums": {
+        "account_status": {
+            "ACTIVE": "نشط",
+            "NOT_ACTIVE": "غير نشط",
+            "COMPLETE_REGISTRATION_REQUIRED": "يتطلب إكمال التسجيل",
+            "BLOCKED": "محظور",
+            "DELETED": "محذوف"
+        }
+    },
     "entities": {
         "user": "المستخدم",
         "users": "المستخدمون",
@@ -162,6 +171,7 @@
         "messages": "الرسائل",
         "profile": "الملف الشخصي",
         "logout": "تسجيل الخروج",
+        "brand": "يقين",
         "lang_en": "English",
         "lang_ar": "العربية"
     },

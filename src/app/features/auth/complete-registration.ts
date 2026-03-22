@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { AuthService } from '@/app/core/services/auth.service';
 import { LoadingService } from '@/app/core/services/loading.service';
+import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconfigurator';
 
 @Component({
     selector: 'app-complete-registration',
@@ -23,10 +24,12 @@ import { LoadingService } from '@/app/core/services/loading.service';
         RouterModule,
         RippleModule,
         TranslateModule,
-        ProgressBarModule
+        ProgressBarModule,
+        AppFloatingConfigurator
     ],
     template: `
         <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
+        <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -40,17 +43,17 @@ import { LoadingService } from '@/app/core/services/loading.service';
                         <form [formGroup]="form" (ngSubmit)="onSubmit()">
                             <label for="password" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{ 'auth.new_password' | translate }}</label>
                             <div class="w-full md:w-120">
-                                <p-password id="password" formControlName="password" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false" [disabled]="submitting"></p-password>
+                                <p-password id="password" formControlName="password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" [disabled]="submitting"></p-password>
                             </div>
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && _password?.invalid">
+                            <small class="text-red-500 block -mt-2 mb-6" *ngIf="submitted && _password?.invalid">
                                 {{ 'validation.required' | translate: { field: ('auth.password' | translate) } }}
                             </small>
 
                             <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">{{ 'auth.confirm_password' | translate }}</label>
                             <div class="w-full md:w-120">
-                                <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false" [disabled]="submitting"></p-password>
+                                <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false" [disabled]="submitting"></p-password>
                             </div>
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && form.errors?.['passwordMismatch']">
+                            <small class="text-red-500 block -mt-2 mb-6" *ngIf="submitted && form.errors?.['passwordMismatch']">
                                 {{ 'validation.password_mismatch' | translate }}
                             </small>
 

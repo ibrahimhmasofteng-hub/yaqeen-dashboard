@@ -85,6 +85,11 @@
         gap: 1rem;
     }
 
+    .layout-topbar-menu-trigger {
+        display: inline-flex;
+        position: relative;
+    }
+
     .layout-topbar-menu-content {
         display: flex;
         gap: 1rem;
