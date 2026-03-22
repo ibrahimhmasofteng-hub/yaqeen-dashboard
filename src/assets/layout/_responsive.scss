@@ -68,6 +68,11 @@
         overflow: hidden;
     }
 
+    .p-dialog {
+        width: calc(100vw - 2rem) !important;
+        margin: 0 1rem;
+    }
+
     .layout-wrapper {
         .layout-main-container {
             margin-left: 0;

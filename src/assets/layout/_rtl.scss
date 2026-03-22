@@ -303,6 +303,12 @@
                 border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
             }
+
+            &.layout-mobile-active {
+                .layout-sidebar {
+                    transform: translateX(0);
+                }
+            }
         }
     }
 }
