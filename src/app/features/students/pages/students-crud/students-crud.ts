@@ -23,7 +23,7 @@ import { Student, StudentsMeta } from '@/app/features/students/models/student.mo
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role } from '@/app/features/roles/models/role.model';
-import { FamilyRelationService } from '@/app/features/students/services/family-relation.service';
+import { FamilyRelation, FamilyRelationService } from '@/app/features/students/services/family-relation.service';
 import { RelationType } from '@/app/features/students/models/relation-type.enum';
 import { RoleName } from '@/app/core/constants/role-name.enum';
 
@@ -39,6 +39,7 @@ interface ExportColumn {
 }
 
 const STUDENT_ROLE_FILTER = RoleName.Student;
+const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
 
 @Component({
     selector: 'app-students-crud',
@@ -292,21 +293,7 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                                                 <input type="text" pInputText id="guardian1Phone" formControlName="phone" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm1.get('phone')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
-                                            <div>
-                                                <label for="guardian1RoleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
-                                                <p-select
-                                                    id="guardian1RoleId"
-                                                    [options]="roles()"
-                                                    optionLabel="name"
-                                                    optionValue="id"
-                                                    formControlName="roleId"
-                                                    appendTo="body"
-                                                    [disabled]="submitting || viewOnly"
-                                                    [placeholder]="'common.select_role' | translate"
-                                                    fluid
-                                                />
-                                                <app-form-errors [control]="guardianForm1.get('roleId')" [show]="guardian1Submitted"></app-form-errors>
-                                            </div>
+                                            <input type="hidden" formControlName="roleId" />
                                             <div>
                                                 <label for="guardian1Username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian1Username" formControlName="username" required fluid [disabled]="submitting || viewOnly" />
@@ -362,21 +349,7 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                                                 <input type="text" pInputText id="guardian2Phone" formControlName="phone" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm2.get('phone')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
-                                            <div>
-                                                <label for="guardian2RoleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
-                                                <p-select
-                                                    id="guardian2RoleId"
-                                                    [options]="roles()"
-                                                    optionLabel="name"
-                                                    optionValue="id"
-                                                    formControlName="roleId"
-                                                    appendTo="body"
-                                                    [disabled]="submitting || viewOnly"
-                                                    [placeholder]="'common.select_role' | translate"
-                                                    fluid
-                                                />
-                                                <app-form-errors [control]="guardianForm2.get('roleId')" [show]="guardian2Submitted"></app-form-errors>
-                                            </div>
+                                            <input type="hidden" formControlName="roleId" />
                                             <div>
                                                 <label for="guardian2Username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian2Username" formControlName="username" required fluid [disabled]="submitting || viewOnly" />
@@ -417,6 +390,7 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                     </p-stepper>
                 </form>
             </ng-template>
+
         </p-dialog>
 
         <p-confirmdialog [style]="{ width: '450px' }" />
@@ -431,10 +405,15 @@ export class StudentsCrud implements OnInit {
     students = signal<Student[]>([]);
     meta = signal<StudentsMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
     roles = signal<Role[]>([]);
+    guardianRoleId: string = '';
 
     studentForm: FormGroup;
     guardianForm1: FormGroup;
     guardianForm2: FormGroup;
+    guardian1RelationId?: string;
+    guardian2RelationId?: string;
+    guardian1MemberId?: string;
+    guardian2MemberId?: string;
     currentStudentId?: string;
     studentCreatedId?: string;
 
@@ -550,6 +529,7 @@ export class StudentsCrud implements OnInit {
         this.roleService.list(1, 100).subscribe({
             next: (res) => {
                 this.roles.set(res?.data ?? []);
+                this.guardianRoleId = this.getGuardianRoleId();
                 this.applyRoleId();
                 this.rolesLoading = false;
             },
@@ -599,7 +579,7 @@ export class StudentsCrud implements OnInit {
             firstName: '',
             lastName: '',
             phone: '',
-            roleId: '',
+            roleId: this.guardianRoleId,
             username: '',
             password: '',
             relationType: null
@@ -608,7 +588,7 @@ export class StudentsCrud implements OnInit {
             firstName: '',
             lastName: '',
             phone: '',
-            roleId: '',
+            roleId: this.guardianRoleId,
             username: '',
             password: '',
             relationType: null
@@ -622,7 +602,12 @@ export class StudentsCrud implements OnInit {
         this.studentForm.enable();
         this.guardianForm1.enable();
         this.guardianForm2.enable();
+        this.guardian1RelationId = undefined;
+        this.guardian2RelationId = undefined;
+        this.guardian1MemberId = undefined;
+        this.guardian2MemberId = undefined;
         this.applyRoleId();
+        this.applyGuardianRoleId();
         this.studentDialog = true;
     }
 
@@ -635,6 +620,11 @@ export class StudentsCrud implements OnInit {
         this.guardian1Submitted = false;
         this.guardian2Submitted = false;
         this.studentCreatedId = student.id;
+        this.guardian1RelationId = undefined;
+        this.guardian2RelationId = undefined;
+        this.guardian1MemberId = undefined;
+        this.guardian2MemberId = undefined;
+        this.resetGuardians();
         this.studentService.get(student.id).subscribe((data) => {
             this.currentStudentId = data.id;
             this.studentForm.reset({
@@ -667,6 +657,9 @@ export class StudentsCrud implements OnInit {
             roleControl?.clearValidators();
             roleControl?.updateValueAndValidity();
             this.studentForm.enable();
+            if (data.id) {
+                this.loadGuardians(data.id);
+            }
         });
     }
 
@@ -679,6 +672,11 @@ export class StudentsCrud implements OnInit {
         this.guardian1Submitted = false;
         this.guardian2Submitted = false;
         this.studentCreatedId = student.id;
+        this.guardian1RelationId = undefined;
+        this.guardian2RelationId = undefined;
+        this.guardian1MemberId = undefined;
+        this.guardian2MemberId = undefined;
+        this.resetGuardians();
         this.studentService.get(student.id).subscribe((data) => {
             this.currentStudentId = data.id;
             this.studentForm.reset({
@@ -710,6 +708,9 @@ export class StudentsCrud implements OnInit {
             this.studentForm.disable();
             this.guardianForm1.disable();
             this.guardianForm2.disable();
+            if (data.id) {
+                this.loadGuardians(data.id);
+            }
         });
     }
 
@@ -745,6 +746,20 @@ export class StudentsCrud implements OnInit {
                 });
             }
         });
+    }
+
+    hideDialog() {
+        this.studentDialog = false;
+        this.step1Submitted = false;
+        this.step2Submitted = false;
+        this.guardian1Submitted = false;
+        this.guardian2Submitted = false;
+        this.activeStep = 1;
+        this.viewOnly = false;
+        this.submitting = false;
+        this.studentForm.enable();
+        this.guardianForm1.enable();
+        this.guardianForm2.enable();
     }
 
     deleteStudent(student: Student) {
@@ -842,6 +857,7 @@ export class StudentsCrud implements OnInit {
     saveGuardian1() {
         this.guardian1Submitted = true;
         if (this.submitting || !this.studentCreatedId) return;
+        this.applyGuardianRoleId();
         if (this.guardianForm1.invalid) {
             return;
         }
@@ -862,6 +878,15 @@ export class StudentsCrud implements OnInit {
 
         this.submitting = true;
         this.guardianForm1.disable();
+
+        if (this.guardian1MemberId && this.guardian1RelationId) {
+            this.updateGuardian(this.guardian1MemberId, formValue, this.guardian1RelationId, () => {
+                this.activeStep = 5;
+                this.submitting = false;
+                this.guardianForm1.enable();
+            });
+            return;
+        }
 
         this.studentService.create(payload).subscribe({
             next: (guardian) => {
@@ -899,6 +924,7 @@ export class StudentsCrud implements OnInit {
     saveGuardian2() {
         this.guardian2Submitted = true;
         if (this.submitting || !this.studentCreatedId) return;
+        this.applyGuardianRoleId();
         if (this.guardianForm2.invalid) {
             return;
         }
@@ -919,6 +945,16 @@ export class StudentsCrud implements OnInit {
 
         this.submitting = true;
         this.guardianForm2.disable();
+
+        if (this.guardian2MemberId && this.guardian2RelationId) {
+            this.updateGuardian(this.guardian2MemberId, formValue, this.guardian2RelationId, () => {
+                this.studentDialog = false;
+                this.loadStudents(this.meta().page, this.meta().perPage);
+                this.submitting = false;
+                this.guardianForm2.enable();
+            });
+            return;
+        }
 
         this.studentService.create(payload).subscribe({
             next: (guardian) => {
@@ -1059,5 +1095,127 @@ export class StudentsCrud implements OnInit {
         if (roleId) {
             control?.setValue(roleId);
         }
+    }
+
+    private getGuardianRoleId(): string {
+        const role = this.roles().find((item) => item.name === GUARDIAN_ROLE_FILTER);
+        return role?.id !== undefined && role?.id !== null ? String(role.id) : '';
+    }
+
+    private applyGuardianRoleId() {
+        const roleId = this.guardianRoleId || this.getGuardianRoleId();
+        if (!roleId) return;
+        if (!this.guardianForm1.get('roleId')?.value) {
+            this.guardianForm1.get('roleId')?.setValue(roleId);
+        }
+        if (!this.guardianForm2.get('roleId')?.value) {
+            this.guardianForm2.get('roleId')?.setValue(roleId);
+        }
+    }
+
+    private resetGuardians() {
+        this.guardianForm1.reset({
+            firstName: '',
+            lastName: '',
+            phone: '',
+            roleId: this.guardianRoleId,
+            username: '',
+            password: '',
+            relationType: null
+        });
+        this.guardianForm2.reset({
+            firstName: '',
+            lastName: '',
+            phone: '',
+            roleId: this.guardianRoleId,
+            username: '',
+            password: '',
+            relationType: null
+        });
+        this.guardianForm1.enable();
+        this.guardianForm2.enable();
+    }
+
+    private loadGuardians(studentId: string) {
+        this.familyRelationService.listByStudent(studentId, 1, 10).subscribe({
+            next: (res) => {
+                const relations = res?.data ?? [];
+                const first = relations[0];
+                const second = relations[1];
+                if (first) {
+                    this.setGuardianForm(this.guardianForm1, first, 1);
+                }
+                if (second) {
+                    this.setGuardianForm(this.guardianForm2, second, 2);
+                }
+            }
+        });
+    }
+
+    private setGuardianForm(form: FormGroup, relation: FamilyRelation, index: 1 | 2) {
+        const member = relation.familyMember;
+        const roleId = member?.role?.id ?? this.guardianRoleId;
+        form.reset({
+            firstName: member?.profile?.firstName ?? '',
+            lastName: member?.profile?.lastName ?? '',
+            phone: member?.phone ?? '',
+            roleId: roleId ? String(roleId) : '',
+            username: member?.username ?? '',
+            password: '',
+            relationType: relation.relationType ?? null
+        });
+        if (index === 1) {
+            this.guardian1RelationId = relation.id ?? undefined;
+            this.guardian1MemberId = member?.id ?? undefined;
+        } else {
+            this.guardian2RelationId = relation.id ?? undefined;
+            this.guardian2MemberId = member?.id ?? undefined;
+        }
+        if (this.viewOnly) {
+            form.disable();
+        } else {
+            const passwordControl = form.get('password');
+            passwordControl?.clearValidators();
+            passwordControl?.updateValueAndValidity();
+            form.enable();
+        }
+    }
+
+    private updateGuardian(memberId: string, formValue: any, relationId: string, onDone: () => void) {
+        const profile = this.stripEmpty({
+            firstName: formValue.firstName,
+            lastName: formValue.lastName
+        });
+        const payload: any = this.stripEmpty({
+            username: formValue.username,
+            phone: formValue.phone,
+            roleId: formValue.roleId,
+            profile
+        });
+        if (formValue.password) {
+            payload.password = formValue.password;
+        }
+
+        this.studentService.update(memberId, payload).subscribe({
+            next: () => {
+                this.familyRelationService.update(relationId, { relationType: formValue.relationType }).subscribe({
+                    next: () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: this.translate.instant('common.successful'),
+                            detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.guardian') }),
+                            life: 3000
+                        });
+                        onDone();
+                    },
+                    error: () => {
+                        this.submitting = false;
+                    }
+                });
+            },
+            error: () => {
+                this.submitting = false;
+            }
+        });
     }
 }

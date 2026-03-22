@@ -6,6 +6,7 @@ This file is authoritative for all future work (features, refactors, fixes).
 - Use the PrimeNG Sakai template as the base reference. Template can be **cleaned up** and adapted as needed.
 - For future features, rely on the **template** and **reference project** patterns.
 - Do not add external UI libraries. Use only PrimeNG + template styles.
+- If a proposed fix does not work, remove it promptly and do not keep obsolete/unused workarounds.
 
 ## Reference Paths
 - Template source: `C:\Users\HP\Desktop\مشروع التخرج\project\dashbaord template\sakai-ng`

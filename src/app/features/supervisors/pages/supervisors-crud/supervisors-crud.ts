@@ -8,10 +8,8 @@ import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
-import { StepperModule } from 'primeng/stepper';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -54,8 +52,6 @@ const SUPERVISOR_ROLE_FILTER = RoleName.Supervisor;
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
-        StepperModule,
-        PasswordModule,
         FormErrors,
         TranslateModule
     ],
@@ -144,133 +140,57 @@ const SUPERVISOR_ROLE_FILTER = RoleName.Supervisor;
         <p-dialog [(visible)]="supervisorDialog" [style]="{ width: '780px' }" [header]="'pages.supervisors.details_title' | translate" [modal]="true">
             <ng-template #content>
                 <form [formGroup]="supervisorForm">
-                    <p-stepper [value]="activeStep">
-                        <p-step-list>
-                            <p-step [value]="1">{{ 'wizard.account' | translate }}</p-step>
-                            <p-step [value]="2">{{ 'wizard.profile' | translate }}</p-step>
-                            <p-step [value]="3">{{ 'wizard.additional' | translate }}</p-step>
-                        </p-step-list>
-                        <p-step-panels>
-                            <p-step-panel [value]="1">
-                                <ng-template #content>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                        <div>
-                                            <label for="username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
-                                            <input type="text" pInputText id="username" formControlName="username" required fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                            <app-form-errors [control]="supervisorForm.get('username')" [show]="step1Submitted"></app-form-errors>
-                                        </div>
-                                        <div>
-                                            <label for="password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
-                                            <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true" [disabled]="submitting || viewOnly"></p-password>
-                                            <app-form-errors [control]="supervisorForm.get('password')" [show]="step1Submitted"></app-form-errors>
-                                        </div>
-                                        <div>
-                                            <label for="email" class="block font-bold mb-3">{{ 'fields.email' | translate }}</label>
-                                            <input type="text" pInputText id="email" formControlName="email" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                            <app-form-errors [control]="supervisorForm.get('email')" [show]="step1Submitted"></app-form-errors>
-                                        </div>
-                                        <div>
-                                            <label for="phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }}</label>
-                                            <input type="text" pInputText id="phone" formControlName="phone" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="accountStatus" class="block font-bold mb-3">{{ 'fields.account_status' | translate }}</label>
-                                            <p-select
-                                                id="accountStatus"
-                                                [options]="accountStatusOptions"
-                                                optionLabel="label"
-                                                optionValue="value"
-                                                formControlName="accountStatus"
-                                                appendTo="body"
-                                                [disabled]="submitting || viewOnly"
-                                                [placeholder]="'common.select_status' | translate"
-                                                fluid
-                                            />
-                                        </div>
-                                        <input type="hidden" formControlName="roleId" />
-                                    </div>
-                                    <div class="flex justify-end gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
-                                    </div>
-                                </ng-template>
-                            </p-step-panel>
-                            <p-step-panel [value]="2">
-                                <ng-template #content>
-                                    <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                        <div>
-                                            <label for="firstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
-                                            <input type="text" pInputText id="firstName" formControlName="firstName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                            <app-form-errors [control]="supervisorForm.get('profile.firstName')" [show]="step2Submitted"></app-form-errors>
-                                        </div>
-                                        <div>
-                                            <label for="lastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
-                                            <input type="text" pInputText id="lastName" formControlName="lastName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                            <app-form-errors [control]="supervisorForm.get('profile.lastName')" [show]="step2Submitted"></app-form-errors>
-                                        </div>
-                                        <div>
-                                            <label for="midName" class="block font-bold mb-3">{{ 'fields.mid_name' | translate }}</label>
-                                            <input type="text" pInputText id="midName" formControlName="midName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="additionalName" class="block font-bold mb-3">{{ 'fields.additional_name' | translate }}</label>
-                                            <input type="text" pInputText id="additionalName" formControlName="additionalName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="birthDate" class="block font-bold mb-3">{{ 'fields.birth_date' | translate }}</label>
-                                            <input type="date" pInputText id="birthDate" formControlName="birthDate" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="birthPlace" class="block font-bold mb-3">{{ 'fields.birth_place' | translate }}</label>
-                                            <input type="text" pInputText id="birthPlace" formControlName="birthPlace" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="nationalId" class="block font-bold mb-3">{{ 'fields.national_id' | translate }}</label>
-                                            <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="imageId" class="block font-bold mb-3">{{ 'fields.image_id' | translate }}</label>
-                                            <input type="text" pInputText id="imageId" formControlName="imageId" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
-                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
-                                    </div>
-                                </ng-template>
-                            </p-step-panel>
-                            <p-step-panel [value]="3">
-                                <ng-template #content>
-                                    <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                        <div>
-                                            <label for="job" class="block font-bold mb-3">{{ 'fields.job' | translate }}</label>
-                                            <input type="text" pInputText id="job" formControlName="job" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="education" class="block font-bold mb-3">{{ 'fields.education' | translate }}</label>
-                                            <input type="text" pInputText id="education" formControlName="education" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="address" class="block font-bold mb-3">{{ 'fields.address' | translate }}</label>
-                                            <input type="text" pInputText id="address" formControlName="address" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="distinguishingSigns" class="block font-bold mb-3">{{ 'fields.distinguishing_signs' | translate }}</label>
-                                            <input type="text" pInputText id="distinguishingSigns" formControlName="distinguishingSigns" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                        <div>
-                                            <label for="note" class="block font-bold mb-3">{{ 'fields.note' | translate }}</label>
-                                            <input type="text" pInputText id="note" formControlName="note" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
-                                        <p-button [label]="'common.save' | translate" icon="pi pi-check" (onClick)="saveSupervisor()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
-                                    </div>
-                                </ng-template>
-                            </p-step-panel>
-                        </p-step-panels>
-                    </p-stepper>
+                    <input type="hidden" formControlName="roleId" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                        <div>
+                            <label for="username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
+                            <input type="text" pInputText id="username" formControlName="username" required fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <app-form-errors [control]="supervisorForm.get('username')" [show]="submitted"></app-form-errors>
+                        </div>
+                        <div>
+                            <label for="password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
+                            <input type="password" pInputText id="password" formControlName="password" required fluid [disabled]="submitting || viewOnly" />
+                            <app-form-errors [control]="supervisorForm.get('password')" [show]="submitted"></app-form-errors>
+                        </div>
+                        <div>
+                            <label for="email" class="block font-bold mb-3">{{ 'fields.email' | translate }}</label>
+                            <input type="text" pInputText id="email" formControlName="email" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <app-form-errors [control]="supervisorForm.get('email')" [show]="submitted"></app-form-errors>
+                        </div>
+                        <div>
+                            <label for="phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }}</label>
+                            <input type="text" pInputText id="phone" formControlName="phone" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                        </div>
+                        <div>
+                            <label for="firstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
+                            <input type="text" pInputText id="firstName" formControlName="firstName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <app-form-errors [control]="supervisorForm.get('firstName')" [show]="submitted"></app-form-errors>
+                        </div>
+                        <div>
+                            <label for="lastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
+                            <input type="text" pInputText id="lastName" formControlName="lastName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <app-form-errors [control]="supervisorForm.get('lastName')" [show]="submitted"></app-form-errors>
+                        </div>
+                        <div>
+                            <label for="accountStatus" class="block font-bold mb-3">{{ 'fields.account_status' | translate }}</label>
+                            <p-select
+                                id="accountStatus"
+                                [options]="accountStatusOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                formControlName="accountStatus"
+                                appendTo="body"
+                                [disabled]="submitting || viewOnly"
+                                [placeholder]="'common.select_status' | translate"
+                                fluid
+                            />
+                        </div>
+                    </div>
                 </form>
+            </ng-template>
+            <ng-template #footer>
+                <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="hideDialog()" [disabled]="submitting" />
+                <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="saveSupervisor()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting" />
             </ng-template>
         </p-dialog>
 
@@ -296,9 +216,7 @@ export class SupervisorsCrud implements OnInit {
     rolesLoading: boolean = false;
     submitting: boolean = false;
 
-    activeStep = 1;
-    step1Submitted = false;
-    step2Submitted = false;
+    submitted: boolean = false;
 
     @ViewChild('dt') dt!: Table;
 
@@ -321,21 +239,8 @@ export class SupervisorsCrud implements OnInit {
             phone: [''],
             accountStatus: [''],
             roleId: ['', Validators.required],
-            profile: this.fb.group({
-                firstName: ['', Validators.required],
-                lastName: ['', Validators.required],
-                midName: [''],
-                additionalName: [''],
-                birthDate: [''],
-                birthPlace: [''],
-                nationalId: [''],
-                imageId: [''],
-                job: [''],
-                education: [''],
-                address: [''],
-                distinguishingSigns: [''],
-                note: ['']
-            })
+            firstName: ['', Validators.required],
+            lastName: ['', Validators.required]
         });
     }
 
@@ -392,9 +297,7 @@ export class SupervisorsCrud implements OnInit {
     openNew() {
         this.viewOnly = false;
         this.currentSupervisorId = undefined;
-        this.step1Submitted = false;
-        this.step2Submitted = false;
-        this.activeStep = 1;
+        this.submitted = false;
         this.supervisorForm.reset({
             username: '',
             password: '',
@@ -402,21 +305,8 @@ export class SupervisorsCrud implements OnInit {
             phone: '',
             accountStatus: '',
             roleId: this.getRoleId(),
-            profile: {
-                firstName: '',
-                lastName: '',
-                midName: '',
-                additionalName: '',
-                birthDate: '',
-                birthPlace: '',
-                nationalId: '',
-                imageId: '',
-                job: '',
-                education: '',
-                address: '',
-                distinguishingSigns: '',
-                note: ''
-            }
+            firstName: '',
+            lastName: ''
         });
         const passwordControl = this.supervisorForm.get('password');
         passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(20)]);
@@ -428,10 +318,8 @@ export class SupervisorsCrud implements OnInit {
 
     editSupervisor(supervisor: Supervisor) {
         this.viewOnly = false;
-        this.activeStep = 1;
         this.supervisorDialog = true;
-        this.step1Submitted = false;
-        this.step2Submitted = false;
+        this.submitted = false;
         this.supervisorService.get(supervisor.id).subscribe((data) => {
             this.currentSupervisorId = data.id;
             this.supervisorForm.reset({
@@ -441,21 +329,8 @@ export class SupervisorsCrud implements OnInit {
                 phone: data.phone ?? '',
                 accountStatus: data.accountStatus ?? '',
                 roleId: data.roleId ?? '',
-                profile: {
-                    firstName: data.profile?.firstName ?? '',
-                    lastName: data.profile?.lastName ?? '',
-                    midName: data.profile?.midName ?? '',
-                    additionalName: data.profile?.additionalName ?? '',
-                    birthDate: data.profile?.birthDate ?? '',
-                    birthPlace: data.profile?.birthPlace ?? '',
-                    nationalId: data.profile?.nationalId ?? '',
-                    imageId: data.profile?.imageId ?? '',
-                    job: data.profile?.job ?? '',
-                    education: data.profile?.education ?? '',
-                    address: data.profile?.address ?? '',
-                    distinguishingSigns: data.profile?.distinguishingSigns ?? '',
-                    note: data.profile?.note ?? ''
-                }
+                firstName: data.profile?.firstName ?? '',
+                lastName: data.profile?.lastName ?? ''
             });
             const passwordControl = this.supervisorForm.get('password');
             passwordControl?.clearValidators();
@@ -466,10 +341,8 @@ export class SupervisorsCrud implements OnInit {
 
     viewSupervisor(supervisor: Supervisor) {
         this.viewOnly = true;
-        this.activeStep = 1;
         this.supervisorDialog = true;
-        this.step1Submitted = false;
-        this.step2Submitted = false;
+        this.submitted = false;
         this.supervisorService.get(supervisor.id).subscribe((data) => {
             this.currentSupervisorId = data.id;
             this.supervisorForm.reset({
@@ -479,21 +352,8 @@ export class SupervisorsCrud implements OnInit {
                 phone: data.phone ?? '',
                 accountStatus: data.accountStatus ?? '',
                 roleId: data.roleId ?? '',
-                profile: {
-                    firstName: data.profile?.firstName ?? '',
-                    lastName: data.profile?.lastName ?? '',
-                    midName: data.profile?.midName ?? '',
-                    additionalName: data.profile?.additionalName ?? '',
-                    birthDate: data.profile?.birthDate ?? '',
-                    birthPlace: data.profile?.birthPlace ?? '',
-                    nationalId: data.profile?.nationalId ?? '',
-                    imageId: data.profile?.imageId ?? '',
-                    job: data.profile?.job ?? '',
-                    education: data.profile?.education ?? '',
-                    address: data.profile?.address ?? '',
-                    distinguishingSigns: data.profile?.distinguishingSigns ?? '',
-                    note: data.profile?.note ?? ''
-                }
+                firstName: data.profile?.firstName ?? '',
+                lastName: data.profile?.lastName ?? ''
             });
             const passwordControl = this.supervisorForm.get('password');
             passwordControl?.clearValidators();
@@ -536,6 +396,13 @@ export class SupervisorsCrud implements OnInit {
         });
     }
 
+    hideDialog() {
+        this.supervisorDialog = false;
+        this.submitted = false;
+        this.viewOnly = false;
+        this.supervisorForm.enable();
+    }
+
     deleteSupervisor(supervisor: Supervisor) {
         this.confirmationService.confirm({
             message: this.translate.instant('common.delete_one_confirm', { name: supervisor.username }),
@@ -558,23 +425,21 @@ export class SupervisorsCrud implements OnInit {
     }
 
     saveSupervisor() {
-        this.step1Submitted = true;
-        this.step2Submitted = true;
+        this.submitted = true;
         if (this.submitting) return;
-        if (this.supervisorForm.invalid) {
-            this.activeStep = this.supervisorForm.get('profile')?.invalid ? 2 : 1;
-            return;
-        }
+        if (this.supervisorForm.invalid) return;
 
         const formValue = this.supervisorForm.getRawValue();
-        const profile = this.stripEmpty(formValue.profile);
         const payload: any = this.stripEmpty({
             username: formValue.username,
             email: formValue.email,
             phone: formValue.phone,
             accountStatus: formValue.accountStatus,
             roleId: formValue.roleId,
-            profile
+            profile: this.stripEmpty({
+                firstName: formValue.firstName,
+                lastName: formValue.lastName
+            })
         });
         if (formValue.password) {
             payload.password = formValue.password;
@@ -625,37 +490,6 @@ export class SupervisorsCrud implements OnInit {
                 this.supervisorForm.enable();
             }
         });
-    }
-
-    nextFromStep1() {
-        this.step1Submitted = true;
-        if (this.isStep1Valid()) {
-            this.activeStep = 2;
-        }
-    }
-
-    nextFromStep2() {
-        this.step2Submitted = true;
-        if (this.isStep2Valid()) {
-            this.activeStep = 3;
-        }
-    }
-
-    private isStep1Valid(): boolean {
-        const controls = ['username', 'password', 'roleId'];
-        if (this.currentSupervisorId) {
-            controls.splice(1, 1);
-        }
-        controls.forEach((field) => this.supervisorForm.get(field)?.markAsTouched());
-        return controls.every((field) => this.supervisorForm.get(field)?.valid);
-    }
-
-    private isStep2Valid(): boolean {
-        const firstName = this.supervisorForm.get('profile.firstName');
-        const lastName = this.supervisorForm.get('profile.lastName');
-        firstName?.markAsTouched();
-        lastName?.markAsTouched();
-        return !!firstName?.valid && !!lastName?.valid;
     }
 
     onPage(event: { first: number; rows: number }) {

@@ -192,19 +192,15 @@ const USER_ROLE_FILTER = RoleName.Admin;
                                 fluid
                             />
                         </div>
-                    </div>
-                    <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 mt-6">
                         <div>
-                            <label for="firstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }}</label>
-                            <input type="text" pInputText id="firstName" formControlName="firstName" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <label for="firstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
+                            <input type="text" pInputText id="firstName" formControlName="firstName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <app-form-errors [control]="userForm.get('firstName')" [show]="submitted"></app-form-errors>
                         </div>
                         <div>
-                            <label for="lastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }}</label>
-                            <input type="text" pInputText id="lastName" formControlName="lastName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                        </div>
-                        <div>
-                            <label for="nationalId" class="block font-bold mb-3">{{ 'fields.national_id' | translate }}</label>
-                            <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <label for="lastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
+                            <input type="text" pInputText id="lastName" formControlName="lastName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
+                            <app-form-errors [control]="userForm.get('lastName')" [show]="submitted"></app-form-errors>
                         </div>
                     </div>
                 </form>
@@ -261,11 +257,8 @@ export class UsersCrud implements OnInit {
             password: [''],
             roleId: [''],
             accountStatus: [''],
-            profile: this.fb.group({
-                firstName: [''],
-                lastName: [''],
-                nationalId: ['']
-            })
+            firstName: ['', Validators.required],
+            lastName: ['', Validators.required]
         });
     }
 
@@ -328,11 +321,8 @@ export class UsersCrud implements OnInit {
             password: '',
             roleId: '',
             accountStatus: '',
-            profile: {
-                firstName: '',
-                lastName: '',
-                nationalId: ''
-            }
+            firstName: '',
+            lastName: ''
         });
         const passwordControl = this.userForm.get('password');
         passwordControl?.setValidators([Validators.required]);
@@ -353,11 +343,8 @@ export class UsersCrud implements OnInit {
                 password: '',
                 roleId: data.roleId ?? '',
                 accountStatus: data.accountStatus ?? '',
-                profile: {
-                    firstName: data.profile?.firstName ?? '',
-                    lastName: data.profile?.lastName ?? '',
-                    nationalId: data.profile?.nationalId ?? ''
-                }
+                firstName: data.profile?.firstName ?? '',
+                lastName: data.profile?.lastName ?? ''
             });
             const passwordControl = this.userForm.get('password');
             passwordControl?.clearValidators();
@@ -378,11 +365,8 @@ export class UsersCrud implements OnInit {
                 password: '',
                 roleId: data.roleId ?? '',
                 accountStatus: data.accountStatus ?? '',
-                profile: {
-                    firstName: data.profile?.firstName ?? '',
-                    lastName: data.profile?.lastName ?? '',
-                    nationalId: data.profile?.nationalId ?? ''
-                }
+                firstName: data.profile?.firstName ?? '',
+                lastName: data.profile?.lastName ?? ''
             });
             const passwordControl = this.userForm.get('password');
             passwordControl?.clearValidators();
@@ -465,7 +449,10 @@ export class UsersCrud implements OnInit {
             phone: formValue.phone || undefined,
             accountStatus: formValue.accountStatus || undefined,
             roleId: formValue.roleId || undefined,
-            profile: formValue.profile
+            profile: {
+                firstName: formValue.firstName,
+                lastName: formValue.lastName
+            }
         };
         if (formValue.password) {
             payload.password = formValue.password;
