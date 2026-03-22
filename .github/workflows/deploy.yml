@@ -1,0 +1,103 @@
+name: Angular CI/CD Deploy on VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy & build on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+
+            # Paths on VPS
+            APP_CODE_PATH=${{ secrets.APP_CODE_PATH }}   # /home/apps/yaqeen-dashboard
+            APP_PATH=${{ secrets.APP_PATH }}             # /var/www/yaqeen-dashboard
+
+            # Create folders if they don't exist
+            mkdir -p $APP_CODE_PATH
+            mkdir -p $APP_PATH
+
+            # Navigate to code folder
+            cd $APP_CODE_PATH
+
+            # If repo already exists, pull latest code; else clone
+            if [ -d ".git" ]; then
+              git reset --hard
+              git clean -fd
+              git checkout main
+              git pull origin main
+            else
+              git clone -b main https://github.com/${{ github.repository }} .
+            fi
+
+            # Install Node.js 22.x globally if not installed or wrong version
+            REQUIRED_NODE_VERSION="v22"
+            if ! command -v node >/dev/null 2>&1 || [[ "$(node -v)" != $REQUIRED_NODE_VERSION* ]]; then
+              curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+
+            # Verify Node.js and npm
+            node -v
+            npm -v
+
+            # Install dependencies
+            npm install
+
+            # Build Angular app
+            npm run build
+
+            # Determine Angular dist folder dynamically
+            DIST_DIR=$(ls dist)
+            echo "Deploying dist/$DIST_DIR to $APP_PATH"
+
+            # Remove old deployment
+            rm -rf $APP_PATH/*
+
+            # Copy new build to deployment folder
+            cp -r dist/$DIST_DIR/* $APP_PATH/
+
+            # Reload Nginx
+            sudo systemctl reload nginx
+
+  notify:
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify CI/CD result
+        run: |
+          DEPLOY_STATUS="${{ needs.deploy.result }}"
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            ICON="🚀✅"
+            STATUS="Build & Deploy succeeded"
+          else
+            ICON="❌"
+            STATUS="Pipeline failed"
+          fi
+
+          MESSAGE="$ICON CI/CD Finished
+          Repo: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Deploy: $DEPLOY_STATUS"
+
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d message_thread_id=${{ secrets.TELEGRAM_TOPIC_ID }} \
+            -d text="$MESSAGE"
