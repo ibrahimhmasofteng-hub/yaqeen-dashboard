@@ -148,7 +148,7 @@ interface ExportColumn {
                         <p-step-panels>
                             <p-step-panel [value]="1">
                                 <ng-template #content>
-                                    <div class="flex flex-col gap-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         <div>
                                             <label for="username" class="block font-bold mb-3">Username <span class="text-red-500">*</span></label>
                                             <input type="text" pInputText id="username" formControlName="username" required fluid [readonly]="viewOnly" [disabled]="submitting" />
@@ -176,6 +176,7 @@ interface ExportColumn {
                                                 optionLabel="label"
                                                 optionValue="value"
                                                 formControlName="accountStatus"
+                                                appendTo="body"
                                                 [disabled]="submitting || viewOnly"
                                                 placeholder="Select Status"
                                                 fluid
@@ -189,6 +190,7 @@ interface ExportColumn {
                                                 optionLabel="name"
                                                 optionValue="id"
                                                 formControlName="roleId"
+                                                appendTo="body"
                                                 [disabled]="submitting || viewOnly"
                                                 placeholder="Select Role"
                                                 fluid
@@ -203,7 +205,7 @@ interface ExportColumn {
                             </p-step-panel>
                             <p-step-panel [value]="2">
                                 <ng-template #content>
-                                    <div formGroupName="profile" class="flex flex-col gap-6">
+                                    <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         <div>
                                             <label for="firstName" class="block font-bold mb-3">First Name <span class="text-red-500">*</span></label>
                                             <input type="text" pInputText id="firstName" formControlName="firstName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
@@ -247,7 +249,7 @@ interface ExportColumn {
                             </p-step-panel>
                             <p-step-panel [value]="3">
                                 <ng-template #content>
-                                    <div formGroupName="profile" class="flex flex-col gap-6">
+                                    <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         <div>
                                             <label for="job" class="block font-bold mb-3">Job</label>
                                             <input type="text" pInputText id="job" formControlName="job" fluid [readonly]="viewOnly" [disabled]="submitting" />

@@ -136,10 +136,10 @@ interface ExportColumn {
             </ng-template>
         </p-table>
 
-        <p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="User Details" [modal]="true">
+        <p-dialog [(visible)]="userDialog" [style]="{ width: '780px' }" header="User Details" [modal]="true">
             <ng-template #content>
                 <form [formGroup]="userForm">
-                    <div class="flex flex-col gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                         <div>
                             <label for="username" class="block font-bold mb-3">Username <span class="text-red-500">*</span></label>
                             <input type="text" pInputText id="username" formControlName="username" required autofocus fluid [readonly]="viewOnly" [disabled]="submitting" />
@@ -167,6 +167,7 @@ interface ExportColumn {
                                 optionLabel="name"
                                 optionValue="id"
                                 formControlName="roleId"
+                                appendTo="body"
                                 [disabled]="submitting || viewOnly"
                                 placeholder="Select Role"
                                 fluid
@@ -180,24 +181,25 @@ interface ExportColumn {
                                 optionLabel="label"
                                 optionValue="value"
                                 formControlName="accountStatus"
+                                appendTo="body"
                                 [disabled]="submitting || viewOnly"
                                 placeholder="Select Status"
                                 fluid
                             />
                         </div>
-                        <div formGroupName="profile" class="flex flex-col gap-6">
-                            <div>
-                                <label for="firstName" class="block font-bold mb-3">First Name</label>
-                                <input type="text" pInputText id="firstName" formControlName="firstName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                            </div>
-                            <div>
-                                <label for="lastName" class="block font-bold mb-3">Last Name</label>
-                                <input type="text" pInputText id="lastName" formControlName="lastName" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                            </div>
-                            <div>
-                                <label for="nationalId" class="block font-bold mb-3">National ID</label>
-                                <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
-                            </div>
+                    </div>
+                    <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label for="firstName" class="block font-bold mb-3">First Name</label>
+                            <input type="text" pInputText id="firstName" formControlName="firstName" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                        </div>
+                        <div>
+                            <label for="lastName" class="block font-bold mb-3">Last Name</label>
+                            <input type="text" pInputText id="lastName" formControlName="lastName" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                        </div>
+                        <div>
+                            <label for="nationalId" class="block font-bold mb-3">National ID</label>
+                            <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
                         </div>
                     </div>
                 </form>

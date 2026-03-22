@@ -118,7 +118,7 @@ interface ExportColumn {
             </ng-template>
         </p-table>
 
-        <p-dialog [(visible)]="roleDialog" [style]="{ width: '520px' }" header="Role Details" [modal]="true">
+        <p-dialog [(visible)]="roleDialog" [style]="{ width: '780px' }" header="Role Details" [modal]="true">
             <ng-template #content>
                 <form [formGroup]="roleForm">
                     <div class="flex flex-col gap-6">
