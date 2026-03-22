@@ -30,6 +30,7 @@ export class AppMenu {
                     { label: 'Users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
                     { label: 'Roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
                     { label: 'Supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
+                    { label: 'Teachers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/teachers'] },
                     { label: 'Audit Logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
                 ]
             }

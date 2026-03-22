@@ -17,6 +17,7 @@ export const appRoutes: Routes = [
             { path: 'roles', loadChildren: () => import('./app/features/roles/roles.routes') },
             { path: 'audit-logs', loadChildren: () => import('./app/features/audit-logs/audit-logs.routes') },
             { path: 'supervisors', loadChildren: () => import('./app/features/supervisors/supervisors.routes') },
+            { path: 'teachers', loadChildren: () => import('./app/features/teachers/teachers.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
