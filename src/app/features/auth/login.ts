@@ -33,11 +33,15 @@ import { AccountStatus } from '@/app/features/users/models/account-status.enum';
                         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
                             <label for="username1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{ 'auth.username' | translate }}</label>
                             <input pInputText id="username1" type="text" [placeholder]="'auth.username_placeholder' | translate" class="w-full md:w-120 mb-2" formControlName="username" />
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && _username?.invalid">{{ 'auth.username' | translate }} is required.</small>
+                            <small class="text-red-500 block mb-6" *ngIf="submitted && _username?.invalid">
+                                {{ 'validation.required' | translate: { field: ('auth.username' | translate) } }}
+                            </small>
 
                             <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">{{ 'auth.password' | translate }}</label>
                             <p-password id="password1" formControlName="password" [placeholder]="'auth.password_placeholder' | translate" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false"></p-password>
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && _password?.invalid">{{ 'auth.password' | translate }} is required.</small>
+                            <small class="text-red-500 block mb-6" *ngIf="submitted && _password?.invalid">
+                                {{ 'validation.required' | translate: { field: ('auth.password' | translate) } }}
+                            </small>
 
                             <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                                 <div class="flex items-center">

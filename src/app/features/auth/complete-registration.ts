@@ -33,24 +33,28 @@ import { LoadingService } from '@/app/core/services/loading.service';
                     <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                         <div class="text-center mb-8">
                             <img src="assets/images/logo.png" alt="Logo" class="mb-8 w-20 mx-auto" />
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Complete Registration</div>
-                            <span class="text-muted-color font-medium">Set a new password to continue</span>
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">{{ 'auth.complete_registration_title' | translate }}</div>
+                            <span class="text-muted-color font-medium">{{ 'auth.complete_registration_subtitle' | translate }}</span>
                         </div>
 
                         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-                            <label for="password" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">New Password</label>
+                            <label for="password" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">{{ 'auth.new_password' | translate }}</label>
                             <div class="w-full md:w-120">
                                 <p-password id="password" formControlName="password" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false" [disabled]="submitting"></p-password>
                             </div>
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && _password?.invalid">Password is required.</small>
+                            <small class="text-red-500 block mb-6" *ngIf="submitted && _password?.invalid">
+                                {{ 'validation.required' | translate: { field: ('auth.password' | translate) } }}
+                            </small>
 
-                            <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Confirm Password</label>
+                            <label for="confirmPassword" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">{{ 'auth.confirm_password' | translate }}</label>
                             <div class="w-full md:w-120">
                                 <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" styleClass="mb-2" [fluid]="true" [feedback]="false" [disabled]="submitting"></p-password>
                             </div>
-                            <small class="text-red-500 block mb-6" *ngIf="submitted && form.errors?.['passwordMismatch']">Passwords do not match.</small>
+                            <small class="text-red-500 block mb-6" *ngIf="submitted && form.errors?.['passwordMismatch']">
+                                {{ 'validation.password_mismatch' | translate }}
+                            </small>
 
-                            <p-button type="submit" label="Update Password" styleClass="w-full" [disabled]="submitting || form.invalid" [loading]="submitting"></p-button>
+                            <p-button type="submit" [label]="'auth.update_password' | translate" styleClass="w-full" [disabled]="submitting || form.invalid" [loading]="submitting"></p-button>
                         </form>
                     </div>
                 </div>

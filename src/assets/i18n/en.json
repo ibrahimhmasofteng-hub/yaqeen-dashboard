@@ -1,10 +1,14 @@
-{
+﻿{
     "menu": {
         "main": "Main",
         "dashboard": "Dashboard",
         "management": "Management",
         "users": "Users",
-        "roles": "Roles"
+        "roles": "Roles",
+        "supervisors": "Supervisors",
+        "teachers": "Teachers",
+        "students": "Students",
+        "audit_logs": "Audit Logs"
     },
     "auth": {
         "welcome": "Welcome",
@@ -22,11 +26,147 @@
         "access_denied_message": "You do not have the necessary permissions. Please contact admins.",
         "go_to_dashboard": "Go to Dashboard",
         "error_title": "Error Occurred",
-        "error_message": "Requested resource is not available."
+        "error_message": "Requested resource is not available.",
+        "complete_registration_title": "Complete Registration",
+        "complete_registration_subtitle": "Set a new password to continue",
+        "new_password": "New Password",
+        "confirm_password": "Confirm Password",
+        "update_password": "Update Password"
     },
     "notfound": {
         "title": "Not Found",
         "message": "Requested resource is not available.",
         "go_dashboard": "Go to Dashboard"
+    },
+    "common": {
+        "new": "New",
+        "delete": "Delete",
+        "export": "Export",
+        "search": "Search...",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "back": "Back",
+        "next": "Next",
+        "save": "Save",
+        "save_student": "Save Student",
+        "save_guardian": "Save Guardian",
+        "actions": "Actions",
+        "status": "Status",
+        "details": "Details",
+        "select_role": "Select Role",
+        "select_status": "Select Status",
+        "select_relation": "Select Relation",
+        "delete_selected_confirm": "Are you sure you want to delete the selected {{entity}}?",
+        "delete_one_confirm": "Are you sure you want to delete {{name}}?",
+        "created": "{{entity}} Created",
+        "updated": "{{entity}} Updated",
+        "deleted": "{{entity}} Deleted",
+        "deleted_many": "{{entity}} Deleted",
+        "successful": "Successful",
+        "page_report": "Showing {first} to {last} of {totalRecords} records"
+    },
+    "validation": {
+        "required": "{{field}} is required.",
+        "minlength": "{{field}} must be at least {{min}} characters.",
+        "maxlength": "{{field}} must be at most {{max}} characters.",
+        "email": "{{field}} is invalid.",
+        "password_mismatch": "Passwords do not match."
+    },
+    "fields": {
+        "username": "Username",
+        "email": "Email",
+        "phone": "Phone",
+        "password": "Password",
+        "role": "Role",
+        "account_status": "Account Status",
+        "first_name": "First Name",
+        "last_name": "Last Name",
+        "mid_name": "Mid Name",
+        "additional_name": "Additional Name",
+        "birth_date": "Birth Date",
+        "birth_place": "Birth Place",
+        "national_id": "National ID",
+        "image_id": "Image ID",
+        "job": "Job",
+        "education": "Education",
+        "address": "Address",
+        "distinguishing_signs": "Distinguishing Signs",
+        "note": "Note",
+        "name": "Name",
+        "permissions": "Permissions",
+        "relation_type": "Relation Type",
+        "method": "Method",
+        "url": "URL",
+        "status_code": "Status Code",
+        "ip": "IP",
+        "duration": "Duration",
+        "error_message": "Error Message",
+        "actor_name": "Actor Name",
+        "created_at": "Created At"
+    },
+    "entities": {
+        "user": "User",
+        "users": "Users",
+        "role": "Role",
+        "roles": "Roles",
+        "supervisor": "Supervisor",
+        "supervisors": "Supervisors",
+        "teacher": "Teacher",
+        "teachers": "Teachers",
+        "student": "Student",
+        "students": "Students",
+        "guardian": "Guardian",
+        "guardians": "Guardians",
+        "audit_log": "Audit Log",
+        "audit_logs": "Audit Logs"
+    },
+    "roles": {
+        "permissions_loading": "Loading permissions...",
+        "permissions_empty": "No permissions available."
+    },
+    "pages": {
+        "users": {
+            "manage_title": "Manage Users",
+            "details_title": "User Details"
+        },
+        "roles": {
+            "manage_title": "Manage Roles",
+            "details_title": "Role Details"
+        },
+        "supervisors": {
+            "manage_title": "Manage Supervisors",
+            "details_title": "Supervisor Details"
+        },
+        "teachers": {
+            "manage_title": "Manage Teachers",
+            "details_title": "Teacher Details"
+        },
+        "students": {
+            "manage_title": "Manage Students",
+            "details_title": "Student Details"
+        },
+        "audit": {
+            "title": "Audit Logs",
+            "logs_title": "Logs"
+        }
+    },
+    "wizard": {
+        "account": "Account",
+        "profile": "Profile",
+        "additional": "Additional",
+        "guardian_1": "Guardian 1",
+        "guardian_2": "Guardian 2"
+    },
+    "topbar": {
+        "calendar": "Calendar",
+        "messages": "Messages",
+        "profile": "Profile",
+        "logout": "Logout",
+        "lang_en": "English",
+        "lang_ar": "العربية"
+    },
+    "relations": {
+        "father": "Father",
+        "mother": "Mother"
     }
 }

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-form-errors',
@@ -11,6 +12,7 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
     `
 })
 export class FormErrors {
+    private translate = inject(TranslateService);
     @Input() control: AbstractControl | null = null;
     @Input() show: boolean = false;
 
@@ -25,20 +27,33 @@ export class FormErrors {
         const field = this.fieldLabel;
         switch (errorKey) {
             case 'required':
-                return `${field} is required.`;
+                return this.translate.instant('validation.required', { field });
             case 'minlength':
-                return `${field} must be at least ${errors['minlength']?.requiredLength} characters.`;
+                return this.translate.instant('validation.minlength', {
+                    field,
+                    min: errors['minlength']?.requiredLength
+                });
             case 'maxlength':
-                return `${field} must be at most ${errors['maxlength']?.requiredLength} characters.`;
+                return this.translate.instant('validation.maxlength', {
+                    field,
+                    max: errors['maxlength']?.requiredLength
+                });
             case 'email':
-                return `${field} is invalid.`;
+                return this.translate.instant('validation.email', { field });
             default:
                 return null;
         }
     }
 
     private get fieldLabel(): string {
-        const name = this.controlName ?? 'This field';
+        const name = this.controlName ?? 'field';
+        const translationKey = this.fieldKeyMap[name];
+        if (translationKey) {
+            const translated = this.translate.instant(translationKey);
+            if (translated && translated !== translationKey) {
+                return translated;
+            }
+        }
         return name.charAt(0).toUpperCase() + name.slice(1);
     }
 
@@ -48,4 +63,28 @@ export class FormErrors {
             ? Object.keys(anyControl._parent.controls).find((key) => anyControl._parent.controls[key] === this.control) ?? null
             : null;
     }
+
+    private fieldKeyMap: Record<string, string> = {
+        username: 'fields.username',
+        email: 'fields.email',
+        phone: 'fields.phone',
+        password: 'fields.password',
+        roleId: 'fields.role',
+        accountStatus: 'fields.account_status',
+        firstName: 'fields.first_name',
+        lastName: 'fields.last_name',
+        midName: 'fields.mid_name',
+        additionalName: 'fields.additional_name',
+        birthDate: 'fields.birth_date',
+        birthPlace: 'fields.birth_place',
+        nationalId: 'fields.national_id',
+        imageId: 'fields.image_id',
+        job: 'fields.job',
+        education: 'fields.education',
+        address: 'fields.address',
+        distinguishingSigns: 'fields.distinguishing_signs',
+        note: 'fields.note',
+        name: 'fields.name',
+        relationType: 'fields.relation_type'
+    };
 }

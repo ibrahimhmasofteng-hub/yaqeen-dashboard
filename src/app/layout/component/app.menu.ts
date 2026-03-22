@@ -24,22 +24,22 @@ export class AppMenu {
     ngOnInit() {
         this.model = [
             {
-                label: 'Main',
+                label: 'menu.main',
                 items: [
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                    { label: 'menu.dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     {
-                        label: 'Management',
+                        label: 'menu.management',
                         icon: 'pi pi-fw pi-briefcase',
                         path: 'management',
                         items: [
-                            { label: 'Users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
-                            { label: 'Supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
-                            { label: 'Teachers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/teachers'] },
-                            { label: 'Students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] }
+                            { label: 'menu.users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
+                            { label: 'menu.supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
+                            { label: 'menu.teachers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/teachers'] },
+                            { label: 'menu.students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] }
                         ]
                     },
-                    { label: 'Roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
-                    { label: 'Audit Logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
+                    { label: 'menu.roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
+                    { label: 'menu.audit_logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
                 ]
             }
         ];

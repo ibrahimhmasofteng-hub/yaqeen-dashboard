@@ -17,6 +17,7 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StudentService } from '@/app/features/students/services/student.service';
 import { Student, StudentsMeta } from '@/app/features/students/models/student.model';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
@@ -55,17 +56,18 @@ interface ExportColumn {
         ConfirmDialogModule,
         StepperModule,
         PasswordModule,
-        FormErrors
+        FormErrors,
+        TranslateModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
             <ng-template #start>
-                <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
-                <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedStudents()" [disabled]="!selectedStudents || !selectedStudents.length" />
+                <p-button [label]="'common.new' | translate" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+                <p-button severity="secondary" [label]="'common.delete' | translate" icon="pi pi-trash" outlined (onClick)="deleteSelectedStudents()" [disabled]="!selectedStudents || !selectedStudents.length" />
             </ng-template>
 
             <ng-template #end>
-                <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+                <p-button [label]="'common.export' | translate" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
             </ng-template>
         </p-toolbar>
 
@@ -81,7 +83,7 @@ interface ExportColumn {
             [(selection)]="selectedStudents"
             [rowHover]="true"
             dataKey="id"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} students"
+            [currentPageReportTemplate]="'common.page_report' | translate"
             [showCurrentPageReport]="true"
             [rowsPerPageOptions]="[10, 20, 30]"
             [totalRecords]="meta().total"
@@ -90,10 +92,10 @@ interface ExportColumn {
         >
             <ng-template #caption>
                 <div class="flex items-center justify-between">
-                    <h5 class="m-0">Manage Students</h5>
+                    <h5 class="m-0">{{ 'pages.students.manage_title' | translate }}</h5>
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -103,19 +105,19 @@ interface ExportColumn {
                         <p-tableHeaderCheckbox />
                     </th>
                     <th pSortableColumn="username" style="min-width:16rem">
-                        Username
+                        {{ 'fields.username' | translate }}
                         <p-sortIcon field="username" />
                     </th>
                     <th pSortableColumn="email" style="min-width: 18rem">
-                        Email
+                        {{ 'fields.email' | translate }}
                         <p-sortIcon field="email" />
                     </th>
                     <th pSortableColumn="phone" style="min-width: 14rem">
-                        Phone
+                        {{ 'fields.phone' | translate }}
                         <p-sortIcon field="phone" />
                     </th>
                     <th pSortableColumn="accountStatus" style="min-width: 10rem">
-                        Status
+                        {{ 'fields.account_status' | translate }}
                         <p-sortIcon field="accountStatus" />
                     </th>
                     <th style="min-width: 12rem"></th>
@@ -139,42 +141,42 @@ interface ExportColumn {
             </ng-template>
         </p-table>
 
-        <p-dialog [(visible)]="studentDialog" [style]="{ width: '780px' }" header="Student Details" [modal]="true">
+        <p-dialog [(visible)]="studentDialog" [style]="{ width: '780px' }" [header]="'pages.students.details_title' | translate" [modal]="true">
             <ng-template #content>
                 <form [formGroup]="studentForm">
                     <p-stepper [value]="activeStep">
                         <p-step-list>
-                            <p-step [value]="1">Account</p-step>
-                            <p-step [value]="2">Profile</p-step>
-                            <p-step [value]="3">Additional</p-step>
-                            <p-step [value]="4" [disabled]="!studentCreatedId">Guardian 1</p-step>
-                            <p-step [value]="5" [disabled]="!studentCreatedId">Guardian 2</p-step>
+                            <p-step [value]="1">{{ 'wizard.account' | translate }}</p-step>
+                            <p-step [value]="2">{{ 'wizard.profile' | translate }}</p-step>
+                            <p-step [value]="3">{{ 'wizard.additional' | translate }}</p-step>
+                            <p-step [value]="4" [disabled]="!studentCreatedId">{{ 'wizard.guardian_1' | translate }}</p-step>
+                            <p-step [value]="5" [disabled]="!studentCreatedId">{{ 'wizard.guardian_2' | translate }}</p-step>
                         </p-step-list>
                         <p-step-panels>
                             <p-step-panel [value]="1">
                                 <ng-template #content>
                                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         <div>
-                                            <label for="username" class="block font-bold mb-3">Username <span class="text-red-500">*</span></label>
+                                            <label for="username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
                                             <input type="text" pInputText id="username" formControlName="username" required fluid [readonly]="viewOnly" [disabled]="submitting" />
                                             <app-form-errors [control]="studentForm.get('username')" [show]="step1Submitted"></app-form-errors>
                                         </div>
                                         <div>
-                                            <label for="password" class="block font-bold mb-3">Password <span class="text-red-500">*</span></label>
+                                            <label for="password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
                                             <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true" [disabled]="submitting || viewOnly"></p-password>
                                             <app-form-errors [control]="studentForm.get('password')" [show]="step1Submitted"></app-form-errors>
                                         </div>
                                         <div>
-                                            <label for="email" class="block font-bold mb-3">Email</label>
+                                            <label for="email" class="block font-bold mb-3">{{ 'fields.email' | translate }}</label>
                                             <input type="text" pInputText id="email" formControlName="email" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                             <app-form-errors [control]="studentForm.get('email')" [show]="step1Submitted"></app-form-errors>
                                         </div>
                                         <div>
-                                            <label for="phone" class="block font-bold mb-3">Phone</label>
+                                            <label for="phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }}</label>
                                             <input type="text" pInputText id="phone" formControlName="phone" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="accountStatus" class="block font-bold mb-3">Account Status</label>
+                                            <label for="accountStatus" class="block font-bold mb-3">{{ 'fields.account_status' | translate }}</label>
                                             <p-select
                                                 id="accountStatus"
                                                 [options]="accountStatusOptions"
@@ -183,12 +185,12 @@ interface ExportColumn {
                                                 formControlName="accountStatus"
                                                 appendTo="body"
                                                 [disabled]="submitting || viewOnly"
-                                                placeholder="Select Status"
+                                                [placeholder]="'common.select_status' | translate"
                                                 fluid
                                             />
                                         </div>
                                         <div>
-                                            <label for="roleId" class="block font-bold mb-3">Role <span class="text-red-500">*</span></label>
+                                            <label for="roleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
                                             <p-select
                                                 id="roleId"
                                                 [options]="roles()"
@@ -197,14 +199,14 @@ interface ExportColumn {
                                                 formControlName="roleId"
                                                 appendTo="body"
                                                 [disabled]="submitting || viewOnly"
-                                                placeholder="Select Role"
+                                                [placeholder]="'common.select_role' | translate"
                                                 fluid
                                             />
                                             <app-form-errors [control]="studentForm.get('roleId')" [show]="step1Submitted"></app-form-errors>
                                         </div>
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
-                                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -212,43 +214,43 @@ interface ExportColumn {
                                 <ng-template #content>
                                     <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         <div>
-                                            <label for="firstName" class="block font-bold mb-3">First Name <span class="text-red-500">*</span></label>
+                                            <label for="firstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
                                             <input type="text" pInputText id="firstName" formControlName="firstName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
                                             <app-form-errors [control]="studentForm.get('profile.firstName')" [show]="step2Submitted"></app-form-errors>
                                         </div>
                                         <div>
-                                            <label for="lastName" class="block font-bold mb-3">Last Name <span class="text-red-500">*</span></label>
+                                            <label for="lastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
                                             <input type="text" pInputText id="lastName" formControlName="lastName" required fluid [readonly]="viewOnly" [disabled]="submitting" />
                                             <app-form-errors [control]="studentForm.get('profile.lastName')" [show]="step2Submitted"></app-form-errors>
                                         </div>
                                         <div>
-                                            <label for="midName" class="block font-bold mb-3">Mid Name</label>
+                                            <label for="midName" class="block font-bold mb-3">{{ 'fields.mid_name' | translate }}</label>
                                             <input type="text" pInputText id="midName" formControlName="midName" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="additionalName" class="block font-bold mb-3">Additional Name</label>
+                                            <label for="additionalName" class="block font-bold mb-3">{{ 'fields.additional_name' | translate }}</label>
                                             <input type="text" pInputText id="additionalName" formControlName="additionalName" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="birthDate" class="block font-bold mb-3">Birth Date</label>
+                                            <label for="birthDate" class="block font-bold mb-3">{{ 'fields.birth_date' | translate }}</label>
                                             <input type="date" pInputText id="birthDate" formControlName="birthDate" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="birthPlace" class="block font-bold mb-3">Birth Place</label>
+                                            <label for="birthPlace" class="block font-bold mb-3">{{ 'fields.birth_place' | translate }}</label>
                                             <input type="text" pInputText id="birthPlace" formControlName="birthPlace" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="nationalId" class="block font-bold mb-3">National ID</label>
+                                            <label for="nationalId" class="block font-bold mb-3">{{ 'fields.national_id' | translate }}</label>
                                             <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="imageId" class="block font-bold mb-3">Image ID</label>
+                                            <label for="imageId" class="block font-bold mb-3">{{ 'fields.image_id' | translate }}</label>
                                             <input type="text" pInputText id="imageId" formControlName="imageId" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
-                                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -256,29 +258,29 @@ interface ExportColumn {
                                 <ng-template #content>
                                     <div formGroupName="profile" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         <div>
-                                            <label for="job" class="block font-bold mb-3">Job</label>
+                                            <label for="job" class="block font-bold mb-3">{{ 'fields.job' | translate }}</label>
                                             <input type="text" pInputText id="job" formControlName="job" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="education" class="block font-bold mb-3">Education</label>
+                                            <label for="education" class="block font-bold mb-3">{{ 'fields.education' | translate }}</label>
                                             <input type="text" pInputText id="education" formControlName="education" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="address" class="block font-bold mb-3">Address</label>
+                                            <label for="address" class="block font-bold mb-3">{{ 'fields.address' | translate }}</label>
                                             <input type="text" pInputText id="address" formControlName="address" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="distinguishingSigns" class="block font-bold mb-3">Distinguishing Signs</label>
+                                            <label for="distinguishingSigns" class="block font-bold mb-3">{{ 'fields.distinguishing_signs' | translate }}</label>
                                             <input type="text" pInputText id="distinguishingSigns" formControlName="distinguishingSigns" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="note" class="block font-bold mb-3">Note</label>
+                                            <label for="note" class="block font-bold mb-3">{{ 'fields.note' | translate }}</label>
                                             <input type="text" pInputText id="note" formControlName="note" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
-                                        <p-button label="Save Student" icon="pi pi-check" (onClick)="saveStudent()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.save_student' | translate" icon="pi pi-check" (onClick)="saveStudent()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -287,22 +289,22 @@ interface ExportColumn {
                                     <div [formGroup]="guardianForm1">
                                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                             <div>
-                                                <label for="guardian1FirstName" class="block font-bold mb-3">First Name <span class="text-red-500">*</span></label>
+                                                <label for="guardian1FirstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian1FirstName" formControlName="firstName" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm1.get('firstName')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian1LastName" class="block font-bold mb-3">Last Name <span class="text-red-500">*</span></label>
+                                                <label for="guardian1LastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian1LastName" formControlName="lastName" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm1.get('lastName')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian1Phone" class="block font-bold mb-3">Phone <span class="text-red-500">*</span></label>
+                                                <label for="guardian1Phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian1Phone" formControlName="phone" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm1.get('phone')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian1RoleId" class="block font-bold mb-3">Role <span class="text-red-500">*</span></label>
+                                                <label for="guardian1RoleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
                                                 <p-select
                                                     id="guardian1RoleId"
                                                     [options]="roles()"
@@ -311,23 +313,23 @@ interface ExportColumn {
                                                     formControlName="roleId"
                                                     appendTo="body"
                                                     [disabled]="submitting || viewOnly"
-                                                    placeholder="Select Role"
+                                                    [placeholder]="'common.select_role' | translate"
                                                     fluid
                                                 />
                                                 <app-form-errors [control]="guardianForm1.get('roleId')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian1Username" class="block font-bold mb-3">Username <span class="text-red-500">*</span></label>
+                                                <label for="guardian1Username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian1Username" formControlName="username" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm1.get('username')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian1Password" class="block font-bold mb-3">Password <span class="text-red-500">*</span></label>
+                                                <label for="guardian1Password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
                                                 <p-password id="guardian1Password" formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true" [disabled]="submitting || viewOnly"></p-password>
                                                 <app-form-errors [control]="guardianForm1.get('password')" [show]="guardian1Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian1RelationType" class="block font-bold mb-3">Relation Type <span class="text-red-500">*</span></label>
+                                                <label for="guardian1RelationType" class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
                                                 <p-select
                                                     id="guardian1RelationType"
                                                     [options]="relationTypeOptions"
@@ -336,7 +338,7 @@ interface ExportColumn {
                                                     formControlName="relationType"
                                                     appendTo="body"
                                                     [disabled]="submitting || viewOnly"
-                                                    placeholder="Select Relation"
+                                                    [placeholder]="'common.select_relation' | translate"
                                                     fluid
                                                 />
                                                 <app-form-errors [control]="guardianForm1.get('relationType')" [show]="guardian1Submitted"></app-form-errors>
@@ -344,8 +346,8 @@ interface ExportColumn {
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activeStep = 3" [disabled]="submitting"></p-button>
-                                        <p-button label="Save Guardian" icon="pi pi-check" (onClick)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 3" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -354,22 +356,22 @@ interface ExportColumn {
                                     <div [formGroup]="guardianForm2">
                                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                             <div>
-                                                <label for="guardian2FirstName" class="block font-bold mb-3">First Name <span class="text-red-500">*</span></label>
+                                                <label for="guardian2FirstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian2FirstName" formControlName="firstName" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm2.get('firstName')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian2LastName" class="block font-bold mb-3">Last Name <span class="text-red-500">*</span></label>
+                                                <label for="guardian2LastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian2LastName" formControlName="lastName" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm2.get('lastName')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian2Phone" class="block font-bold mb-3">Phone <span class="text-red-500">*</span></label>
+                                                <label for="guardian2Phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian2Phone" formControlName="phone" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm2.get('phone')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian2RoleId" class="block font-bold mb-3">Role <span class="text-red-500">*</span></label>
+                                                <label for="guardian2RoleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
                                                 <p-select
                                                     id="guardian2RoleId"
                                                     [options]="roles()"
@@ -378,23 +380,23 @@ interface ExportColumn {
                                                     formControlName="roleId"
                                                     appendTo="body"
                                                     [disabled]="submitting || viewOnly"
-                                                    placeholder="Select Role"
+                                                    [placeholder]="'common.select_role' | translate"
                                                     fluid
                                                 />
                                                 <app-form-errors [control]="guardianForm2.get('roleId')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian2Username" class="block font-bold mb-3">Username <span class="text-red-500">*</span></label>
+                                                <label for="guardian2Username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
                                                 <input type="text" pInputText id="guardian2Username" formControlName="username" required fluid [disabled]="submitting || viewOnly" />
                                                 <app-form-errors [control]="guardianForm2.get('username')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian2Password" class="block font-bold mb-3">Password <span class="text-red-500">*</span></label>
+                                                <label for="guardian2Password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
                                                 <p-password id="guardian2Password" formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true" [disabled]="submitting || viewOnly"></p-password>
                                                 <app-form-errors [control]="guardianForm2.get('password')" [show]="guardian2Submitted"></app-form-errors>
                                             </div>
                                             <div>
-                                                <label for="guardian2RelationType" class="block font-bold mb-3">Relation Type <span class="text-red-500">*</span></label>
+                                                <label for="guardian2RelationType" class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
                                                 <p-select
                                                     id="guardian2RelationType"
                                                     [options]="relationTypeOptions"
@@ -403,7 +405,7 @@ interface ExportColumn {
                                                     formControlName="relationType"
                                                     appendTo="body"
                                                     [disabled]="submitting || viewOnly"
-                                                    placeholder="Select Relation"
+                                                    [placeholder]="'common.select_relation' | translate"
                                                     fluid
                                                 />
                                                 <app-form-errors [control]="guardianForm2.get('relationType')" [show]="guardian2Submitted"></app-form-errors>
@@ -411,8 +413,8 @@ interface ExportColumn {
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button label="Back" icon="pi pi-arrow-left" (onClick)="activeStep = 4" [disabled]="submitting"></p-button>
-                                        <p-button label="Save Guardian" icon="pi pi-check" (onClick)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 4" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -458,16 +460,14 @@ export class StudentsCrud implements OnInit {
     exportColumns!: ExportColumn[];
     cols!: Column[];
     accountStatusOptions = Object.values(AccountStatus).map((value) => ({ label: value, value }));
-    relationTypeOptions = [
-        { label: 'Father', value: RelationType.Father },
-        { label: 'Mother', value: RelationType.Mother }
-    ];
+    relationTypeOptions: { label: string; value: RelationType }[] = [];
 
     constructor(
         private studentService: StudentService,
         private familyRelationService: FamilyRelationService,
         private roleService: RoleService,
         private messageService: MessageService,
+        private translate: TranslateService,
         private confirmationService: ConfirmationService,
         private fb: FormBuilder
     ) {
@@ -524,14 +524,12 @@ export class StudentsCrud implements OnInit {
         this.loadStudents(1, 10);
         this.loadRoles();
 
-        this.cols = [
-            { field: 'username', header: 'Username' },
-            { field: 'email', header: 'Email' },
-            { field: 'phone', header: 'Phone' },
-            { field: 'accountStatus', header: 'Status' }
-        ];
-
-        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+        this.setColumns();
+        this.setRelationOptions();
+        this.translate.onLangChange.subscribe(() => {
+            this.setColumns();
+            this.setRelationOptions();
+        });
     }
 
     loadStudents(page: number, perPage: number) {
@@ -712,8 +710,10 @@ export class StudentsCrud implements OnInit {
 
     deleteSelectedStudents() {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete the selected students?',
-            header: 'Confirm',
+            message: this.translate.instant('common.delete_selected_confirm', {
+                entity: this.translate.instant('entities.students')
+            }),
+            header: this.translate.instant('common.confirm'),
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 const selected = this.selectedStudents ?? [];
@@ -726,8 +726,10 @@ export class StudentsCrud implements OnInit {
                             if (remaining === 0) {
                                 this.messageService.add({
                                     severity: 'success',
-                                    summary: 'Successful',
-                                    detail: 'Students Deleted',
+                                    summary: this.translate.instant('common.successful'),
+                                    detail: this.translate.instant('common.deleted_many', {
+                                        entity: this.translate.instant('entities.students')
+                                    }),
                                     life: 3000
                                 });
                                 this.selectedStudents = null;
@@ -742,16 +744,16 @@ export class StudentsCrud implements OnInit {
 
     deleteStudent(student: Student) {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete ' + student.username + '?',
-            header: 'Confirm',
+            message: this.translate.instant('common.delete_one_confirm', { name: student.username }),
+            header: this.translate.instant('common.confirm'),
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.studentService.delete(student.id).subscribe({
                     next: () => {
                         this.messageService.add({
                             severity: 'success',
-                            summary: 'Successful',
-                            detail: 'Student Deleted',
+                            summary: this.translate.instant('common.successful'),
+                            detail: this.translate.instant('common.deleted', { entity: this.translate.instant('entities.student') }),
                             life: 3000
                         });
                         this.loadStudents(this.meta().page, this.meta().perPage);
@@ -794,8 +796,8 @@ export class StudentsCrud implements OnInit {
                 next: () => {
                     this.messageService.add({
                         severity: 'success',
-                        summary: 'Successful',
-                        detail: 'Student Updated',
+                        summary: this.translate.instant('common.successful'),
+                        detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.student') }),
                         life: 3000
                     });
                     this.studentDialog = false;
@@ -815,8 +817,8 @@ export class StudentsCrud implements OnInit {
             next: (created) => {
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Student Created',
+                    summary: this.translate.instant('common.successful'),
+                    detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.student') }),
                     life: 3000
                 });
                 this.studentCreatedId = created.id;
@@ -868,8 +870,8 @@ export class StudentsCrud implements OnInit {
                         next: () => {
                             this.messageService.add({
                                 severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Guardian Created',
+                                summary: this.translate.instant('common.successful'),
+                                detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.guardian') }),
                                 life: 3000
                             });
                             this.activeStep = 5;
@@ -925,8 +927,8 @@ export class StudentsCrud implements OnInit {
                         next: () => {
                             this.messageService.add({
                                 severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Guardian Created',
+                                summary: this.translate.instant('common.successful'),
+                                detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.guardian') }),
                                 life: 3000
                             });
                             this.studentDialog = false;
@@ -984,9 +986,27 @@ export class StudentsCrud implements OnInit {
         this.loadStudents(page, perPage);
     }
 
+    private setColumns() {
+        this.cols = [
+            { field: 'username', header: this.translate.instant('fields.username') },
+            { field: 'email', header: this.translate.instant('fields.email') },
+            { field: 'phone', header: this.translate.instant('fields.phone') },
+            { field: 'accountStatus', header: this.translate.instant('fields.account_status') }
+        ];
+
+        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+    }
+
     private stripEmpty<T extends Record<string, any>>(value: T): Partial<T> {
         return Object.fromEntries(
             Object.entries(value).filter(([, val]) => val !== '' && val !== null && val !== undefined)
         ) as Partial<T>;
+    }
+
+    private setRelationOptions() {
+        this.relationTypeOptions = [
+            { label: this.translate.instant('relations.father'), value: RelationType.Father },
+            { label: this.translate.instant('relations.mother'), value: RelationType.Mother }
+        ];
     }
 }

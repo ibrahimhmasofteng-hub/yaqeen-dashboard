@@ -1,14 +1,18 @@
-{
+﻿{
     "menu": {
         "main": "الرئيسية",
         "dashboard": "لوحة التحكم",
         "management": "الإدارة",
         "users": "المستخدمون",
-        "roles": "الأدوار"
+        "roles": "الأدوار",
+        "supervisors": "المشرفون",
+        "teachers": "المعلمون",
+        "students": "الطلاب",
+        "audit_logs": "سجلات التدقيق"
     },
     "auth": {
         "welcome": "مرحبًا بك",
-        "sign_in_to_continue": "سجّل الدخول للمتابعة",
+        "sign_in_to_continue": "سجل الدخول للمتابعة",
         "username": "اسم المستخدم",
         "username_placeholder": "اسم المستخدم",
         "email": "البريد الإلكتروني",
@@ -22,11 +26,147 @@
         "access_denied_message": "ليس لديك الصلاحيات اللازمة. يرجى التواصل مع المدير.",
         "go_to_dashboard": "العودة إلى لوحة التحكم",
         "error_title": "حدث خطأ",
-        "error_message": "المورد المطلوب غير متاح."
+        "error_message": "المورد المطلوب غير متاح.",
+        "complete_registration_title": "إكمال التسجيل",
+        "complete_registration_subtitle": "قم بتعيين كلمة مرور جديدة للمتابعة",
+        "new_password": "كلمة مرور جديدة",
+        "confirm_password": "تأكيد كلمة المرور",
+        "update_password": "تحديث كلمة المرور"
     },
     "notfound": {
         "title": "الصفحة غير موجودة",
         "message": "المورد المطلوب غير متاح.",
         "go_dashboard": "العودة إلى لوحة التحكم"
+    },
+    "common": {
+        "new": "جديد",
+        "delete": "حذف",
+        "export": "تصدير",
+        "search": "بحث...",
+        "confirm": "تأكيد",
+        "cancel": "إلغاء",
+        "back": "رجوع",
+        "next": "التالي",
+        "save": "حفظ",
+        "save_student": "حفظ الطالب",
+        "save_guardian": "حفظ ولي الأمر",
+        "actions": "إجراءات",
+        "status": "الحالة",
+        "details": "التفاصيل",
+        "select_role": "اختر الدور",
+        "select_status": "اختر الحالة",
+        "select_relation": "اختر صلة القرابة",
+        "delete_selected_confirm": "هل أنت متأكد من حذف {{entity}} المحددين؟",
+        "delete_one_confirm": "هل أنت متأكد من حذف {{name}}؟",
+        "created": "تم إنشاء {{entity}}",
+        "updated": "تم تحديث {{entity}}",
+        "deleted": "تم حذف {{entity}}",
+        "deleted_many": "تم حذف {{entity}}",
+        "successful": "تم بنجاح",
+        "page_report": "عرض {first} إلى {last} من أصل {totalRecords} سجلات"
+    },
+    "validation": {
+        "required": "{{field}} مطلوب.",
+        "minlength": "{{field}} يجب أن يكون على الأقل {{min}} حرفًا.",
+        "maxlength": "{{field}} يجب ألا يزيد عن {{max}} حرفًا.",
+        "email": "{{field}} غير صالح.",
+        "password_mismatch": "كلمتا المرور غير متطابقتين."
+    },
+    "fields": {
+        "username": "اسم المستخدم",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "password": "كلمة المرور",
+        "role": "الدور",
+        "account_status": "حالة الحساب",
+        "first_name": "الاسم الأول",
+        "last_name": "الاسم الأخير",
+        "mid_name": "اسم الأب",
+        "additional_name": "الاسم الإضافي",
+        "birth_date": "تاريخ الميلاد",
+        "birth_place": "مكان الميلاد",
+        "national_id": "الرقم الوطني",
+        "image_id": "معرّف الصورة",
+        "job": "الوظيفة",
+        "education": "التعليم",
+        "address": "العنوان",
+        "distinguishing_signs": "علامات مميزة",
+        "note": "ملاحظة",
+        "name": "الاسم",
+        "permissions": "الصلاحيات",
+        "relation_type": "صلة القرابة",
+        "method": "الطريقة",
+        "url": "الرابط",
+        "status_code": "رمز الحالة",
+        "ip": "عنوان IP",
+        "duration": "المدة",
+        "error_message": "رسالة الخطأ",
+        "actor_name": "اسم المستخدم",
+        "created_at": "تاريخ الإنشاء"
+    },
+    "entities": {
+        "user": "المستخدم",
+        "users": "المستخدمون",
+        "role": "الدور",
+        "roles": "الأدوار",
+        "supervisor": "المشرف",
+        "supervisors": "المشرفون",
+        "teacher": "المعلم",
+        "teachers": "المعلمون",
+        "student": "الطالب",
+        "students": "الطلاب",
+        "guardian": "ولي الأمر",
+        "guardians": "أولياء الأمور",
+        "audit_log": "سجل التدقيق",
+        "audit_logs": "سجلات التدقيق"
+    },
+    "roles": {
+        "permissions_loading": "جاري تحميل الصلاحيات...",
+        "permissions_empty": "لا توجد صلاحيات متاحة."
+    },
+    "pages": {
+        "users": {
+            "manage_title": "إدارة المستخدمين",
+            "details_title": "تفاصيل المستخدم"
+        },
+        "roles": {
+            "manage_title": "إدارة الأدوار",
+            "details_title": "تفاصيل الدور"
+        },
+        "supervisors": {
+            "manage_title": "إدارة المشرفين",
+            "details_title": "تفاصيل المشرف"
+        },
+        "teachers": {
+            "manage_title": "إدارة المعلمين",
+            "details_title": "تفاصيل المعلم"
+        },
+        "students": {
+            "manage_title": "إدارة الطلاب",
+            "details_title": "تفاصيل الطالب"
+        },
+        "audit": {
+            "title": "سجلات التدقيق",
+            "logs_title": "السجلات"
+        }
+    },
+    "wizard": {
+        "account": "الحساب",
+        "profile": "الملف الشخصي",
+        "additional": "إضافي",
+        "guardian_1": "ولي الأمر 1",
+        "guardian_2": "ولي الأمر 2"
+    },
+    "topbar": {
+        "calendar": "التقويم",
+        "messages": "الرسائل",
+        "profile": "الملف الشخصي",
+        "logout": "تسجيل الخروج",
+        "lang_en": "English",
+        "lang_ar": "العربية"
+    },
+    "relations": {
+        "father": "أب",
+        "mother": "أم"
     }
 }

@@ -13,6 +13,7 @@ import { RippleModule } from 'primeng/ripple';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role, RolePermission, RolesMeta } from '@/app/features/roles/models/role.model';
 import { Permission } from '@/app/features/permissions/models/permission.model';
@@ -47,17 +48,18 @@ interface ExportColumn {
         IconFieldModule,
         ConfirmDialogModule,
         CheckboxModule,
-        FormErrors
+        FormErrors,
+        TranslateModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
             <ng-template #start>
-                <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
-                <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedRoles()" [disabled]="!selectedRoles || !selectedRoles.length" />
+                <p-button [label]="'common.new' | translate" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+                <p-button severity="secondary" [label]="'common.delete' | translate" icon="pi pi-trash" outlined (onClick)="deleteSelectedRoles()" [disabled]="!selectedRoles || !selectedRoles.length" />
             </ng-template>
 
             <ng-template #end>
-                <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+                <p-button [label]="'common.export' | translate" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
             </ng-template>
         </p-toolbar>
 
@@ -73,7 +75,7 @@ interface ExportColumn {
             [(selection)]="selectedRoles"
             [rowHover]="true"
             dataKey="id"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} roles"
+            [currentPageReportTemplate]="'common.page_report' | translate"
             [showCurrentPageReport]="true"
             [rowsPerPageOptions]="[10, 20, 30]"
             [totalRecords]="meta().total"
@@ -82,10 +84,10 @@ interface ExportColumn {
         >
             <ng-template #caption>
                 <div class="flex items-center justify-between">
-                    <h5 class="m-0">Manage Roles</h5>
+                    <h5 class="m-0">{{ 'pages.roles.manage_title' | translate }}</h5>
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -95,10 +97,10 @@ interface ExportColumn {
                         <p-tableHeaderCheckbox />
                     </th>
                     <th pSortableColumn="name" style="min-width: 20rem">
-                        Name
+                        {{ 'fields.name' | translate }}
                         <p-sortIcon field="name" />
                     </th>
-                    <th style="min-width: 12rem">Permissions</th>
+                    <th style="min-width: 12rem">{{ 'fields.permissions' | translate }}</th>
                     <th style="min-width: 12rem"></th>
                 </tr>
             </ng-template>
@@ -118,25 +120,25 @@ interface ExportColumn {
             </ng-template>
         </p-table>
 
-        <p-dialog [(visible)]="roleDialog" [style]="{ width: '780px' }" header="Role Details" [modal]="true">
+        <p-dialog [(visible)]="roleDialog" [style]="{ width: '780px' }" [header]="'pages.roles.details_title' | translate" [modal]="true">
             <ng-template #content>
                 <form [formGroup]="roleForm">
                     <div class="flex flex-col gap-6">
                         <div>
-                            <label for="name" class="block font-bold mb-3">Name <span class="text-red-500">*</span></label>
+                            <label for="name" class="block font-bold mb-3">{{ 'fields.name' | translate }} <span class="text-red-500">*</span></label>
                             <input type="text" pInputText id="name" formControlName="name" required autofocus fluid [readonly]="viewOnly" [disabled]="submitting" />
                             <app-form-errors [control]="roleForm.get('name')" [show]="submitted"></app-form-errors>
                         </div>
 
                         <div formArrayName="permissions" class="flex flex-col gap-4">
-                            <label class="block font-bold">Permissions</label>
+                            <label class="block font-bold">{{ 'fields.permissions' | translate }}</label>
 
                             <div *ngIf="permissionsLoading" class="text-sm text-surface-500">
-                                Loading permissions...
+                                {{ 'roles.permissions_loading' | translate }}
                             </div>
 
                             <div *ngIf="!permissionsLoading && permissionsArray.controls.length === 0" class="text-sm text-surface-500">
-                                No permissions available.
+                                {{ 'roles.permissions_empty' | translate }}
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -157,8 +159,8 @@ interface ExportColumn {
             </ng-template>
 
             <ng-template #footer>
-                <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" [disabled]="submitting" />
-                <p-button label="Save" icon="pi pi-check" (click)="saveRole()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting" />
+                <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="hideDialog()" [disabled]="submitting" />
+                <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="saveRole()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting" />
             </ng-template>
         </p-dialog>
 
@@ -195,6 +197,7 @@ export class RolesCrud implements OnInit {
         private roleService: RoleService,
         private permissionService: PermissionService,
         private messageService: MessageService,
+        private translate: TranslateService,
         private confirmationService: ConfirmationService,
         private fb: FormBuilder
     ) {
@@ -216,12 +219,8 @@ export class RolesCrud implements OnInit {
         this.loadRoles(1, 10);
         this.loadPermissions();
 
-        this.cols = [
-            { field: 'name', header: 'Name' },
-            { field: 'permissions', header: 'Permissions' }
-        ];
-
-        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+        this.setColumns();
+        this.translate.onLangChange.subscribe(() => this.setColumns());
     }
 
     loadRoles(page: number, perPage: number) {
@@ -297,8 +296,10 @@ export class RolesCrud implements OnInit {
 
     deleteSelectedRoles() {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete the selected roles?',
-            header: 'Confirm',
+            message: this.translate.instant('common.delete_selected_confirm', {
+                entity: this.translate.instant('entities.roles')
+            }),
+            header: this.translate.instant('common.confirm'),
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 const selected = this.selectedRoles ?? [];
@@ -315,8 +316,10 @@ export class RolesCrud implements OnInit {
                             if (remaining === 0) {
                                 this.messageService.add({
                                     severity: 'success',
-                                    summary: 'Successful',
-                                    detail: 'Roles Deleted',
+                                    summary: this.translate.instant('common.successful'),
+                                    detail: this.translate.instant('common.deleted_many', {
+                                        entity: this.translate.instant('entities.roles')
+                                    }),
                                     life: 3000
                                 });
                                 this.selectedRoles = null;
@@ -339,8 +342,8 @@ export class RolesCrud implements OnInit {
 
     deleteRole(role: Role) {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete ' + role.name + '?',
-            header: 'Confirm',
+            message: this.translate.instant('common.delete_one_confirm', { name: role.name }),
+            header: this.translate.instant('common.confirm'),
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 if (!role.id) return;
@@ -348,8 +351,8 @@ export class RolesCrud implements OnInit {
                     next: () => {
                         this.messageService.add({
                             severity: 'success',
-                            summary: 'Successful',
-                            detail: 'Role Deleted',
+                            summary: this.translate.instant('common.successful'),
+                            detail: this.translate.instant('common.deleted', { entity: this.translate.instant('entities.role') }),
                             life: 3000
                         });
                         this.loadRoles(this.meta().page, this.meta().perPage);
@@ -387,8 +390,8 @@ export class RolesCrud implements OnInit {
                 next: () => {
                     this.messageService.add({
                         severity: 'success',
-                        summary: 'Successful',
-                        detail: 'Role Updated',
+                        summary: this.translate.instant('common.successful'),
+                        detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.role') }),
                         life: 3000
                     });
                     this.roleDialog = false;
@@ -406,12 +409,12 @@ export class RolesCrud implements OnInit {
 
         this.roleService.create(payload).subscribe({
             next: () => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Role Created',
-                    life: 3000
-                });
+            this.messageService.add({
+                severity: 'success',
+                summary: this.translate.instant('common.successful'),
+                detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.role') }),
+                life: 3000
+            });
                 this.roleDialog = false;
                 this.loadRoles(this.meta().page, this.meta().perPage);
                 this.submitting = false;
@@ -428,6 +431,15 @@ export class RolesCrud implements OnInit {
         const page = Math.floor(event.first / event.rows) + 1;
         const perPage = event.rows;
         this.loadRoles(page, perPage);
+    }
+
+    private setColumns() {
+        this.cols = [
+            { field: 'name', header: this.translate.instant('fields.name') },
+            { field: 'permissions', header: this.translate.instant('fields.permissions') }
+        ];
+
+        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
     }
 
     private initializePermissions(rolePermissions?: RolePermission[]) {

@@ -9,6 +9,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
 import { AuditLogsService } from '@/app/features/audit-logs/services/audit-logs.service';
 import { AuditLog, AuditLogsMeta } from '@/app/features/audit-logs/models/audit-log.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface Column {
     field: string;
@@ -32,15 +33,16 @@ interface ExportColumn {
         ButtonModule,
         IconFieldModule,
         InputIconModule,
-        TagModule
+        TagModule,
+        TranslateModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
             <ng-template #start>
-                <div class="font-semibold text-xl">Audit Logs</div>
+                <div class="font-semibold text-xl">{{ 'pages.audit.title' | translate }}</div>
             </ng-template>
             <ng-template #end>
-                <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+                <p-button [label]="'common.export' | translate" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
             </ng-template>
         </p-toolbar>
 
@@ -55,7 +57,7 @@ interface ExportColumn {
             [tableStyle]="{ 'min-width': '90rem' }"
             [rowHover]="true"
             dataKey="id"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} audit logs"
+            [currentPageReportTemplate]="'common.page_report' | translate"
             [showCurrentPageReport]="true"
             [rowsPerPageOptions]="[10, 20, 30]"
             [totalRecords]="meta().total"
@@ -64,42 +66,42 @@ interface ExportColumn {
         >
             <ng-template #caption>
                 <div class="flex items-center justify-between">
-                    <h5 class="m-0">Logs</h5>
+                    <h5 class="m-0">{{ 'pages.audit.logs_title' | translate }}</h5>
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
                     </p-iconfield>
                 </div>
             </ng-template>
             <ng-template #header>
                 <tr>
                     <th pSortableColumn="method" style="min-width: 8rem">
-                        Method
+                        {{ 'fields.method' | translate }}
                         <p-sortIcon field="method" />
                     </th>
                     <th pSortableColumn="url" style="min-width: 18rem">
-                        URL
+                        {{ 'fields.url' | translate }}
                         <p-sortIcon field="url" />
                     </th>
                     <th pSortableColumn="statusCode" style="min-width: 8rem">
-                        Status
+                        {{ 'fields.status_code' | translate }}
                         <p-sortIcon field="statusCode" />
                     </th>
                     <th pSortableColumn="ip" style="min-width: 12rem">
-                        IP
+                        {{ 'fields.ip' | translate }}
                         <p-sortIcon field="ip" />
                     </th>
                     <th pSortableColumn="duration" style="min-width: 8rem">
-                        Duration
+                        {{ 'fields.duration' | translate }}
                         <p-sortIcon field="duration" />
                     </th>
-                    <th style="min-width: 20rem">Error</th>
+                    <th style="min-width: 20rem">{{ 'fields.error_message' | translate }}</th>
                     <th pSortableColumn="actorName" style="min-width: 12rem">
-                        Actor
+                        {{ 'fields.actor_name' | translate }}
                         <p-sortIcon field="actorName" />
                     </th>
                     <th pSortableColumn="createdAt" style="min-width: 14rem">
-                        Created At
+                        {{ 'fields.created_at' | translate }}
                         <p-sortIcon field="createdAt" />
                     </th>
                 </tr>
@@ -131,23 +133,13 @@ export class AuditLogsTable implements OnInit {
     exportColumns!: ExportColumn[];
     cols!: Column[];
 
-    constructor(private auditLogsService: AuditLogsService) {}
+    constructor(private auditLogsService: AuditLogsService, private translate: TranslateService) {}
 
     ngOnInit() {
         this.loadLogs(1, 10);
 
-        this.cols = [
-            { field: 'method', header: 'Method' },
-            { field: 'url', header: 'URL' },
-            { field: 'statusCode', header: 'Status' },
-            { field: 'ip', header: 'IP' },
-            { field: 'duration', header: 'Duration' },
-            { field: 'errorMessage', header: 'Error' },
-            { field: 'actorName', header: 'Actor' },
-            { field: 'createdAt', header: 'Created At' }
-        ];
-
-        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+        this.setColumns();
+        this.translate.onLangChange.subscribe(() => this.setColumns());
     }
 
     loadLogs(page: number, perPage: number) {
@@ -177,6 +169,21 @@ export class AuditLogsTable implements OnInit {
         const page = Math.floor(event.first / event.rows) + 1;
         const perPage = event.rows;
         this.loadLogs(page, perPage);
+    }
+
+    private setColumns() {
+        this.cols = [
+            { field: 'method', header: this.translate.instant('fields.method') },
+            { field: 'url', header: this.translate.instant('fields.url') },
+            { field: 'statusCode', header: this.translate.instant('fields.status_code') },
+            { field: 'ip', header: this.translate.instant('fields.ip') },
+            { field: 'duration', header: this.translate.instant('fields.duration') },
+            { field: 'errorMessage', header: this.translate.instant('fields.error_message') },
+            { field: 'actorName', header: this.translate.instant('fields.actor_name') },
+            { field: 'createdAt', header: this.translate.instant('fields.created_at') }
+        ];
+
+        this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
     }
 
     methodSeverity(method?: string): 'success' | 'info' | 'warn' | 'danger' | undefined {

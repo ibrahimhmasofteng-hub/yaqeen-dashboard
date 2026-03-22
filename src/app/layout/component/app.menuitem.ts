@@ -2,20 +2,21 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RippleModule } from 'primeng/ripple';
+import { TranslateModule } from '@ngx-translate/core';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
     selector: '[app-menuitem]',
-    imports: [CommonModule, RouterModule, RippleModule],
+    imports: [CommonModule, RouterModule, RippleModule, TranslateModule],
     template: `
         @if (root() && isVisible()) {
-            <div class="layout-menuitem-root-text">{{ item().label }}</div>
+            <div class="layout-menuitem-root-text">{{ item().label | translate }}</div>
         }
         @if ((!hasRouterLink() || hasChildren()) && isVisible()) {
             <a [attr.href]="item().url" (click)="itemClick($event)" [ngClass]="item().class" [attr.target]="item().target" tabindex="0" pRipple>
                 <i [ngClass]="item().icon" class="layout-menuitem-icon"></i>
-                <span class="layout-menuitem-text">{{ item().label }}</span>
+                <span class="layout-menuitem-text">{{ item().label | translate }}</span>
                 @if (hasChildren()) {
                     <i class="pi pi-fw pi-angle-down layout-submenu-toggler"></i>
                 }
@@ -40,7 +41,7 @@ import { filter } from 'rxjs/operators';
                 pRipple
             >
                 <i [ngClass]="item().icon" class="layout-menuitem-icon"></i>
-                <span class="layout-menuitem-text">{{ item().label }}</span>
+                <span class="layout-menuitem-text">{{ item().label | translate }}</span>
                 @if (hasChildren()) {
                     <i class="pi pi-fw pi-angle-down layout-submenu-toggler"></i>
                 }
