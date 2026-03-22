@@ -1,0 +1,84 @@
+
+courses | الدورات
+
+CreateCourseDto{
+name*	string
+Course name
+
+type*	string
+default: Quran
+Course type
+
+Enum:
+[ Quran, Hadith, Fiqh ]
+startDate*	string($date-time)
+Course start date
+
+endDate*	string($date-time)
+Course end date
+
+note	string
+Optional note
+
+times	[
+Course schedule times
+
+CreateCourseTimeDto{
+day*	string
+Day of the week
+
+Enum:
+[ SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY ]
+startHour*	number
+Start hour (e.g., 14.00)
+
+endHour*	number
+End hour (e.g., 15.30)
+
+}]
+}
+
+request
+curl -X 'POST' \
+  'http://82.112.254.98:3000/api/v1/courses' \
+  -H 'accept: application/json' \
+  -H 'Accept-Language: en' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "string",
+  "type": "Quran",
+  "startDate": "2026-03-22T18:16:50.661Z",
+  "endDate": "2026-03-22T18:16:50.661Z",
+  "note": "string",
+  "times": [
+    {
+      "day": "SUNDAY",
+      "startHour": 0,
+      "endHour": 0
+    }
+  ]
+}'
+
+resposne
+{
+  "id": "string",
+  "name": "string",
+  "type": "Quran",
+  "isActive": true,
+  "startDate": "2026-03-22T18:16:52.850Z",
+  "endDate": "2026-03-22T18:16:52.850Z",
+  "note": "string",
+  "createdAt": "2026-03-22T18:16:52.850Z",
+  "updatedAt": "2026-03-22T18:16:52.850Z",
+  "times": [
+    {
+      "id": "string",
+      "day": "SUNDAY",
+      "courseId": "string",
+      "startHour": 0,
+      "endHour": 0,
+      "createdAt": "2026-03-22T18:16:52.850Z",
+      "updatedAt": "2026-03-22T18:16:52.850Z"
+    }
+  ]
+}

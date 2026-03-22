@@ -109,17 +109,17 @@ interface ExportColumn {
             <ng-template #body let-log>
                 <tr>
                     <td style="min-width: 8rem">
-                        <p-tag [value]="log.method" [severity]="methodSeverity(log.method)"></p-tag>
+                        <p-tag [value]="displayValue(log.method)" [severity]="methodSeverity(log.method)"></p-tag>
                     </td>
-                    <td style="min-width: 18rem">{{ log.url }}</td>
-                    <td style="min-width: 8rem">{{ log.statusCode }}</td>
-                    <td style="min-width: 12rem">{{ log.ip }}</td>
-                    <td style="min-width: 8rem">{{ log.duration }}</td>
+                    <td style="min-width: 18rem">{{ displayValue(log.url) }}</td>
+                    <td style="min-width: 8rem">{{ displayValue(log.statusCode) }}</td>
+                    <td style="min-width: 12rem">{{ displayValue(log.ip) }}</td>
+                    <td style="min-width: 8rem">{{ displayValue(log.duration) }}</td>
                     <td style="min-width: 20rem">
                         <span class="audit-error-cell" [title]="log.errorMessage || ''">{{ log.errorMessage || '-' }}</span>
                     </td>
-                    <td style="min-width: 12rem">{{ log.actorName || '-' }}</td>
-                    <td style="min-width: 14rem">{{ log.createdAt | date: 'medium' }}</td>
+                    <td style="min-width: 12rem">{{ displayValue(log.actorName) }}</td>
+                    <td style="min-width: 14rem">{{ log.createdAt ? (log.createdAt | date: 'medium') : '-' }}</td>
                 </tr>
             </ng-template>
         </p-table>
@@ -207,5 +207,10 @@ export class AuditLogsTable implements OnInit {
         if (normalized === 'PUT' || normalized === 'PATCH') return 'warn';
         if (normalized === 'DELETE') return 'danger';
         return undefined;
+    }
+
+    displayValue(value: unknown): string {
+        if (value === null || value === undefined || value === '') return '-';
+        return String(value);
     }
 }

@@ -7,8 +7,13 @@ import { Supervisor, SupervisorProfile, SupervisorsListResponse } from '@/app/fe
 export class SupervisorService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<SupervisorsListResponse> {
-        return this.api.get<SupervisorsListResponse>('actors', { params: { page, perPage } });
+    list(page: number, perPage: number, role?: string): Observable<SupervisorsListResponse> {
+        const params = {
+            page,
+            perPage,
+            ...(role ? { role } : {})
+        };
+        return this.api.get<SupervisorsListResponse>('actors', { params });
     }
 
     get(id: string | number): Observable<Supervisor> {

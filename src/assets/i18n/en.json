@@ -2,12 +2,13 @@
     "menu": {
         "main": "Main",
         "dashboard": "Dashboard",
-        "management": "Management",
+        "management": "Accounts",
         "users": "Users",
         "roles": "Roles",
         "supervisors": "Supervisors",
         "teachers": "Teachers",
         "students": "Students",
+        "courses": "Courses",
         "audit_logs": "Audit Logs"
     },
     "auth": {
@@ -50,12 +51,18 @@
         "save": "Save",
         "save_student": "Save Student",
         "save_guardian": "Save Guardian",
+        "skip": "Skip",
         "actions": "Actions",
         "status": "Status",
         "details": "Details",
+        "active": "Active",
+        "inactive": "Inactive",
         "select_role": "Select Role",
         "select_status": "Select Status",
+        "select_type": "Select Type",
+        "select_day": "Select Day",
         "select_relation": "Select Relation",
+        "add_time": "Add Time",
         "delete_selected_confirm": "Are you sure you want to delete the selected {{entity}}?",
         "delete_one_confirm": "Are you sure you want to delete {{name}}?",
         "created": "{{entity}} Created",
@@ -94,6 +101,14 @@
         "note": "Note",
         "name": "Name",
         "permissions": "Permissions",
+        "course_name": "Course Name",
+        "course_type": "Course Type",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "times": "Times",
+        "day": "Day",
+        "start_hour": "Start Hour",
+        "end_hour": "End Hour",
         "relation_type": "Relation Type",
         "method": "Method",
         "url": "URL",
@@ -103,15 +118,6 @@
         "error_message": "Error Message",
         "actor_name": "Actor Name",
         "created_at": "Created At"
-    },
-    "enums": {
-        "account_status": {
-            "ACTIVE": "Active",
-            "NOT_ACTIVE": "Not Active",
-            "COMPLETE_REGISTRATION_REQUIRED": "Complete Registration Required",
-            "BLOCKED": "Blocked",
-            "DELETED": "Deleted"
-        }
     },
     "entities": {
         "user": "User",
@@ -124,6 +130,8 @@
         "teachers": "Teachers",
         "student": "Student",
         "students": "Students",
+        "course": "Course",
+        "courses": "Courses",
         "guardian": "Guardian",
         "guardians": "Guardians",
         "audit_log": "Audit Log",
@@ -154,6 +162,10 @@
             "manage_title": "Manage Students",
             "details_title": "Student Details"
         },
+        "courses": {
+            "manage_title": "Manage Courses",
+            "details_title": "Course Details"
+        },
         "audit": {
             "title": "Audit Logs",
             "logs_title": "Logs"
@@ -178,5 +190,28 @@
     "relations": {
         "father": "Father",
         "mother": "Mother"
+    },
+    "enums": {
+        "account_status": {
+            "ACTIVE": "Active",
+            "NOT_ACTIVE": "Not Active",
+            "COMPLETE_REGISTRATION_REQUIRED": "Complete Registration Required",
+            "BLOCKED": "Blocked",
+            "DELETED": "Deleted"
+        },
+        "course_type": {
+            "Quran": "Quran",
+            "Hadith": "Hadith",
+            "Fiqh": "Fiqh"
+        },
+        "week_day": {
+            "SUNDAY": "Sunday",
+            "MONDAY": "Monday",
+            "TUESDAY": "Tuesday",
+            "WEDNESDAY": "Wednesday",
+            "THURSDAY": "Thursday",
+            "FRIDAY": "Friday",
+            "SATURDAY": "Saturday"
+        }
     }
 }

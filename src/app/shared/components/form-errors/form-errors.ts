@@ -85,6 +85,13 @@ export class FormErrors {
         distinguishingSigns: 'fields.distinguishing_signs',
         note: 'fields.note',
         name: 'fields.name',
+        courseName: 'fields.course_name',
+        type: 'fields.course_type',
+        startDate: 'fields.start_date',
+        endDate: 'fields.end_date',
+        day: 'fields.day',
+        startHour: 'fields.start_hour',
+        endHour: 'fields.end_hour',
         relationType: 'fields.relation_type'
     };
 }

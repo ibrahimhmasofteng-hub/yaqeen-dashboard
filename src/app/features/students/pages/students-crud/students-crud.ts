@@ -25,6 +25,7 @@ import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role } from '@/app/features/roles/models/role.model';
 import { FamilyRelationService } from '@/app/features/students/services/family-relation.service';
 import { RelationType } from '@/app/features/students/models/relation-type.enum';
+import { RoleName } from '@/app/core/constants/role-name.enum';
 
 interface Column {
     field: string;
@@ -36,6 +37,8 @@ interface ExportColumn {
     title: string;
     dataKey: string;
 }
+
+const STUDENT_ROLE_FILTER = RoleName.Student;
 
 @Component({
     selector: 'app-students-crud',
@@ -128,9 +131,9 @@ interface ExportColumn {
                     <td style="width: 3rem">
                         <p-tableCheckbox [value]="student" />
                     </td>
-                    <td style="min-width: 16rem">{{ student.username }}</td>
-                    <td style="min-width: 18rem">{{ student.email }}</td>
-                    <td style="min-width: 14rem">{{ student.phone }}</td>
+                    <td style="min-width: 16rem">{{ displayValue(student.username) }}</td>
+                    <td style="min-width: 18rem">{{ displayValue(student.email) }}</td>
+                    <td style="min-width: 14rem">{{ displayValue(student.phone) }}</td>
                     <td style="min-width: 10rem">{{ accountStatusLabel(student.accountStatus) }}</td>
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewStudent(student)" />
@@ -189,21 +192,7 @@ interface ExportColumn {
                                                 fluid
                                             />
                                         </div>
-                                        <div>
-                                            <label for="roleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
-                                            <p-select
-                                                id="roleId"
-                                                [options]="roles()"
-                                                optionLabel="name"
-                                                optionValue="id"
-                                                formControlName="roleId"
-                                                appendTo="body"
-                                                [disabled]="submitting || viewOnly"
-                                                [placeholder]="'common.select_role' | translate"
-                                                fluid
-                                            />
-                                            <app-form-errors [control]="studentForm.get('roleId')" [show]="step1Submitted"></app-form-errors>
-                                        </div>
+                                        <input type="hidden" formControlName="roleId" />
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
                                         <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
@@ -347,7 +336,10 @@ interface ExportColumn {
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
                                         <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 3" [disabled]="submitting"></p-button>
-                                        <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <div class="flex gap-2">
+                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (onClick)="finishGuardianFlow()" [disabled]="submitting"></p-button>
+                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        </div>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -414,7 +406,10 @@ interface ExportColumn {
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
                                         <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 4" [disabled]="submitting"></p-button>
-                                        <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <div class="flex gap-2">
+                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (onClick)="finishGuardianFlow()" [disabled]="submitting"></p-button>
+                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        </div>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -537,7 +532,7 @@ export class StudentsCrud implements OnInit {
     loadStudents(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.studentService.list(page, perPage).subscribe({
+        this.studentService.list(page, perPage, STUDENT_ROLE_FILTER).subscribe({
             next: (res) => {
                 this.students.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -555,6 +550,7 @@ export class StudentsCrud implements OnInit {
         this.roleService.list(1, 100).subscribe({
             next: (res) => {
                 this.roles.set(res?.data ?? []);
+                this.applyRoleId();
                 this.rolesLoading = false;
             },
             error: () => {
@@ -582,7 +578,7 @@ export class StudentsCrud implements OnInit {
             email: '',
             phone: '',
             accountStatus: '',
-            roleId: '',
+            roleId: this.getRoleId(),
             profile: {
                 firstName: '',
                 lastName: '',
@@ -620,9 +616,13 @@ export class StudentsCrud implements OnInit {
         const passwordControl = this.studentForm.get('password');
         passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(20)]);
         passwordControl?.updateValueAndValidity();
+        const roleControl = this.studentForm.get('roleId');
+        roleControl?.setValidators([Validators.required]);
+        roleControl?.updateValueAndValidity();
         this.studentForm.enable();
         this.guardianForm1.enable();
         this.guardianForm2.enable();
+        this.applyRoleId();
         this.studentDialog = true;
     }
 
@@ -634,7 +634,7 @@ export class StudentsCrud implements OnInit {
         this.step2Submitted = false;
         this.guardian1Submitted = false;
         this.guardian2Submitted = false;
-        this.studentCreatedId = undefined;
+        this.studentCreatedId = student.id;
         this.studentService.get(student.id).subscribe((data) => {
             this.currentStudentId = data.id;
             this.studentForm.reset({
@@ -663,6 +663,9 @@ export class StudentsCrud implements OnInit {
             const passwordControl = this.studentForm.get('password');
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
+            const roleControl = this.studentForm.get('roleId');
+            roleControl?.clearValidators();
+            roleControl?.updateValueAndValidity();
             this.studentForm.enable();
         });
     }
@@ -675,7 +678,7 @@ export class StudentsCrud implements OnInit {
         this.step2Submitted = false;
         this.guardian1Submitted = false;
         this.guardian2Submitted = false;
-        this.studentCreatedId = undefined;
+        this.studentCreatedId = student.id;
         this.studentService.get(student.id).subscribe((data) => {
             this.currentStudentId = data.id;
             this.studentForm.reset({
@@ -802,8 +805,8 @@ export class StudentsCrud implements OnInit {
                         detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.student') }),
                         life: 3000
                     });
-                    this.studentDialog = false;
-                    this.loadStudents(this.meta().page, this.meta().perPage);
+                    this.studentCreatedId = this.currentStudentId;
+                    this.activeStep = 4;
                     this.submitting = false;
                     this.studentForm.enable();
                 },
@@ -951,6 +954,19 @@ export class StudentsCrud implements OnInit {
         });
     }
 
+    finishGuardianFlow() {
+        this.studentDialog = false;
+        this.studentCreatedId = undefined;
+        this.activeStep = 1;
+        this.guardian1Submitted = false;
+        this.guardian2Submitted = false;
+        this.submitting = false;
+        this.studentForm.enable();
+        this.guardianForm1.enable();
+        this.guardianForm2.enable();
+        this.loadStudents(this.meta().page, this.meta().perPage);
+    }
+
     nextFromStep1() {
         this.step1Submitted = true;
         if (this.isStep1Valid()) {
@@ -968,8 +984,9 @@ export class StudentsCrud implements OnInit {
     private isStep1Valid(): boolean {
         const controls = ['username', 'password', 'roleId'];
         if (this.currentStudentId) {
-            controls.splice(1, 1);
+            controls.splice(1, 2);
         }
+        this.applyRoleId();
         controls.forEach((field) => this.studentForm.get(field)?.markAsTouched());
         return controls.every((field) => this.studentForm.get(field)?.valid);
     }
@@ -1007,8 +1024,12 @@ export class StudentsCrud implements OnInit {
     }
 
     accountStatusLabel(value?: AccountStatus) {
-        if (!value) return '';
+        if (!value) return '-';
         return this.translate.instant(`enums.account_status.${value}`);
+    }
+
+    displayValue(value: unknown) {
+        return value === null || value === undefined || value === '' ? '-' : value;
     }
 
     private stripEmpty<T extends Record<string, any>>(value: T): Partial<T> {
@@ -1022,5 +1043,21 @@ export class StudentsCrud implements OnInit {
             { label: this.translate.instant('relations.father'), value: RelationType.Father },
             { label: this.translate.instant('relations.mother'), value: RelationType.Mother }
         ];
+    }
+
+    private getRoleId(): string {
+        const role = this.roles().find((item) => item.name === STUDENT_ROLE_FILTER);
+        return role?.id !== undefined && role?.id !== null ? String(role.id) : '';
+    }
+
+    private applyRoleId() {
+        if (this.viewOnly) return;
+        const control = this.studentForm.get('roleId');
+        const currentValue = control?.value;
+        if (currentValue) return;
+        const roleId = this.getRoleId();
+        if (roleId) {
+            control?.setValue(roleId);
+        }
     }
 }

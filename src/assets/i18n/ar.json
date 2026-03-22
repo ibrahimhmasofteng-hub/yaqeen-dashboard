@@ -2,12 +2,13 @@
     "menu": {
         "main": "الرئيسية",
         "dashboard": "لوحة التحكم",
-        "management": "الإدارة",
+        "management": "الحسابات",
         "users": "المستخدمون",
         "roles": "الأدوار",
         "supervisors": "المشرفون",
         "teachers": "المعلمون",
         "students": "الطلاب",
+        "courses": "الدورات",
         "audit_logs": "سجلات التدقيق"
     },
     "auth": {
@@ -50,12 +51,18 @@
         "save": "حفظ",
         "save_student": "حفظ الطالب",
         "save_guardian": "حفظ ولي الأمر",
+        "skip": "تخطي",
         "actions": "إجراءات",
         "status": "الحالة",
         "details": "التفاصيل",
+        "active": "نشط",
+        "inactive": "غير نشط",
         "select_role": "اختر الدور",
         "select_status": "اختر الحالة",
+        "select_type": "اختر النوع",
+        "select_day": "اختر اليوم",
         "select_relation": "اختر صلة القرابة",
+        "add_time": "إضافة وقت",
         "delete_selected_confirm": "هل أنت متأكد من حذف {{entity}} المحددين؟",
         "delete_one_confirm": "هل أنت متأكد من حذف {{name}}؟",
         "created": "تم إنشاء {{entity}}",
@@ -94,6 +101,14 @@
         "note": "ملاحظة",
         "name": "الاسم",
         "permissions": "الصلاحيات",
+        "course_name": "اسم الدورة",
+        "course_type": "نوع الدورة",
+        "start_date": "تاريخ البدء",
+        "end_date": "تاريخ الانتهاء",
+        "times": "الأوقات",
+        "day": "اليوم",
+        "start_hour": "وقت البداية",
+        "end_hour": "وقت النهاية",
         "relation_type": "صلة القرابة",
         "method": "الطريقة",
         "url": "الرابط",
@@ -103,15 +118,6 @@
         "error_message": "رسالة الخطأ",
         "actor_name": "اسم المستخدم",
         "created_at": "تاريخ الإنشاء"
-    },
-    "enums": {
-        "account_status": {
-            "ACTIVE": "نشط",
-            "NOT_ACTIVE": "غير نشط",
-            "COMPLETE_REGISTRATION_REQUIRED": "يتطلب إكمال التسجيل",
-            "BLOCKED": "محظور",
-            "DELETED": "محذوف"
-        }
     },
     "entities": {
         "user": "المستخدم",
@@ -124,6 +130,8 @@
         "teachers": "المعلمون",
         "student": "الطالب",
         "students": "الطلاب",
+        "course": "دورة",
+        "courses": "الدورات",
         "guardian": "ولي الأمر",
         "guardians": "أولياء الأمور",
         "audit_log": "سجل التدقيق",
@@ -154,6 +162,10 @@
             "manage_title": "إدارة الطلاب",
             "details_title": "تفاصيل الطالب"
         },
+        "courses": {
+            "manage_title": "إدارة الدورات",
+            "details_title": "تفاصيل الدورة"
+        },
         "audit": {
             "title": "سجلات التدقيق",
             "logs_title": "السجلات"
@@ -178,5 +190,28 @@
     "relations": {
         "father": "أب",
         "mother": "أم"
+    },
+    "enums": {
+        "account_status": {
+            "ACTIVE": "نشط",
+            "NOT_ACTIVE": "غير نشط",
+            "COMPLETE_REGISTRATION_REQUIRED": "يتطلب إكمال التسجيل",
+            "BLOCKED": "محظور",
+            "DELETED": "محذوف"
+        },
+        "course_type": {
+            "Quran": "قرآن",
+            "Hadith": "حديث",
+            "Fiqh": "فقه"
+        },
+        "week_day": {
+            "SUNDAY": "الأحد",
+            "MONDAY": "الإثنين",
+            "TUESDAY": "الثلاثاء",
+            "WEDNESDAY": "الأربعاء",
+            "THURSDAY": "الخميس",
+            "FRIDAY": "الجمعة",
+            "SATURDAY": "السبت"
+        }
     }
 }

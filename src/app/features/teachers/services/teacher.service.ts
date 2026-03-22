@@ -7,8 +7,13 @@ import { Teacher, TeacherProfile, TeachersListResponse } from '@/app/features/te
 export class TeacherService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<TeachersListResponse> {
-        return this.api.get<TeachersListResponse>('actors', { params: { page, perPage } });
+    list(page: number, perPage: number, role?: string): Observable<TeachersListResponse> {
+        const params = {
+            page,
+            perPage,
+            ...(role ? { role } : {})
+        };
+        return this.api.get<TeachersListResponse>('actors', { params });
     }
 
     get(id: string | number): Observable<Teacher> {

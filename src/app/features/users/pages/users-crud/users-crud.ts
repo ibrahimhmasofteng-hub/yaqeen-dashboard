@@ -21,6 +21,7 @@ import { Role } from '@/app/features/roles/models/role.model';
 import { User, UsersMeta } from '@/app/features/users/models/user.model';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
+import { RoleName } from '@/app/core/constants/role-name.enum';
 
 interface Column {
     field: string;
@@ -32,6 +33,8 @@ interface ExportColumn {
     title: string;
     dataKey: string;
 }
+
+const USER_ROLE_FILTER = RoleName.Admin;
 
 @Component({
     selector: 'app-users-crud',
@@ -123,9 +126,9 @@ interface ExportColumn {
                     <td style="width: 3rem">
                         <p-tableCheckbox [value]="user" />
                     </td>
-                    <td style="min-width: 16rem">{{ user.username }}</td>
-                    <td style="min-width: 18rem">{{ user.email }}</td>
-                    <td style="min-width: 14rem">{{ user.phone }}</td>
+                    <td style="min-width: 16rem">{{ displayValue(user.username) }}</td>
+                    <td style="min-width: 18rem">{{ displayValue(user.email) }}</td>
+                    <td style="min-width: 14rem">{{ displayValue(user.phone) }}</td>
                     <td style="min-width: 10rem">
                         {{ accountStatusLabel(user.accountStatus) }}
                     </td>
@@ -298,7 +301,7 @@ export class UsersCrud implements OnInit {
     loadUsers(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.userService.list(page, perPage).subscribe({
+        this.userService.list(page, perPage, USER_ROLE_FILTER).subscribe({
             next: (res) => {
                 this.users.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -539,8 +542,12 @@ export class UsersCrud implements OnInit {
         }));
     }
 
-    accountStatusLabel(value: AccountStatus) {
+    accountStatusLabel(value?: AccountStatus) {
+        if (!value) return '-';
         return this.translate.instant(`enums.account_status.${value}`);
     }
 
+    displayValue(value: unknown) {
+        return value === null || value === undefined || value === '' ? '-' : value;
+    }
 }

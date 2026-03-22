@@ -109,7 +109,7 @@ interface ExportColumn {
                     <td style="width: 3rem">
                         <p-tableCheckbox [value]="role" />
                     </td>
-                    <td style="min-width: 20rem">{{ role.name }}</td>
+                    <td style="min-width: 20rem">{{ displayValue(role.name) }}</td>
                     <td style="min-width: 12rem">{{ role.permissions?.length ?? 0 }}</td>
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewRole(role)" />
@@ -461,5 +461,9 @@ export class RolesCrud implements OnInit {
                 })
             );
         });
+    }
+
+    displayValue(value: unknown) {
+        return value === null || value === undefined || value === '' ? '-' : value;
     }
 }

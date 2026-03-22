@@ -22,6 +22,7 @@ import { Teacher, TeachersMeta } from '@/app/features/teachers/models/teacher.mo
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role } from '@/app/features/roles/models/role.model';
+import { RoleName } from '@/app/core/constants/role-name.enum';
 
 interface Column {
     field: string;
@@ -33,6 +34,8 @@ interface ExportColumn {
     title: string;
     dataKey: string;
 }
+
+const TEACHER_ROLE_FILTER = RoleName.Teacher;
 
 @Component({
     selector: 'app-teachers-crud',
@@ -125,9 +128,9 @@ interface ExportColumn {
                     <td style="width: 3rem">
                         <p-tableCheckbox [value]="teacher" />
                     </td>
-                    <td style="min-width: 16rem">{{ teacher.username }}</td>
-                    <td style="min-width: 18rem">{{ teacher.email }}</td>
-                    <td style="min-width: 14rem">{{ teacher.phone }}</td>
+                    <td style="min-width: 16rem">{{ displayValue(teacher.username) }}</td>
+                    <td style="min-width: 18rem">{{ displayValue(teacher.email) }}</td>
+                    <td style="min-width: 14rem">{{ displayValue(teacher.phone) }}</td>
                     <td style="min-width: 10rem">{{ accountStatusLabel(teacher.accountStatus) }}</td>
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewTeacher(teacher)" />
@@ -184,21 +187,7 @@ interface ExportColumn {
                                                 fluid
                                             />
                                         </div>
-                                        <div>
-                                            <label for="roleId" class="block font-bold mb-3">{{ 'fields.role' | translate }} <span class="text-red-500">*</span></label>
-                                            <p-select
-                                                id="roleId"
-                                                [options]="roles()"
-                                                optionLabel="name"
-                                                optionValue="id"
-                                                formControlName="roleId"
-                                                appendTo="body"
-                                                [disabled]="submitting || viewOnly"
-                                                [placeholder]="'common.select_role' | translate"
-                                                fluid
-                                            />
-                                            <app-form-errors [control]="teacherForm.get('roleId')" [show]="step1Submitted"></app-form-errors>
-                                        </div>
+                                        <input type="hidden" formControlName="roleId" />
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
                                         <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
@@ -369,7 +358,7 @@ export class TeachersCrud implements OnInit {
     loadTeachers(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.teacherService.list(page, perPage).subscribe({
+        this.teacherService.list(page, perPage, TEACHER_ROLE_FILTER).subscribe({
             next: (res) => {
                 this.teachers.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -387,6 +376,7 @@ export class TeachersCrud implements OnInit {
         this.roleService.list(1, 100).subscribe({
             next: (res) => {
                 this.roles.set(res?.data ?? []);
+                this.applyRoleId();
                 this.rolesLoading = false;
             },
             error: () => {
@@ -411,7 +401,7 @@ export class TeachersCrud implements OnInit {
             email: '',
             phone: '',
             accountStatus: '',
-            roleId: '',
+            roleId: this.getRoleId(),
             profile: {
                 firstName: '',
                 lastName: '',
@@ -432,6 +422,7 @@ export class TeachersCrud implements OnInit {
         passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(20)]);
         passwordControl?.updateValueAndValidity();
         this.teacherForm.enable();
+        this.applyRoleId();
         this.teacherDialog = true;
     }
 
@@ -692,14 +683,31 @@ export class TeachersCrud implements OnInit {
     }
 
     accountStatusLabel(value?: AccountStatus) {
-        if (!value) return '';
+        if (!value) return '-';
         return this.translate.instant(`enums.account_status.${value}`);
+    }
+
+    displayValue(value: unknown) {
+        return value === null || value === undefined || value === '' ? '-' : value;
     }
 
     private stripEmpty<T extends Record<string, any>>(value: T): Partial<T> {
         return Object.fromEntries(
             Object.entries(value).filter(([, val]) => val !== '' && val !== null && val !== undefined)
         ) as Partial<T>;
+    }
+
+    private getRoleId(): string {
+        const role = this.roles().find((item) => item.name === TEACHER_ROLE_FILTER);
+        return role?.id !== undefined && role?.id !== null ? String(role.id) : '';
+    }
+
+    private applyRoleId() {
+        if (this.currentTeacherId || this.viewOnly) return;
+        const roleId = this.getRoleId();
+        if (roleId) {
+            this.teacherForm.get('roleId')?.setValue(roleId);
+        }
     }
 }
 

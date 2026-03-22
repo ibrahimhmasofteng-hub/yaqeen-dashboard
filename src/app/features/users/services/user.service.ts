@@ -7,8 +7,13 @@ import { User, UserProfile, UsersListResponse } from '@/app/features/users/model
 export class UserService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<UsersListResponse> {
-        return this.api.get<UsersListResponse>('actors', { params: { page, perPage } });
+    list(page: number, perPage: number, role?: string): Observable<UsersListResponse> {
+        const params = {
+            page,
+            perPage,
+            ...(role ? { role } : {})
+        };
+        return this.api.get<UsersListResponse>('actors', { params });
     }
 
     get(id: string | number): Observable<User> {

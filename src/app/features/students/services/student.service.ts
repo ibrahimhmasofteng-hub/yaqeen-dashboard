@@ -7,8 +7,13 @@ import { Student, StudentProfile, StudentsListResponse } from '@/app/features/st
 export class StudentService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<StudentsListResponse> {
-        return this.api.get<StudentsListResponse>('actors', { params: { page, perPage } });
+    list(page: number, perPage: number, role?: string): Observable<StudentsListResponse> {
+        const params = {
+            page,
+            perPage,
+            ...(role ? { role } : {})
+        };
+        return this.api.get<StudentsListResponse>('actors', { params });
     }
 
     get(id: string | number): Observable<Student> {
