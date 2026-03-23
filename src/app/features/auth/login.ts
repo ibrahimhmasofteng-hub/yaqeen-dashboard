@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
@@ -13,7 +12,6 @@ import { NotificationService } from '@/app/core/services/notification.service';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { LoadingService } from '@/app/core/services/loading.service';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
-import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconfigurator';
 
 @Component({
     selector: 'app-login',
@@ -21,19 +19,16 @@ import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconf
     imports: [
         CommonModule,
         ButtonModule,
-        CheckboxModule,
         InputTextModule,
         PasswordModule,
         ReactiveFormsModule,
         RouterModule,
         RippleModule,
         TranslateModule,
-        ProgressBarModule,
-        AppFloatingConfigurator
+        ProgressBarModule
     ],
     template: `
         <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
-        <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -57,13 +52,6 @@ import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconf
                                 {{ 'validation.required' | translate: { field: ('auth.password' | translate) } }}
                             </small>
 
-                            <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-                                <div class="flex items-center">
-                                    <p-checkbox formControlName="remember" id="rememberme1" binary class="mr-2"></p-checkbox>
-                                    <label for="rememberme1">{{ 'auth.remember_me' | translate }}</label>
-                                </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">{{ 'auth.forgot_password' | translate }}</span>
-                            </div>
                             <p-button type="submit" [label]="'auth.sign_in' | translate" styleClass="w-full" [disabled]="submitting || loginForm.invalid" [loading]="submitting"></p-button>
                         </form>
                     </div>
@@ -87,8 +75,7 @@ export class Login {
     constructor() {
         this.loginForm = this.fb.group({
             username: new FormControl('', [Validators.required]),
-            password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-            remember: [false]
+            password: new FormControl('', [Validators.required, Validators.minLength(8)])
         });
     }
 

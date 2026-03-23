@@ -21,17 +21,17 @@ export function translateLoaderFactory(http: HttpClient) {
 const CustomAura = definePreset(Aura, {
     semantic: {
         primary: {
-            50: '#e6f3ed',
-            100: '#cce7db',
-            200: '#9acfb7',
-            300: '#68b793',
-            400: '#369f6f',
-            500: '#056937',
-            600: '#045c30',
-            700: '#034f29',
-            800: '#024021',
-            900: '#023319',
-            950: '#011f10'
+            50: '#e6f4ed',
+            100: '#cde9db',
+            200: '#9cd3b8',
+            300: '#6bbd94',
+            400: '#3aa771',
+            500: '#076739',
+            600: '#065a32',
+            700: '#054d2b',
+            800: '#043f24',
+            900: '#03331c',
+            950: '#021f12'
         },
         colorScheme: {
             light: {
