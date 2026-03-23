@@ -149,7 +149,7 @@ const SUPERVISOR_ROLE_FILTER = RoleName.Supervisor;
                         </div>
                         <div>
                             <label for="password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
-                            <input type="password" pInputText id="password" formControlName="password" required fluid [disabled]="submitting || viewOnly" />
+                            <input type="password" pInputText id="password" formControlName="password" [required]="!currentSupervisorId" fluid [disabled]="submitting || viewOnly" />
                             <app-form-errors [control]="supervisorForm.get('password')" [show]="submitted"></app-form-errors>
                         </div>
                         <div>
@@ -336,6 +336,7 @@ export class SupervisorsCrud implements OnInit {
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
             this.supervisorForm.enable();
+            this.applyRoleId();
         });
     }
 
@@ -537,7 +538,9 @@ export class SupervisorsCrud implements OnInit {
     }
 
     private applyRoleId() {
-        if (this.currentSupervisorId || this.viewOnly) return;
+        if (this.viewOnly) return;
+        const currentRoleId = this.supervisorForm.get('roleId')?.value;
+        if (currentRoleId) return;
         const roleId = this.getRoleId();
         if (roleId) {
             this.supervisorForm.get('roleId')?.setValue(roleId);
