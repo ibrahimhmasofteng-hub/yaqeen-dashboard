@@ -41,6 +41,10 @@
     },
     "common": {
         "new": "جديد",
+        "add": "إضافة",
+        "create_group": "إنشاء حلقة",
+        "edit_group": "تعديل الحلقة",
+        "manage_members": "إدارة الأعضاء",
         "delete": "حذف",
         "export": "تصدير",
         "search": "بحث...",
@@ -54,6 +58,8 @@
         "save_course": "حفظ الدورة",
         "skip": "تخطي",
         "add_supervisor": "إضافة مشرف",
+        "no_teachers_selected": "لا يوجد معلمون محددون",
+        "no_students_selected": "لا يوجد طلاب محددون",
         "actions": "إجراءات",
         "status": "الحالة",
         "details": "التفاصيل",
@@ -103,6 +109,7 @@
         "distinguishing_signs": "علامات مميزة",
         "note": "ملاحظة",
         "name": "الاسم",
+        "group_name": "اسم الحلقة",
         "permissions": "الصلاحيات",
         "course_name": "اسم الدورة",
         "course_type": "نوع الدورة",
@@ -112,6 +119,7 @@
         "day": "اليوم",
         "start_hour": "وقت البداية",
         "end_hour": "وقت النهاية",
+        "teacher_type": "نوع المعلم",
         "relation_type": "صلة القرابة",
         "method": "الطريقة",
         "url": "الرابط",
@@ -135,6 +143,7 @@
         "students": "الطلاب",
         "course": "دورة",
         "courses": "الدورات",
+        "groups": "الحلقات",
         "guardian": "ولي الأمر",
         "guardians": "أولياء الأمور",
         "audit_log": "سجل التدقيق",
@@ -167,7 +176,11 @@
         },
         "courses": {
             "manage_title": "إدارة الدورات",
-            "details_title": "تفاصيل الدورة"
+            "details_title": "تفاصيل الدورة",
+            "create_title": "إنشاء دورة",
+            "create_subtitle": "أدخل تفاصيل الدورة والجدول.",
+            "edit_title": "تعديل الدورة",
+            "edit_subtitle": "حدّث التفاصيل والجدول والمشرفين."
         },
         "audit": {
             "title": "سجلات التدقيق",
@@ -206,6 +219,10 @@
             "Quran": "قرآن",
             "Hadith": "حديث",
             "Fiqh": "فقه"
+        },
+        "teacher_type": {
+            "MAIN": "أساسي",
+            "ASSISTANT": "مساعد"
         },
         "week_day": {
             "SUNDAY": "الأحد",

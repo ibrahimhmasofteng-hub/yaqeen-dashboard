@@ -41,6 +41,10 @@
     },
     "common": {
         "new": "New",
+        "add": "Add",
+        "create_group": "Create Group",
+        "edit_group": "Edit Group",
+        "manage_members": "Manage Members",
         "delete": "Delete",
         "export": "Export",
         "search": "Search...",
@@ -54,6 +58,8 @@
         "save_course": "Save Course",
         "skip": "Skip",
         "add_supervisor": "Add Supervisor",
+        "no_teachers_selected": "No teachers selected.",
+        "no_students_selected": "No students selected.",
         "actions": "Actions",
         "status": "Status",
         "details": "Details",
@@ -103,6 +109,7 @@
         "distinguishing_signs": "Distinguishing Signs",
         "note": "Note",
         "name": "Name",
+        "group_name": "Group Name",
         "permissions": "Permissions",
         "course_name": "Course Name",
         "course_type": "Course Type",
@@ -112,6 +119,7 @@
         "day": "Day",
         "start_hour": "Start Hour",
         "end_hour": "End Hour",
+        "teacher_type": "Teacher Type",
         "relation_type": "Relation Type",
         "method": "Method",
         "url": "URL",
@@ -135,6 +143,7 @@
         "students": "Students",
         "course": "Course",
         "courses": "Courses",
+        "groups": "Groups",
         "guardian": "Guardian",
         "guardians": "Guardians",
         "audit_log": "Audit Log",
@@ -167,7 +176,11 @@
         },
         "courses": {
             "manage_title": "Manage Courses",
-            "details_title": "Course Details"
+            "details_title": "Course Details",
+            "create_title": "Create Course",
+            "create_subtitle": "Fill in course details and schedule.",
+            "edit_title": "Edit Course",
+            "edit_subtitle": "Update details, schedule, and supervisors."
         },
         "audit": {
             "title": "Audit Logs",
@@ -206,6 +219,10 @@
             "Quran": "Quran",
             "Hadith": "Hadith",
             "Fiqh": "Fiqh"
+        },
+        "teacher_type": {
+            "MAIN": "Main",
+            "ASSISTANT": "Assistant"
         },
         "week_day": {
             "SUNDAY": "Sunday",
