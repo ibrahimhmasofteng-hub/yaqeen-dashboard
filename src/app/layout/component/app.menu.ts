@@ -39,6 +39,7 @@ export class AppMenu {
                         ]
                     },
                     { label: 'menu.courses', icon: 'pi pi-fw pi-book', routerLink: ['/courses'] },
+                    { label: 'menu.groups', icon: 'pi pi-fw pi-sitemap', routerLink: ['/groups'] },
                     { label: 'menu.roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
                     { label: 'menu.audit_logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
                 ]

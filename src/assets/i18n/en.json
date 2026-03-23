@@ -9,6 +9,7 @@
         "teachers": "Teachers",
         "students": "Students",
         "courses": "Courses",
+        "groups": "Groups",
         "audit_logs": "Audit Logs"
     },
     "auth": {
@@ -235,3 +236,6 @@
         }
     }
 }
+        "groups": {
+            "manage_title": "Manage Groups"
+        },

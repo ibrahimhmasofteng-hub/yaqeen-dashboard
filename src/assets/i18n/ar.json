@@ -9,6 +9,7 @@
         "teachers": "المعلمون",
         "students": "الطلاب",
         "courses": "الدورات",
+        "groups": "الحلقات",
         "audit_logs": "سجلات التدقيق"
     },
     "auth": {
@@ -181,6 +182,9 @@
             "create_subtitle": "أدخل تفاصيل الدورة والجدول.",
             "edit_title": "تعديل الدورة",
             "edit_subtitle": "حدّث التفاصيل والجدول والمشرفين."
+        },
+        "groups": {
+            "manage_title": "إدارة الحلقات"
         },
         "audit": {
             "title": "سجلات التدقيق",

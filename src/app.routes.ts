@@ -20,6 +20,7 @@ export const appRoutes: Routes = [
             { path: 'teachers', loadChildren: () => import('./app/features/teachers/teachers.routes') },
             { path: 'students', loadChildren: () => import('./app/features/students/students.routes') },
             { path: 'courses', loadChildren: () => import('./app/features/courses/courses.routes') },
+            { path: 'groups', loadChildren: () => import('./app/features/course-groups/course-groups.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }

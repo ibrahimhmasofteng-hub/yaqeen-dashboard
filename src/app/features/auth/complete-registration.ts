@@ -8,6 +8,7 @@ import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { AppFloatingConfigurator } from '@/app/layout/component/app.floatingconfigurator';
 import { AuthService } from '@/app/core/services/auth.service';
 import { LoadingService } from '@/app/core/services/loading.service';
 
@@ -23,10 +24,12 @@ import { LoadingService } from '@/app/core/services/loading.service';
         RouterModule,
         RippleModule,
         TranslateModule,
-        ProgressBarModule
+        ProgressBarModule,
+        AppFloatingConfigurator
     ],
     template: `
         <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
+        <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">

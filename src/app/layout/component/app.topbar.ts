@@ -25,6 +25,11 @@ import { Menu } from 'primeng/menu';
         </div>
 
         <div class="layout-topbar-actions">
+            <div class="layout-config-menu">
+                <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+                    <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+                </button>
+            </div>
             <div class="layout-topbar-menu-trigger">
                 <button type="button" class="layout-topbar-action" (click)="langMenu.toggle($event)">
                     <i class="pi pi-globe"></i>
@@ -125,6 +130,13 @@ export class AppTopbar implements OnInit {
                 this.setProfileItems();
                 this.setLanguageItems();
             });
+    }
+
+    toggleDarkMode() {
+        this.layoutService.layoutConfig.update((state) => ({
+            ...state,
+            darkTheme: !state.darkTheme
+        }));
     }
 
 }
