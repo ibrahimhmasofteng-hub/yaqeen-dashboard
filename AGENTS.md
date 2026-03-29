@@ -66,6 +66,3 @@ This file is authoritative for all future work (features, refactors, fixes).
   - `POST users`
   - `PUT users/:id`
   - `DELETE users/:id`
-
-## RTL
-- **Do not implement RTL** (explicitly not required).
