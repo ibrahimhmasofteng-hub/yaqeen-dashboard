@@ -13,7 +13,7 @@ import { LoadingService } from '@/app/core/services/loading.service';
     standalone: true,
     imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, ProgressBarModule],
     template: `<div class="layout-wrapper" [ngClass]="containerClass()">
-        <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
+        <p-progressbar mode="indeterminate" [style]="{ height: '3px', visibility: isLoading() ? 'visible' : 'hidden' }" styleClass="layout-top-progress"></p-progressbar>
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
         <div class="layout-main-container">

@@ -6,6 +6,9 @@ export interface CourseGroup {
     id: string;
     name: string;
     courseId: string;
+    courseName?: string;
+    studentCount?: number;
+    teacherCount?: number;
     createdAt?: string;
     updatedAt?: string;
 }

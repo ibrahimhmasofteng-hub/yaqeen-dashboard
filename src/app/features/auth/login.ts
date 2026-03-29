@@ -30,7 +30,7 @@ import { AccountStatus } from '@/app/features/users/models/account-status.enum';
         AppFloatingConfigurator
     ],
     template: `
-        <p-progressbar *ngIf="isLoading()" mode="indeterminate" [style]="{ height: '3px' }" styleClass="layout-top-progress"></p-progressbar>
+        <p-progressbar mode="indeterminate" [style]="{ height: '3px', visibility: isLoading() ? 'visible' : 'hidden' }" styleClass="layout-top-progress"></p-progressbar>
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
             <div class="flex flex-col items-center justify-center">

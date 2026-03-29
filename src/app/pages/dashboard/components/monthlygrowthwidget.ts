@@ -1,18 +1,21 @@
 import { afterNextRender, Component, effect, inject, signal } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
+import { TranslateModule } from '@ngx-translate/core';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     standalone: true,
-    selector: 'app-revenue-stream-widget',
-    imports: [ChartModule],
+    selector: 'app-monthly-growth-widget',
+    imports: [ChartModule, TranslateModule],
     template: `<div class="card mb-8!">
-        <div class="font-semibold text-xl mb-4">Revenue Stream</div>
+        <div class="font-semibold text-xl mb-4">{{ 'dashboard.monthly_growth' | translate }}</div>
         <p-chart type="bar" [data]="chartData()" [options]="chartOptions()" class="h-100" />
     </div>`
 })
-export class RevenueStreamWidget {
+export class MonthlyGrowthWidget {
     layoutService = inject(LayoutService);
+    translate = inject(TranslateService);
 
     chartData = signal<any>(null);
 
@@ -31,6 +34,11 @@ export class RevenueStreamWidget {
                 this.initChart();
             }, 150);
         });
+        this.translate.onLangChange.subscribe(() => {
+            setTimeout(() => {
+                this.initChart();
+            }, 150);
+        });
     }
 
     initChart() {
@@ -40,27 +48,34 @@ export class RevenueStreamWidget {
         const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
 
         this.chartData.set({
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+            labels: [
+                this.translate.instant('dashboard.months.jan'),
+                this.translate.instant('dashboard.months.feb'),
+                this.translate.instant('dashboard.months.mar'),
+                this.translate.instant('dashboard.months.apr'),
+                this.translate.instant('dashboard.months.may'),
+                this.translate.instant('dashboard.months.jun')
+            ],
             datasets: [
                 {
                     type: 'bar',
-                    label: 'Subscriptions',
+                    label: this.translate.instant('dashboard.students'),
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
-                    data: [4000, 10000, 15000, 4000],
-                    barThickness: 32
+                    data: [40, 55, 62, 58, 71, 80],
+                    barThickness: 24
                 },
                 {
                     type: 'bar',
-                    label: 'Advertising',
+                    label: this.translate.instant('dashboard.groups'),
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-300'),
-                    data: [2100, 8400, 2400, 7500],
-                    barThickness: 32
+                    data: [6, 7, 9, 8, 10, 12],
+                    barThickness: 24
                 },
                 {
                     type: 'bar',
-                    label: 'Affiliate',
+                    label: this.translate.instant('dashboard.courses'),
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                    data: [4100, 5200, 3400, 7400],
+                    data: [1, 2, 2, 3, 3, 4],
                     borderRadius: {
                         topLeft: 8,
                         topRight: 8,
@@ -68,7 +83,7 @@ export class RevenueStreamWidget {
                         bottomRight: 0
                     },
                     borderSkipped: false,
-                    barThickness: 32
+                    barThickness: 24
                 }
             ]
         });

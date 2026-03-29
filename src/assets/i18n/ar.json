@@ -54,6 +54,7 @@
         "back": "رجوع",
         "next": "التالي",
         "save": "حفظ",
+        "edit": "تعديل",
         "save_student": "حفظ الطالب",
         "save_guardian": "حفظ ولي الأمر",
         "save_course": "حفظ الدورة",
@@ -206,6 +207,45 @@
         "brand": "يقين",
         "lang_en": "English",
         "lang_ar": "العربية"
+    },
+    "dashboard": {
+        "students": "الطلاب",
+        "teachers": "المعلمون",
+        "courses": "الدورات",
+        "groups": "الحلقات",
+        "this_month": "هذا الشهر",
+        "recent_registrations": "أحدث التسجيلات",
+        "top_courses": "أعلى الدورات تسجيلًا",
+        "monthly_growth": "النمو الشهري",
+        "alerts_reminders": "التنبيهات والتذكيرات",
+        "today": "اليوم",
+        "yesterday": "أمس",
+        "last_week": "الأسبوع الماضي",
+        "alert_course_end_prefix": "الدورة",
+        "alert_course_end_suffix": "تنتهي خلال {{days}} أيام",
+        "alert_new_students": "انضم {{count}} طالبًا هذا الأسبوع.",
+        "alert_group_teacher_prefix": "حلقة",
+        "alert_group_teacher_suffix": "لديها {{count}} معلمون.",
+        "alert_blocked_accounts": "تم وسم {{count}} حسابًا كمحظور.",
+        "alert_groups_growth": "زادت الحلقات النشطة بنسبة {{percent}}%.",
+        "alert_new_courses": "تم إنشاء {{count}} دورات جديدة.",
+        "course_type_quran": "قرآن",
+        "course_type_hadith": "حديث",
+        "course_type_fiqh": "فقه",
+        "roles": {
+            "student": "طالب",
+            "teacher": "معلم",
+            "guardian": "ولي أمر",
+            "supervisor": "مشرف"
+        },
+        "months": {
+            "jan": "يناير",
+            "feb": "فبراير",
+            "mar": "مارس",
+            "apr": "أبريل",
+            "may": "مايو",
+            "jun": "يونيو"
+        }
     },
     "relations": {
         "father": "أب",

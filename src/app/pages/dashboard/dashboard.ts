@@ -1,23 +1,23 @@
 import { Component } from '@angular/core';
-import { NotificationsWidget } from './components/notificationswidget';
-import { StatsWidget } from './components/statswidget';
-import { RecentSalesWidget } from './components/recentsaleswidget';
-import { BestSellingWidget } from './components/bestsellingwidget';
-import { RevenueStreamWidget } from './components/revenuestreamwidget';
+import { StatsWidget } from './components/statswidget.js';
+import { AlertsRemindersWidget } from './components/alertsreminderswidget.js';
+import { RecentRegistrationsWidget } from './components/recentregistrationswidget.js';
+import { TopCoursesWidget } from './components/topcourseswidget.js';
+import { MonthlyGrowthWidget } from './components/monthlygrowthwidget.js';
 
 @Component({
     selector: 'app-dashboard',
-    imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
+    imports: [StatsWidget, RecentRegistrationsWidget, TopCoursesWidget, MonthlyGrowthWidget, AlertsRemindersWidget],
     template: `
         <div class="grid grid-cols-12 gap-8">
             <app-stats-widget class="contents" />
             <div class="col-span-12 xl:col-span-6">
-                <app-recent-sales-widget />
-                <app-best-selling-widget />
+                <app-recent-registrations-widget />
+                <app-top-courses-widget />
             </div>
             <div class="col-span-12 xl:col-span-6">
-                <app-revenue-stream-widget />
-                <app-notifications-widget />
+                <app-monthly-growth-widget />
+                <app-alerts-reminders-widget />
             </div>
         </div>
     `

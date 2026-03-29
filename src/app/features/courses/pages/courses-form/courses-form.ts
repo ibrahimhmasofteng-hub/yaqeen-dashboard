@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -55,6 +55,8 @@ interface Group {
     name: string;
     teachers: Array<Person & { type: GroupTeacherType }>;
     students: Person[];
+    teacherCount?: number;
+    studentCount?: number;
 }
 
 const SUPERVISOR_ROLE_FILTER = RoleName.Supervisor;
@@ -83,9 +85,12 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
         FormErrors
     ],
     template: `
-        <div class="mb-6">
-            <h2 class="text-2xl font-semibold">{{ isEditMode ? ('pages.courses.edit_title' | translate) : ('pages.courses.create_title' | translate) }}</h2>
-            <p class="text-surface-500">{{ isEditMode ? ('pages.courses.edit_subtitle' | translate) : ('pages.courses.create_subtitle' | translate) }}</p>
+        <div class="mb-6 flex items-start justify-between gap-4">
+            <div>
+                <h2 class="text-2xl font-semibold">{{ isEditMode ? ('pages.courses.edit_title' | translate) : ('pages.courses.create_title' | translate) }}</h2>
+                <p class="text-surface-500">{{ isEditMode ? ('pages.courses.edit_subtitle' | translate) : ('pages.courses.create_subtitle' | translate) }}</p>
+            </div>
+            <p-button *ngIf="viewOnly" [label]="'common.edit' | translate" icon="pi pi-pencil" severity="secondary" (onClick)="goToEdit()"></p-button>
         </div>
 
         <div class="card">
@@ -314,8 +319,8 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                 <ng-template #body let-group>
                     <tr>
                         <td>{{ displayValue(group.name) }}</td>
-                        <td>{{ group.teachers.length }}</td>
-                        <td>{{ group.students.length }}</td>
+                        <td>{{ displayValue(group.teacherCount ?? group.teachers.length) }}</td>
+                        <td>{{ displayValue(group.studentCount ?? group.students.length) }}</td>
                         <td>
                             <p-button icon="pi pi-users" class="mr-2" [rounded]="true" [outlined]="true" (click)="openMembersDrawer(group)" />
                             <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="openEditGroup(group)" [disabled]="true" />
@@ -542,7 +547,8 @@ export class CoursesForm implements OnInit {
         private notification: NotificationService,
         private translate: TranslateService,
         private fb: FormBuilder,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private router: Router
     ) {
         this.courseForm = this.fb.group({
             name: ['', Validators.required],
@@ -601,6 +607,11 @@ export class CoursesForm implements OnInit {
     setEditSection(value: string | number | undefined | null) {
         if (!value) return;
         this.activeEditSection = String(value) as EditSection;
+    }
+
+    goToEdit() {
+        if (!this.currentCourseId) return;
+        this.router.navigate(['/courses', this.currentCourseId, 'edit']);
     }
 
     nextFromDetails() {
@@ -788,7 +799,9 @@ export class CoursesForm implements OnInit {
                         id: String(created.id),
                         name: created.name,
                         teachers: [],
-                        students: []
+                        students: [],
+                        teacherCount: created.teacherCount ?? 0,
+                        studentCount: created.studentCount ?? 0
                     }
                 ];
                 this.groupSubmitting = false;
@@ -882,7 +895,11 @@ export class CoursesForm implements OnInit {
                 next: () => {
                     this.groups = this.groups.map((group) =>
                         group.id === this.activeGroup?.id
-                            ? { ...group, students: [...this.membersStudentsSelection] }
+                            ? {
+                                  ...group,
+                                  students: [...this.membersStudentsSelection],
+                                  studentCount: this.membersStudentsSelection.length
+                              }
                             : group
                     );
                     this.groupMembersSubmitting = false;
@@ -912,7 +929,8 @@ export class CoursesForm implements OnInit {
                               teachers: this.membersTeachersSelection.map((teacher) => ({
                                   ...teacher,
                                   type: this.teacherTypes[teacher.id] ?? GroupTeacherType.Main
-                              }))
+                              })),
+                              teacherCount: this.membersTeachersSelection.length
                           }
                         : group
                 );
@@ -1028,7 +1046,9 @@ export class CoursesForm implements OnInit {
                     id: String(group.id),
                     name: group.name,
                     teachers: [],
-                    students: []
+                    students: [],
+                    teacherCount: group.teacherCount,
+                    studentCount: group.studentCount
                 }));
             },
             error: () => {}

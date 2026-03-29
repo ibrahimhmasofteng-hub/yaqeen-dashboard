@@ -7,8 +7,8 @@ export interface CourseGroup {
         id?: string | number;
         name?: string;
     };
-    teachersCount?: number;
-    studentsCount?: number;
+    teacherCount?: number;
+    studentCount?: number;
     createdAt?: string;
     updatedAt?: string;
 }

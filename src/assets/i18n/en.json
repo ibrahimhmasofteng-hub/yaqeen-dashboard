@@ -54,6 +54,7 @@
         "back": "Back",
         "next": "Next",
         "save": "Save",
+        "edit": "Edit",
         "save_student": "Save Student",
         "save_guardian": "Save Guardian",
         "save_course": "Save Course",
@@ -183,6 +184,9 @@
             "edit_title": "Edit Course",
             "edit_subtitle": "Update details, schedule, and supervisors."
         },
+        "groups": {
+            "manage_title": "Manage Groups"
+        },
         "audit": {
             "title": "Audit Logs",
             "logs_title": "Logs"
@@ -203,6 +207,45 @@
         "brand": "Yaqeen",
         "lang_en": "English",
         "lang_ar": "العربية"
+    },
+    "dashboard": {
+        "students": "Students",
+        "teachers": "Teachers",
+        "courses": "Courses",
+        "groups": "Groups",
+        "this_month": "this month",
+        "recent_registrations": "Recent Registrations",
+        "top_courses": "Top Courses by Enrollment",
+        "monthly_growth": "Monthly Growth",
+        "alerts_reminders": "Alerts & Reminders",
+        "today": "TODAY",
+        "yesterday": "YESTERDAY",
+        "last_week": "LAST WEEK",
+        "alert_course_end_prefix": "Course",
+        "alert_course_end_suffix": "ends in {{days}} days",
+        "alert_new_students": "{{count}} new students joined this week.",
+        "alert_group_teacher_prefix": "Group",
+        "alert_group_teacher_suffix": "has {{count}} teachers assigned.",
+        "alert_blocked_accounts": "{{count}} accounts marked as Blocked.",
+        "alert_groups_growth": "Active groups increased by {{percent}}%.",
+        "alert_new_courses": "{{count}} new courses were created.",
+        "course_type_quran": "Quran",
+        "course_type_hadith": "Hadith",
+        "course_type_fiqh": "Fiqh",
+        "roles": {
+            "student": "Student",
+            "teacher": "Teacher",
+            "guardian": "Guardian",
+            "supervisor": "Supervisor"
+        },
+        "months": {
+            "jan": "Jan",
+            "feb": "Feb",
+            "mar": "Mar",
+            "apr": "Apr",
+            "may": "May",
+            "jun": "Jun"
+        }
     },
     "relations": {
         "father": "Father",
@@ -236,6 +279,3 @@
         }
     }
 }
-        "groups": {
-            "manage_title": "Manage Groups"
-        },

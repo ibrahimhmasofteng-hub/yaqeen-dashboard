@@ -83,8 +83,8 @@ interface ExportColumn {
                 <tr>
                     <td style="min-width: 18rem">{{ displayValue(group.name) }}</td>
                     <td style="min-width: 16rem">{{ displayValue(group.courseName || group.course?.name || group.courseId) }}</td>
-                    <td style="min-width: 10rem">{{ displayValue(group.teachersCount) }}</td>
-                    <td style="min-width: 10rem">{{ displayValue(group.studentsCount) }}</td>
+                    <td style="min-width: 10rem">{{ displayValue(group.teacherCount) }}</td>
+                    <td style="min-width: 10rem">{{ displayValue(group.studentCount) }}</td>
                     <td style="min-width: 14rem">{{ group.createdAt ? (group.createdAt | date: 'medium') : '-' }}</td>
                 </tr>
             </ng-template>
@@ -142,8 +142,8 @@ export class CourseGroupsList implements OnInit {
         this.cols = [
             { field: 'name', header: this.translate.instant('fields.group_name') },
             { field: 'courseName', header: this.translate.instant('entities.course') },
-            { field: 'teachersCount', header: this.translate.instant('entities.teachers') },
-            { field: 'studentsCount', header: this.translate.instant('entities.students') },
+            { field: 'teacherCount', header: this.translate.instant('entities.teachers') },
+            { field: 'studentCount', header: this.translate.instant('entities.students') },
             { field: 'createdAt', header: this.translate.instant('fields.created_at') }
         ];
         this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
