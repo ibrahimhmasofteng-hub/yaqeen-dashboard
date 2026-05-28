@@ -47,4 +47,12 @@ export class GroupTeachersService {
     listByGroup(groupId: string | number, page = 1, perPage = 10): Observable<GroupTeachersResponse> {
         return this.api.get<GroupTeachersResponse>(`group-teachers/by-group/${groupId}`, { params: { page, perPage } });
     }
+
+    add(groupId: string, teacherId: string, type: GroupTeacherType): Observable<unknown> {
+        return this.api.post<unknown>(`group-teachers/${groupId}/teachers`, { teacherId, type });
+    }
+
+    remove(groupId: string, teacherId: string): Observable<unknown> {
+        return this.api.delete<unknown>(`group-teachers/${groupId}/teachers/${teacherId}`);
+    }
 }

@@ -59,6 +59,7 @@
         "save_guardian": "حفظ ولي الأمر",
         "save_course": "حفظ الدورة",
         "skip": "تخطي",
+        "finish": "إنهاء",
         "add_supervisor": "إضافة مشرف",
         "no_teachers_selected": "لا يوجد معلمون محددون",
         "no_students_selected": "لا يوجد طلاب محددون",
@@ -71,9 +72,16 @@
         "select_status": "اختر الحالة",
         "select_type": "اختر النوع",
         "select_day": "اختر اليوم",
+        "select_course": "اختر الدورة",
         "select_relation": "اختر صلة القرابة",
         "select_supervisors": "اختر المشرفين",
+        "select_target_group": "اختر الحلقة المستهدفة",
         "add_time": "إضافة وقت",
+        "activate": "تنشيط",
+        "transfer": "نقل",
+        "transfer_students": "نقل الطلاب",
+        "transfer_success": "تم نقل الطلاب بنجاح",
+        "transfer_confirm_text": "نقل {count} طالب/طلاب من \"{source}\" إلى:",
         "delete_selected_confirm": "هل أنت متأكد من حذف {{entity}} المحددين؟",
         "delete_one_confirm": "هل أنت متأكد من حذف {{name}}؟",
         "created": "تم إنشاء {{entity}}",
@@ -122,6 +130,7 @@
         "start_hour": "وقت البداية",
         "end_hour": "وقت النهاية",
         "teacher_type": "نوع المعلم",
+        "target_group": "الحلقة المستهدفة",
         "relation_type": "صلة القرابة",
         "method": "الطريقة",
         "url": "الرابط",
@@ -185,7 +194,8 @@
             "edit_subtitle": "حدّث التفاصيل والجدول والمشرفين."
         },
         "groups": {
-            "manage_title": "إدارة الحلقات"
+            "manage_title": "إدارة الحلقات",
+            "details_title": "تفاصيل الحلقة"
         },
         "audit": {
             "title": "سجلات التدقيق",

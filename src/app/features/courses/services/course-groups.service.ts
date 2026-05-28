@@ -34,6 +34,18 @@ export class CourseGroupsService {
         return this.api.post<CourseGroup>('course-groups', payload);
     }
 
+    get(id: string | number): Observable<CourseGroup> {
+        return this.api.get<CourseGroup>(`course-groups/${id}`);
+    }
+
+    update(id: string | number, payload: { name?: string }): Observable<CourseGroup> {
+        return this.api.patch<CourseGroup>(`course-groups/${id}`, payload);
+    }
+
+    delete(id: string | number): Observable<unknown> {
+        return this.api.delete<unknown>(`course-groups/${id}`);
+    }
+
     listByCourse(courseId: string | number, page = 1, perPage = 10): Observable<CourseGroupsResponse> {
         return this.api.get<CourseGroupsResponse>(`course-groups/by-course/${courseId}`, { params: { page, perPage } });
     }

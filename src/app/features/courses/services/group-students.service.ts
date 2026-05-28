@@ -40,4 +40,12 @@ export class GroupStudentsService {
     listByGroup(groupId: string | number, page = 1, perPage = 10): Observable<GroupStudentsResponse> {
         return this.api.get<GroupStudentsResponse>(`group-students/by-group/${groupId}`, { params: { page, perPage } });
     }
+
+    add(groupId: string, studentId: string): Observable<unknown> {
+        return this.api.post<unknown>(`group-students/${groupId}/students`, { studentId });
+    }
+
+    remove(groupId: string, studentId: string): Observable<unknown> {
+        return this.api.delete<unknown>(`group-students/${groupId}/students/${studentId}`);
+    }
 }

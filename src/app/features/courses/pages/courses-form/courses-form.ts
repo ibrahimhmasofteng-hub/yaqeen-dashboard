@@ -14,6 +14,8 @@ import { SelectModule } from 'primeng/select';
 import { StepperModule } from 'primeng/stepper';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
 import { CourseService } from '@/app/features/courses/services/course.service';
 import { CourseSupervisorsService } from '@/app/features/courses/services/course-supervisors.service';
@@ -33,7 +35,7 @@ import { RoleName } from '@/app/core/constants/role-name.enum';
 import { NotificationService } from '@/app/core/services/notification.service';
 import { StudentService } from '@/app/features/students/services/student.service';
 import { Student } from '@/app/features/students/models/student.model';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, switchMap } from 'rxjs';
 
 interface CourseTimeRow {
     day: WeekDay | null;
@@ -81,6 +83,8 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
         StepperModule,
         TabsModule,
         TableModule,
+        TooltipModule,
+        TagModule,
         TranslateModule,
         FormErrors
     ],
@@ -374,17 +378,115 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
             </ng-template>
         </p-dialog>
 
-        <p-drawer [(visible)]="groupDrawerVisible" position="right" [style]="{ width: '28rem' }" [modal]="true" [header]="groupDrawerTitle">
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label for="groupName" class="block font-bold mb-3">{{ 'fields.group_name' | translate }}</label>
-                    <input type="text" pInputText id="groupName" [(ngModel)]="groupName" [ngModelOptions]="{ standalone: true }" [disabled]="viewOnly || groupSubmitting" />
-                </div>
-                <div class="flex justify-end gap-2 mt-4">
-                    <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="closeGroupDrawer()" />
-                    <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="saveGroup()" [loading]="groupSubmitting" [disabled]="!groupName.trim() || viewOnly || groupSubmitting" />
-                </div>
-            </div>
+        <p-drawer [(visible)]="groupDrawerVisible" position="right" [style]="{ width: '48rem' }" [modal]="true" [header]="'common.create_group' | translate">
+            <p-stepper [value]="createGroupStep">
+                <p-step-list>
+                    <p-step [value]="1">{{ 'common.details' | translate }}</p-step>
+                    <p-step [value]="2" [disabled]="!createdGroupTempId">{{ 'entities.teachers' | translate }}</p-step>
+                    <p-step [value]="3" [disabled]="!createdGroupTempId">{{ 'entities.students' | translate }}</p-step>
+                </p-step-list>
+                <p-step-panels>
+                    <p-step-panel [value]="1">
+                        <ng-template #content>
+                            <div class="flex flex-col gap-4">
+                                <div>
+                                    <label for="groupName" class="block font-bold mb-3">{{ 'fields.group_name' | translate }} <span class="text-red-500">*</span></label>
+                                    <input type="text" pInputText id="groupName" [(ngModel)]="groupName" [ngModelOptions]="{ standalone: true }" [disabled]="groupSubmitting" fluid />
+                                </div>
+                                <div class="flex justify-end gap-2 mt-4">
+                                    <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="closeGroupDrawer()" [disabled]="groupSubmitting" />
+                                    <p-button [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="createGroupAndContinue()" [loading]="groupSubmitting" [disabled]="!groupName.trim() || groupSubmitting" />
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                    <p-step-panel [value]="2">
+                        <ng-template #content>
+                            <div class="flex items-center justify-between mb-4">
+                                <p-iconfield>
+                                    <p-inputicon styleClass="pi pi-search" />
+                                    <input pInputText type="text" [placeholder]="'common.search' | translate" (input)="onCreateGroupFilter($event, 'teachers')" />
+                                </p-iconfield>
+                                <span class="text-sm text-surface-500">{{ createGroupTeachersSelection.length || 0 }} {{ 'entities.teachers' | translate }}</span>
+                            </div>
+                            <p-table
+                                [value]="createGroupFilteredTeachers"
+                                dataKey="id"
+                                selectionMode="multiple"
+                                [(selection)]="createGroupTeachersSelection"
+                                (selectionChange)="syncCreateGroupTeacherTypes($event)"
+                                [tableStyle]="{ 'min-width': '36rem' }"
+                            >
+                                <ng-template #header>
+                                    <tr>
+                                        <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+                                        <th>{{ 'fields.name' | translate }}</th>
+                                        <th style="width: 12rem">{{ 'fields.teacher_type' | translate }}</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template #body let-teacher>
+                                    <tr>
+                                        <td><p-tableCheckbox [value]="teacher" /></td>
+                                        <td>{{ displayValue(teacher.name) }}</td>
+                                        <td>
+                                            <p-select
+                                                [options]="teacherTypeOptions"
+                                                optionLabel="label"
+                                                optionValue="value"
+                                                [(ngModel)]="createGroupTeacherTypes[teacher.id]"
+                                                [ngModelOptions]="{ standalone: true }"
+                                                appendTo="body"
+                                                [disabled]="!createGroupTeachersSelection.some((t) => t.id === teacher.id) || groupMembersSubmitting"
+                                                [placeholder]="'common.select_type' | translate"
+                                                styleClass="w-full"
+                                            />
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                            <div class="flex justify-between gap-2 mt-6">
+                                <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="createGroupStep = 1" [disabled]="groupMembersSubmitting" />
+                                <p-button [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="assignCreateGroupTeachers()" [loading]="groupMembersSubmitting" [disabled]="groupMembersSubmitting" />
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                    <p-step-panel [value]="3">
+                        <ng-template #content>
+                            <div class="flex items-center justify-between mb-4">
+                                <p-iconfield>
+                                    <p-inputicon styleClass="pi pi-search" />
+                                    <input pInputText type="text" [placeholder]="'common.search' | translate" (input)="onCreateGroupFilter($event, 'students')" />
+                                </p-iconfield>
+                                <span class="text-sm text-surface-500">{{ createGroupStudentsSelection.length || 0 }} {{ 'entities.students' | translate }}</span>
+                            </div>
+                            <p-table
+                                [value]="createGroupFilteredStudents"
+                                dataKey="id"
+                                selectionMode="multiple"
+                                [(selection)]="createGroupStudentsSelection"
+                                [tableStyle]="{ 'min-width': '36rem' }"
+                            >
+                                <ng-template #header>
+                                    <tr>
+                                        <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
+                                        <th>{{ 'fields.name' | translate }}</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template #body let-student>
+                                    <tr>
+                                        <td><p-tableCheckbox [value]="student" /></td>
+                                        <td>{{ displayValue(student.name) }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                            <div class="flex justify-between gap-2 mt-6">
+                                <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="createGroupStep = 2" [disabled]="groupMembersSubmitting" />
+                                <p-button [label]="'common.finish' | translate" icon="pi pi-check" (onClick)="assignCreateGroupStudents()" [loading]="groupMembersSubmitting" [disabled]="groupMembersSubmitting" />
+                            </div>
+                        </ng-template>
+                    </p-step-panel>
+                </p-step-panels>
+            </p-stepper>
         </p-drawer>
 
         <p-drawer [(visible)]="membersDrawerVisible" position="right" [style]="{ width: '48rem' }" [modal]="true" [header]="membersDrawerTitle">
@@ -416,12 +518,16 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                                     <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
                                     <th>{{ 'fields.name' | translate }}</th>
                                     <th style="width: 12rem">{{ 'fields.teacher_type' | translate }}</th>
+                                    <th style="width: 10rem">{{ 'common.actions' | translate }}</th>
                                 </tr>
                             </ng-template>
                             <ng-template #body let-teacher>
                                 <tr>
                                     <td><p-tableCheckbox [value]="teacher" /></td>
-                                    <td>{{ displayValue(teacher.name) }}</td>
+                                    <td>
+                                        {{ displayValue(teacher.name) }}
+                                        <p-tag *ngIf="teacherTypes[teacher.id] === 'MAIN'" [value]="'enums.teacher_type.MAIN' | translate" severity="success" class="ml-2" styleClass="text-xs" />
+                                    </td>
                                     <td>
                                         <p-select
                                             [options]="teacherTypeOptions"
@@ -435,6 +541,18 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                                             styleClass="w-full"
                                         />
                                     </td>
+                                    <td>
+                                        <p-button
+                                            *ngIf="isTeacherSelected(teacher) && teacherTypes[teacher.id] === 'ASSISTANT'"
+                                            [label]="'common.activate' | translate"
+                                            icon="pi pi-check-circle"
+                                            severity="success"
+                                            size="small"
+                                            [outlined]="true"
+                                            (click)="activateAssistant(teacher)"
+                                            [disabled]="viewOnly || groupMembersSubmitting"
+                                        />
+                                    </td>
                                 </tr>
                             </ng-template>
                         </p-table>
@@ -442,11 +560,25 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                     </p-tabpanel>
                     <p-tabpanel value="students">
                         <div class="flex items-center justify-between mb-4">
-                            <p-iconfield>
-                                <p-inputicon styleClass="pi pi-search" />
-                                <input pInputText type="text" [placeholder]="'common.search' | translate" (input)="onMembersFilter($event, 'students')" />
-                            </p-iconfield>
-                            <span class="text-sm text-surface-500">{{ membersStudentsSelection.length || 0 }} {{ 'entities.students' | translate }}</span>
+                            <div class="flex items-center gap-2">
+                                <p-iconfield>
+                                    <p-inputicon styleClass="pi pi-search" />
+                                    <input pInputText type="text" [placeholder]="'common.search' | translate" (input)="onMembersFilter($event, 'students')" />
+                                </p-iconfield>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm text-surface-500">{{ membersStudentsSelection.length || 0 }} {{ 'entities.students' | translate }}</span>
+                                <p-button
+                                    *ngIf="membersStudentsSelection.length && !viewOnly"
+                                    [label]="'common.transfer' | translate"
+                                    icon="pi pi-arrow-right-arrow-left"
+                                    severity="warn"
+                                    size="small"
+                                    [outlined]="true"
+                                    (click)="openTransferDialog()"
+                                    [disabled]="groupMembersSubmitting"
+                                />
+                            </div>
                         </div>
                         <p-table
                             [value]="filteredStudents"
@@ -478,6 +610,48 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                 <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="applyMembers()" [loading]="groupMembersSubmitting" [disabled]="viewOnly || groupMembersSubmitting || groupMembersLoading" />
             </div>
         </p-drawer>
+
+        <p-dialog
+            [(visible)]="transferDialogVisible"
+            [style]="{ width: '480px' }"
+            [header]="'common.transfer_students' | translate"
+            [modal]="true"
+            [draggable]="false"
+        >
+            <ng-template #content>
+                <div class="flex flex-col gap-4">
+                    <p class="m-0 text-surface-600">
+                        {{ 'common.transfer_confirm_text' | translate: { count: transferStudentIds.length, source: activeGroup?.name ?? '' } }}
+                    </p>
+                    <div>
+                        <label for="targetGroup" class="block font-bold mb-3">{{ 'fields.target_group' | translate }}</label>
+                        <p-select
+                            id="targetGroup"
+                            [options]="transferTargetGroupOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [(ngModel)]="transferTargetGroupId"
+                            [ngModelOptions]="{ standalone: true }"
+                            appendTo="body"
+                            [disabled]="transferSubmitting"
+                            [placeholder]="'common.select_target_group' | translate"
+                            styleClass="w-full"
+                        />
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template #footer>
+                <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="closeTransferDialog()" [disabled]="transferSubmitting" />
+                <p-button
+                    [label]="'common.transfer' | translate"
+                    icon="pi pi-arrow-right-arrow-left"
+                    severity="warn"
+                    (click)="transferStudents()"
+                    [loading]="transferSubmitting"
+                    [disabled]="!transferTargetGroupId || transferSubmitting"
+                />
+            </ng-template>
+        </p-dialog>
     `
 })
 export class CoursesForm implements OnInit {
@@ -519,6 +693,14 @@ export class CoursesForm implements OnInit {
     membersStudentsSelection: Person[] = [];
     teacherTypes: Record<string, GroupTeacherType> = {};
 
+    createGroupStep = 1;
+    createdGroupTempId?: string;
+    createGroupTeachersSelection: Person[] = [];
+    createGroupStudentsSelection: Person[] = [];
+    createGroupTeacherTypes: Record<string, GroupTeacherType> = {};
+    createGroupFilteredTeachers: Person[] = [];
+    createGroupFilteredStudents: Person[] = [];
+
     groups: Group[] = [];
     teachers: Person[] = [];
     students: Person[] = [];
@@ -533,6 +715,11 @@ export class CoursesForm implements OnInit {
     groupMembersLoading = false;
     teachersLoading = false;
     studentsLoading = false;
+
+    transferDialogVisible = false;
+    transferTargetGroupId = '';
+    transferStudentIds: string[] = [];
+    transferSubmitting = false;
 
     constructor(
         private courseService: CourseService,
@@ -771,6 +958,13 @@ export class CoursesForm implements OnInit {
         if (this.viewOnly) return;
         this.groupName = '';
         this.editingGroupId = undefined;
+        this.createGroupStep = 1;
+        this.createdGroupTempId = undefined;
+        this.createGroupTeachersSelection = [];
+        this.createGroupStudentsSelection = [];
+        this.createGroupTeacherTypes = {};
+        this.createGroupFilteredTeachers = [...this.teachers];
+        this.createGroupFilteredStudents = [...this.students];
         this.groupDrawerVisible = true;
     }
 
@@ -785,7 +979,7 @@ export class CoursesForm implements OnInit {
         this.groupDrawerVisible = false;
     }
 
-    saveGroup() {
+    createGroupAndContinue() {
         const name = this.groupName.trim();
         if (!name || this.groupSubmitting) return;
         const courseId = this.currentCourseId || this.courseCreatedId;
@@ -793,23 +987,119 @@ export class CoursesForm implements OnInit {
         this.groupSubmitting = true;
         this.courseGroupsService.create({ name, courseId }).subscribe({
             next: (created) => {
-                this.groups = [
-                    ...this.groups,
-                    {
-                        id: String(created.id),
-                        name: created.name,
-                        teachers: [],
-                        students: [],
-                        teacherCount: created.teacherCount ?? 0,
-                        studentCount: created.studentCount ?? 0
-                    }
-                ];
+                const newGroup: Group = {
+                    id: String(created.id),
+                    name: created.name,
+                    teachers: [],
+                    students: [],
+                    teacherCount: 0,
+                    studentCount: 0
+                };
+                this.groups = [...this.groups, newGroup];
+                this.createdGroupTempId = newGroup.id;
                 this.groupSubmitting = false;
+                this.createGroupStep = 2;
+            },
+            error: () => {
+                this.groupSubmitting = false;
+            }
+        });
+    }
+
+    syncCreateGroupTeacherTypes(selection: Person[] | null | undefined) {
+        const selected = selection ?? [];
+        selected.forEach((teacher) => {
+            if (!this.createGroupTeacherTypes[teacher.id]) {
+                this.createGroupTeacherTypes[teacher.id] = GroupTeacherType.Main;
+            }
+        });
+        const selectedIds = new Set(selected.map((t) => t.id));
+        Object.keys(this.createGroupTeacherTypes).forEach((id) => {
+            if (!selectedIds.has(id)) {
+                delete this.createGroupTeacherTypes[id];
+            }
+        });
+    }
+
+    onCreateGroupFilter(event: Event, type: 'teachers' | 'students') {
+        const query = (event.target as HTMLInputElement).value.toLowerCase();
+        if (type === 'teachers') {
+            this.createGroupFilteredTeachers = this.teachers.filter((t) => t.name.toLowerCase().includes(query));
+        } else {
+            this.createGroupFilteredStudents = this.students.filter((s) => s.name.toLowerCase().includes(query));
+        }
+    }
+
+    assignCreateGroupTeachers() {
+        if (!this.createdGroupTempId || this.groupMembersSubmitting) return;
+        this.groupMembersSubmitting = true;
+        if (!this.createGroupTeachersSelection.length) {
+            this.groupMembersSubmitting = false;
+            this.createGroupStep = 3;
+            return;
+        }
+        const addOps = this.createGroupTeachersSelection.map((teacher) =>
+            this.groupTeachersService.add(
+                this.createdGroupTempId!,
+                teacher.id,
+                this.createGroupTeacherTypes[teacher.id] ?? GroupTeacherType.Main
+            )
+        );
+        forkJoin(addOps).subscribe({
+            next: () => {
+                this.groups = this.groups.map((group) =>
+                    group.id === this.createdGroupTempId
+                        ? {
+                              ...group,
+                              teacherCount: this.createGroupTeachersSelection.length,
+                              teachers: this.createGroupTeachersSelection.map((t) => ({
+                                  ...t,
+                                  type: this.createGroupTeacherTypes[t.id] ?? GroupTeacherType.Main
+                              }))
+                          }
+                        : group
+                );
+                this.groupMembersSubmitting = false;
+                this.createGroupStep = 3;
+            },
+            error: () => {
+                this.groupMembersSubmitting = false;
+            }
+        });
+    }
+
+    assignCreateGroupStudents() {
+        if (!this.createdGroupTempId) {
+            this.groupDrawerVisible = false;
+            return;
+        }
+        this.groupMembersSubmitting = true;
+        if (!this.createGroupStudentsSelection.length) {
+            this.groupMembersSubmitting = false;
+            this.groupDrawerVisible = false;
+            this.notification.success(this.translate.instant('common.created', { entity: this.translate.instant('entities.groups') }));
+            return;
+        }
+        const addOps = this.createGroupStudentsSelection.map((student) =>
+            this.groupStudentsService.add(this.createdGroupTempId!, student.id)
+        );
+        forkJoin(addOps).subscribe({
+            next: () => {
+                this.groups = this.groups.map((group) =>
+                    group.id === this.createdGroupTempId
+                        ? {
+                              ...group,
+                              studentCount: this.createGroupStudentsSelection.length,
+                              students: [...this.createGroupStudentsSelection]
+                          }
+                        : group
+                );
+                this.groupMembersSubmitting = false;
                 this.groupDrawerVisible = false;
                 this.notification.success(this.translate.instant('common.created', { entity: this.translate.instant('entities.groups') }));
             },
             error: () => {
-                this.groupSubmitting = false;
+                this.groupMembersSubmitting = false;
             }
         });
     }
@@ -972,6 +1262,89 @@ export class CoursesForm implements OnInit {
         });
     }
 
+    openTransferDialog() {
+        if (!this.activeGroup || this.viewOnly) return;
+        this.transferTargetGroupId = '';
+        this.transferStudentIds = this.membersStudentsSelection.map((s) => s.id);
+        if (!this.transferStudentIds.length) return;
+        this.transferSubmitting = false;
+        this.transferDialogVisible = true;
+    }
+
+    closeTransferDialog() {
+        this.transferDialogVisible = false;
+    }
+
+    transferStudents() {
+        if (!this.activeGroup || !this.transferTargetGroupId || this.transferSubmitting) return;
+        this.transferSubmitting = true;
+        const sourceGroupId = this.activeGroup.id;
+        const targetGroupId = this.transferTargetGroupId;
+        const studentIds = this.transferStudentIds;
+
+        const removeOps = studentIds.map((id) => this.groupStudentsService.remove(sourceGroupId, id));
+        const addOps = studentIds.map((id) => this.groupStudentsService.add(targetGroupId, id));
+
+        forkJoin({
+            removes: forkJoin(removeOps),
+            adds: forkJoin(addOps)
+        }).pipe(
+            switchMap(() =>
+                forkJoin({
+                    students: this.groupStudentsService.listByGroup(sourceGroupId, 1, 100),
+                    teachers: this.groupTeachersService.listByGroup(sourceGroupId, 1, 100)
+                })
+            )
+        ).subscribe({
+            next: (res) => {
+                const sourceStudents = (res.students?.data ?? []).map((item) => ({
+                    id: String(item.studentId ?? item.student?.id ?? ''),
+                    name: `${item.student?.profile?.firstName ?? ''} ${item.student?.profile?.lastName ?? ''}`.trim()
+                }));
+                const sourceTeachers = (res.teachers?.data ?? []).map((item) => ({
+                    id: String(item.teacherId ?? item.teacher?.id ?? ''),
+                    name: `${item.teacher?.profile?.firstName ?? ''} ${item.teacher?.profile?.lastName ?? ''}`.trim(),
+                    type: item.type ?? GroupTeacherType.Main
+                }));
+
+                this.groups = this.groups.map((group) => {
+                    if (group.id === sourceGroupId) {
+                        return {
+                            ...group,
+                            students: sourceStudents.filter((s) => s.id),
+                            studentCount: sourceStudents.length,
+                            teachers: sourceTeachers.filter((t) => t.id),
+                            teacherCount: sourceTeachers.length
+                        };
+                    }
+                    if (group.id === targetGroupId) {
+                        return { ...group, studentCount: (group.studentCount ?? 0) + studentIds.length };
+                    }
+                    return group;
+                });
+
+                this.membersStudentsSelection = sourceStudents;
+                this.filteredStudents = [...this.students];
+
+                this.transferSubmitting = false;
+                this.transferDialogVisible = false;
+                this.notification.success(this.translate.instant('common.transfer_success'));
+            },
+            error: () => {
+                this.transferSubmitting = false;
+            }
+        });
+    }
+
+    activateAssistant(teacher: Person) {
+        if (!this.activeGroup || this.viewOnly || this.groupMembersSubmitting) return;
+        const currentMain = this.membersTeachersSelection.find((t) => this.teacherTypes[t.id] === GroupTeacherType.Main);
+        if (currentMain) {
+            this.teacherTypes = { ...this.teacherTypes, [currentMain.id]: GroupTeacherType.Assistant };
+        }
+        this.teacherTypes = { ...this.teacherTypes, [teacher.id]: GroupTeacherType.Main };
+    }
+
     isTeacherSelected(teacher: Person): boolean {
         return this.membersTeachersSelection.some((item) => item.id === teacher.id);
     }
@@ -982,13 +1355,15 @@ export class CoursesForm implements OnInit {
         return listB.every((item) => ids.has(item.id));
     }
 
-    get groupDrawerTitle(): string {
-        return this.editingGroupId ? this.translate.instant('common.edit_group') : this.translate.instant('common.create_group');
-    }
-
     get membersDrawerTitle(): string {
         const groupName = this.activeGroup?.name ? ` - ${this.activeGroup?.name}` : '';
         return `${this.translate.instant('common.manage_members')}${groupName}`;
+    }
+
+    get transferTargetGroupOptions(): { label: string; value: string }[] {
+        return this.groups
+            .filter((g) => g.id !== this.activeGroup?.id)
+            .map((g) => ({ label: g.name, value: g.id }));
     }
 
     private loadCourse(id: string | number) {

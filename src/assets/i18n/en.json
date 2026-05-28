@@ -59,6 +59,7 @@
         "save_guardian": "Save Guardian",
         "save_course": "Save Course",
         "skip": "Skip",
+        "finish": "Finish",
         "add_supervisor": "Add Supervisor",
         "no_teachers_selected": "No teachers selected.",
         "no_students_selected": "No students selected.",
@@ -71,9 +72,16 @@
         "select_status": "Select Status",
         "select_type": "Select Type",
         "select_day": "Select Day",
+        "select_course": "Select Course",
         "select_relation": "Select Relation",
         "select_supervisors": "Select Supervisors",
+        "select_target_group": "Select Target Group",
         "add_time": "Add Time",
+        "activate": "Activate",
+        "transfer": "Transfer",
+        "transfer_students": "Transfer Students",
+        "transfer_success": "Students transferred successfully",
+        "transfer_confirm_text": "Transfer {count} student(s) from \"{source}\" to:",
         "delete_selected_confirm": "Are you sure you want to delete the selected {{entity}}?",
         "delete_one_confirm": "Are you sure you want to delete {{name}}?",
         "created": "{{entity}} Created",
@@ -122,6 +130,7 @@
         "start_hour": "Start Hour",
         "end_hour": "End Hour",
         "teacher_type": "Teacher Type",
+        "target_group": "Target Group",
         "relation_type": "Relation Type",
         "method": "Method",
         "url": "URL",
@@ -185,7 +194,8 @@
             "edit_subtitle": "Update details, schedule, and supervisors."
         },
         "groups": {
-            "manage_title": "Manage Groups"
+            "manage_title": "Manage Groups",
+            "details_title": "Group Details"
         },
         "audit": {
             "title": "Audit Logs",
