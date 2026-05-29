@@ -229,6 +229,7 @@ export class UsersCrud implements OnInit {
 
     userForm: FormGroup;
     currentUserId?: string;
+    currentUserProfileId?: string;
 
     selectedUsers!: User[] | null;
 
@@ -313,6 +314,7 @@ export class UsersCrud implements OnInit {
     openNew() {
         this.viewOnly = false;
         this.currentUserId = undefined;
+        this.currentUserProfileId = undefined;
         this.submitted = false;
         this.userForm.reset({
             username: '',
@@ -333,45 +335,61 @@ export class UsersCrud implements OnInit {
 
     editUser(user: User) {
         this.viewOnly = false;
-        this.userDialog = true;
         this.userService.get(user.id).subscribe((data) => {
             this.currentUserId = data.id;
-            this.userForm.reset({
-                username: data.username ?? '',
-                email: data.email ?? '',
-                phone: data.phone ?? '',
-                password: '',
-                roleId: data.roleId ?? '',
-                accountStatus: data.accountStatus ?? '',
-                firstName: data.profile?.firstName ?? '',
-                lastName: data.profile?.lastName ?? ''
-            });
-            const passwordControl = this.userForm.get('password');
-            passwordControl?.clearValidators();
-            passwordControl?.updateValueAndValidity();
-            this.userForm.enable();
+            this.currentUserProfileId = data.profile?.id;
+            const patchForm = () => {
+                this.userForm.reset({
+                    username: data.username ?? '',
+                    email: data.email ?? '',
+                    phone: data.phone ?? '',
+                    password: '',
+                    roleId: data.roleId ?? '',
+                    accountStatus: data.accountStatus ?? '',
+                    firstName: data.profile?.firstName ?? '',
+                    lastName: data.profile?.lastName ?? ''
+                });
+                const passwordControl = this.userForm.get('password');
+                passwordControl?.clearValidators();
+                passwordControl?.updateValueAndValidity();
+                this.userForm.enable();
+                this.userDialog = true;
+            };
+            if (this.roles().length) {
+                patchForm();
+            } else {
+                this.roleService.list(1, 100).subscribe(() => patchForm());
+            }
         });
     }
 
     viewUser(user: User) {
         this.viewOnly = true;
-        this.userDialog = true;
         this.userService.get(user.id).subscribe((data) => {
             this.currentUserId = data.id;
-            this.userForm.reset({
-                username: data.username ?? '',
-                email: data.email ?? '',
-                phone: data.phone ?? '',
-                password: '',
-                roleId: data.roleId ?? '',
-                accountStatus: data.accountStatus ?? '',
-                firstName: data.profile?.firstName ?? '',
-                lastName: data.profile?.lastName ?? ''
-            });
-            const passwordControl = this.userForm.get('password');
-            passwordControl?.clearValidators();
-            passwordControl?.updateValueAndValidity();
-            this.userForm.disable();
+            this.currentUserProfileId = data.profile?.id;
+            const patchForm = () => {
+                this.userForm.reset({
+                    username: data.username ?? '',
+                    email: data.email ?? '',
+                    phone: data.phone ?? '',
+                    password: '',
+                    roleId: data.roleId ?? '',
+                    accountStatus: data.accountStatus ?? '',
+                    firstName: data.profile?.firstName ?? '',
+                    lastName: data.profile?.lastName ?? ''
+                });
+                const passwordControl = this.userForm.get('password');
+                passwordControl?.clearValidators();
+                passwordControl?.updateValueAndValidity();
+                this.userForm.disable();
+                this.userDialog = true;
+            };
+            if (this.roles().length) {
+                patchForm();
+            } else {
+                this.roleService.list(1, 100).subscribe(() => patchForm());
+            }
         });
     }
 
@@ -443,16 +461,20 @@ export class UsersCrud implements OnInit {
         if (this.userForm.invalid) return;
 
         const formValue = this.userForm.getRawValue();
+        const profile: any = {
+            firstName: formValue.firstName,
+            lastName: formValue.lastName
+        };
+        if (this.currentUserProfileId) {
+            profile.id = this.currentUserProfileId;
+        }
         const payload: any = {
             username: formValue.username,
             email: formValue.email,
             phone: formValue.phone || undefined,
             accountStatus: formValue.accountStatus || undefined,
             roleId: formValue.roleId || undefined,
-            profile: {
-                firstName: formValue.firstName,
-                lastName: formValue.lastName
-            }
+            profile
         };
         if (formValue.password) {
             payload.password = formValue.password;
