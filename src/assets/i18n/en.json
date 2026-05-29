@@ -10,6 +10,8 @@
         "students": "Students",
         "courses": "Courses",
         "groups": "Groups",
+        "attendance": "Attendance",
+        "attendance_record": "Record Attendance",
         "audit_logs": "Audit Logs"
     },
     "auth": {
@@ -44,10 +46,20 @@
         "new": "New",
         "add": "Add",
         "create_group": "Create Group",
+        "add_existing_group": "Add Existing Group",
         "edit_group": "Edit Group",
         "manage_members": "Manage Members",
         "delete": "Delete",
         "export": "Export",
+        "import": "Import",
+        "import_students": "Import Students",
+        "download_template": "Download Import Template",
+        "select_file": "Select File",
+        "file_too_large": "File is too large",
+        "imported": "Imported",
+        "skipped": "Skipped",
+        "errors": "Errors",
+        "import_errors": "Import Errors",
         "search": "Search...",
         "confirm": "Confirm",
         "cancel": "Cancel",
@@ -70,11 +82,18 @@
         "inactive": "Inactive",
         "select_role": "Select Role",
         "select_status": "Select Status",
+        "select_role": "Select Role",
         "select_type": "Select Type",
         "select_day": "Select Day",
         "select_course": "Select Course",
         "select_relation": "Select Relation",
         "select_supervisors": "Select Supervisors",
+        "mark_all_on_time": "Mark All On Time",
+        "total_sessions": "Total Sessions",
+        "absent_late": "Absent / Late",
+        "attendance_rate": "Attendance Rate",
+        "attendance_saved": "Attendance Saved",
+        "no_data": "No records found",
         "select_target_group": "Select Target Group",
         "add_time": "Add Time",
         "activate": "Activate",
@@ -89,6 +108,7 @@
         "deleted": "{{entity}} Deleted",
         "deleted_many": "{{entity}} Deleted",
         "successful": "Successful",
+        "validation_error": "Validation Error",
         "page_report": "Showing {first} to {last} of {totalRecords} records"
     },
     "validation": {
@@ -105,6 +125,7 @@
         "password": "Password",
         "role": "Role",
         "account_status": "Account Status",
+        "role": "Role",
         "first_name": "First Name",
         "last_name": "Last Name",
         "mid_name": "Mid Name",
@@ -139,7 +160,12 @@
         "duration": "Duration",
         "error_message": "Error Message",
         "actor_name": "Actor Name",
-        "created_at": "Created At"
+        "created_at": "Created At",
+        "student_name": "Student Name",
+        "attendance_status": "Attendance Status",
+        "attended_at": "Start Date",
+        "attended_end": "End Date",
+        "date": "Date"
     },
     "entities": {
         "user": "User",
@@ -158,7 +184,8 @@
         "guardian": "Guardian",
         "guardians": "Guardians",
         "audit_log": "Audit Log",
-        "audit_logs": "Audit Logs"
+        "audit_logs": "Audit Logs",
+        "attendance": "Attendance"
     },
     "roles": {
         "permissions_loading": "Loading permissions...",
@@ -200,6 +227,9 @@
         "audit": {
             "title": "Audit Logs",
             "logs_title": "Logs"
+        },
+        "attendance": {
+            "record_title": "Manage Attendance"
         }
     },
     "wizard": {
@@ -286,6 +316,13 @@
             "THURSDAY": "Thursday",
             "FRIDAY": "Friday",
             "SATURDAY": "Saturday"
+        },
+        "attendance_status": {
+            "ON_TIME": "On Time",
+            "EARLY": "Early",
+            "LATE": "Late",
+            "JUSTIFIED_ABSENCE": "Justified Absence",
+            "UNJUSTIFIED_ABSENCE": "Unjustified Absence"
         }
     }
 }

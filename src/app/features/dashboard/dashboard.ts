@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { StatsWidget } from './components/statswidget.js';
-import { AlertsRemindersWidget } from './components/alertsreminderswidget.js';
+
 import { RecentRegistrationsWidget } from './components/recentregistrationswidget.js';
 import { TopCoursesWidget } from './components/topcourseswidget.js';
 import { MonthlyGrowthWidget } from './components/monthlygrowthwidget.js';
@@ -8,7 +8,7 @@ import { MonthlyGrowthWidget } from './components/monthlygrowthwidget.js';
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [StatsWidget, RecentRegistrationsWidget, TopCoursesWidget, MonthlyGrowthWidget, AlertsRemindersWidget],
+    imports: [StatsWidget, RecentRegistrationsWidget, TopCoursesWidget, MonthlyGrowthWidget],
     template: `
         <div class="grid grid-cols-12 gap-8">
             <app-stats-widget class="contents" />

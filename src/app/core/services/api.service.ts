@@ -50,6 +50,22 @@ export class ApiService {
         });
     }
 
+    upload<T>(path: string, formData: FormData, options: RequestOptions = {}): Observable<T> {
+        return this.http.post<T>(this.buildUrl(path), formData, {
+            params: this.buildParams(options.params),
+            headers: options.headers,
+            reportProgress: false
+        });
+    }
+
+    downloadBlob(path: string, options: RequestOptions = {}): Observable<Blob> {
+        return this.http.get(this.buildUrl(path), {
+            params: this.buildParams(options.params),
+            headers: options.headers,
+            responseType: 'blob'
+        });
+    }
+
     private buildUrl(path: string): string {
         const clean = path.startsWith('/') ? path.slice(1) : path;
         return `${this.baseUrl}/${clean}`;

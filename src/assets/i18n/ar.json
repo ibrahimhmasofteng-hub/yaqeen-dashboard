@@ -10,6 +10,8 @@
         "students": "الطلاب",
         "courses": "الدورات",
         "groups": "الحلقات",
+        "attendance": "الحضور",
+        "attendance_record": "تسجيل الحضور",
         "audit_logs": "سجلات التدقيق"
     },
     "auth": {
@@ -44,10 +46,20 @@
         "new": "جديد",
         "add": "إضافة",
         "create_group": "إنشاء حلقة",
+        "add_existing_group": "إضافة حلقة موجودة",
         "edit_group": "تعديل الحلقة",
         "manage_members": "إدارة الأعضاء",
         "delete": "حذف",
         "export": "تصدير",
+        "import": "استيراد",
+        "import_students": "استيراد الطلاب",
+        "download_template": "تحميل قالب الاستيراد",
+        "select_file": "اختر ملف",
+        "file_too_large": "الملف كبير جدًا",
+        "imported": "تم استيرادهم",
+        "skipped": "تم تخطيهم",
+        "errors": "أخطاء",
+        "import_errors": "أخطاء الاستيراد",
         "search": "بحث...",
         "confirm": "تأكيد",
         "cancel": "إلغاء",
@@ -70,11 +82,18 @@
         "inactive": "غير نشط",
         "select_role": "اختر الدور",
         "select_status": "اختر الحالة",
+        "select_role": "اختر الدور",
         "select_type": "اختر النوع",
         "select_day": "اختر اليوم",
         "select_course": "اختر الدورة",
         "select_relation": "اختر صلة القرابة",
         "select_supervisors": "اختر المشرفين",
+        "mark_all_on_time": "تحديد الكل حاضر",
+        "total_sessions": "إجمالي الحصص",
+        "absent_late": "غائب / متأخر",
+        "attendance_rate": "نسبة الحضور",
+        "attendance_saved": "تم حفظ الحضور",
+        "no_data": "لا توجد سجلات",
         "select_target_group": "اختر الحلقة المستهدفة",
         "add_time": "إضافة وقت",
         "activate": "تنشيط",
@@ -89,6 +108,7 @@
         "deleted": "تم حذف {{entity}}",
         "deleted_many": "تم حذف {{entity}}",
         "successful": "تم بنجاح",
+        "validation_error": "خطأ في التحقق",
         "page_report": "عرض {first} إلى {last} من أصل {totalRecords} سجلات"
     },
     "validation": {
@@ -105,6 +125,7 @@
         "password": "كلمة المرور",
         "role": "الدور",
         "account_status": "حالة الحساب",
+        "role": "الدور",
         "first_name": "الاسم الأول",
         "last_name": "الاسم الأخير",
         "mid_name": "اسم الأب",
@@ -139,7 +160,12 @@
         "duration": "المدة",
         "error_message": "رسالة الخطأ",
         "actor_name": "اسم المستخدم",
-        "created_at": "تاريخ الإنشاء"
+        "created_at": "تاريخ الإنشاء",
+        "student_name": "اسم الطالب",
+        "attendance_status": "حالة الحضور",
+        "attended_at": "تاريخ البداية",
+        "attended_end": "تاريخ النهاية",
+        "date": "التاريخ"
     },
     "entities": {
         "user": "المستخدم",
@@ -158,7 +184,8 @@
         "guardian": "ولي الأمر",
         "guardians": "أولياء الأمور",
         "audit_log": "سجل التدقيق",
-        "audit_logs": "سجلات التدقيق"
+        "audit_logs": "سجلات التدقيق",
+        "attendance": "الحضور"
     },
     "roles": {
         "permissions_loading": "جاري تحميل الصلاحيات...",
@@ -200,6 +227,9 @@
         "audit": {
             "title": "سجلات التدقيق",
             "logs_title": "السجلات"
+        },
+        "attendance": {
+            "record_title": "إدارة الحضور"
         }
     },
     "wizard": {
@@ -286,6 +316,13 @@
             "THURSDAY": "الخميس",
             "FRIDAY": "الجمعة",
             "SATURDAY": "السبت"
+        },
+        "attendance_status": {
+            "ON_TIME": "حاضر",
+            "EARLY": "مبكر",
+            "LATE": "متأخر",
+            "JUSTIFIED_ABSENCE": "غيب بعذر",
+            "UNJUSTIFIED_ABSENCE": "غيب بلا عذر"
         }
     }
 }

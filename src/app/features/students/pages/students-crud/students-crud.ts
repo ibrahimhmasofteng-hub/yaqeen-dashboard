@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,6 +5,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,6 +14,8 @@ import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
 import { StepperModule } from 'primeng/stepper';
 import { Table, TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ImageModule } from 'primeng/image';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
@@ -26,6 +28,9 @@ import { Role } from '@/app/features/roles/models/role.model';
 import { FamilyRelation, FamilyRelationService } from '@/app/features/students/services/family-relation.service';
 import { RelationType } from '@/app/features/students/models/relation-type.enum';
 import { RoleName } from '@/app/core/constants/role-name.enum';
+import { StudentImportService } from '@/app/features/students/services/student-import.service';
+import { ImportResult } from '@/app/features/students/models/import-result.model';
+import { ApiService } from '@/app/core/services/api.service';
 
 interface Column {
     field: string;
@@ -58,9 +63,12 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
+        FileUploadModule,
+        ImageModule,
         StepperModule,
         PasswordModule,
         FormErrors,
+        TagModule,
         TranslateModule
     ],
     template: `
@@ -71,6 +79,7 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
             </ng-template>
 
             <ng-template #end>
+                <p-button [label]="'common.import' | translate" icon="pi pi-download" severity="secondary" class="mr-2" (onClick)="openImportDialog()" />
                 <p-button [label]="'common.export' | translate" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
             </ng-template>
         </p-toolbar>
@@ -196,7 +205,7 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                         <input type="hidden" formControlName="roleId" />
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (click)="nextFromStep1()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -234,13 +243,29 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                             <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="imageId" class="block font-bold mb-3">{{ 'fields.image_id' | translate }}</label>
-                                            <input type="text" pInputText id="imageId" formControlName="imageId" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                                            <label class="block font-bold mb-3">{{ 'fields.image_id' | translate }}</label>
+                                            <div class="flex items-center gap-4">
+                                                <p-fileUpload
+                                                    mode="basic"
+                                                    accept="image/*"
+                                                    [maxFileSize]="5000000"
+                                                    chooseLabel="Choose"
+                                                    chooseIcon="pi pi-upload"
+                                                    [auto]="true"
+                                                    customUpload="true"
+                                                    (uploadHandler)="onImageUpload($event)"
+                                                    [disabled]="viewOnly || submitting || imageUploading"
+                                                />
+                                                <p-button *ngIf="imagePreviewUrl" icon="pi pi-eye" [rounded]="true" [outlined]="true" (onClick)="imageDialogVisible = true" />
+                                                <p-button *ngIf="imagePreviewUrl" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="removeImage()" [disabled]="viewOnly" />
+                                                <p-button *ngIf="imageUploading" icon="pi pi-spin pi-spinner" [rounded]="true" [outlined]="true" [disabled]="true" />
+                                            </div>
+                                            <input type="hidden" formControlName="imageId" />
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
-                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="activeStep = 1" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (click)="nextFromStep2()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -269,8 +294,8 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
-                                        <p-button [label]="'common.save_student' | translate" icon="pi pi-check" (onClick)="saveStudent()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="activeStep = 2" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.save_student' | translate" icon="pi pi-check" (click)="saveStudent()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -322,10 +347,10 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 3" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="activeStep = 3" [disabled]="submitting"></p-button>
                                         <div class="flex gap-2">
-                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (onClick)="finishGuardianFlow()" [disabled]="submitting"></p-button>
-                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (click)="finishGuardianFlow()" [disabled]="submitting"></p-button>
+                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (click)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                         </div>
                                     </div>
                                 </ng-template>
@@ -378,10 +403,10 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 4" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="activeStep = 4" [disabled]="submitting"></p-button>
                                         <div class="flex gap-2">
-                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (onClick)="finishGuardianFlow()" [disabled]="submitting"></p-button>
-                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (onClick)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (click)="finishGuardianFlow()" [disabled]="submitting"></p-button>
+                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (click)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                         </div>
                                     </div>
                                 </ng-template>
@@ -393,7 +418,69 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
 
         </p-dialog>
 
+        <p-dialog [(visible)]="importDialogVisible" [style]="{ width: '600px' }" [header]="'common.import_students' | translate" [modal]="true" [draggable]="false">
+            <ng-template #content>
+                <div class="flex flex-col gap-4">
+                    <p-button [label]="'common.download_template' | translate" icon="pi pi-file-excel" severity="secondary" [outlined]="true" (onClick)="downloadTemplate()" [loading]="templateDownloading" styleClass="w-full" />
+
+                    <p-fileupload
+                        mode="basic"
+                        [chooseLabel]="'common.select_file' | translate"
+                        accept=".csv,.xlsx,.xls"
+                        [maxFileSize]="5000000"
+                        [auto]="false"
+                        (onSelect)="onImportFileSelect($event)"
+                        [invalidFileSizeMessageSummary]="'common.file_too_large' | translate"
+                    />
+
+                    <p *ngIf="importFile" class="text-sm text-surface-700">
+                        {{ importFile.name }} ({{ (importFile.size / 1024).toFixed(1) }} KB)
+                    </p>
+
+                    <div *ngIf="importResult" class="flex flex-col gap-3">
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div class="card p-3">
+                                <div class="text-2xl font-bold text-green-600">{{ importResult.imported }}</div>
+                                <div class="text-sm text-surface-500">{{ 'common.imported' | translate }}</div>
+                            </div>
+                            <div class="card p-3">
+                                <div class="text-2xl font-bold text-orange-500">{{ importResult.skipped }}</div>
+                                <div class="text-sm text-surface-500">{{ 'common.skipped' | translate }}</div>
+                            </div>
+                            <div class="card p-3">
+                                <div class="text-2xl font-bold text-red-500">{{ importResult.errors.length ?? 0 }}</div>
+                                <div class="text-sm text-surface-500">{{ 'common.errors' | translate }}</div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="importResult.errors && importResult.errors.length" class="mt-2">
+                            <h6 class="m-0 mb-2">{{ 'common.import_errors' | translate }}</h6>
+                            <div class="max-h-48 overflow-y-auto">
+                                <div *ngFor="let err of importResult.errors" class="flex items-center gap-2 py-1 text-sm">
+                                    <p-tag [value]="'Row ' + err.row" severity="danger" styleClass="text-xs" />
+                                    <span>{{ err.message }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template #footer>
+                <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="closeImportDialog()" [disabled]="importSubmitting" />
+                <p-button [label]="'common.import' | translate" icon="pi pi-upload" (click)="submitImport()" [loading]="importSubmitting" [disabled]="!importFile || importSubmitting" />
+            </ng-template>
+        </p-dialog>
+
         <p-confirmdialog [style]="{ width: '450px' }" />
+
+        <p-dialog [header]="'fields.image_id' | translate" [(visible)]="imageDialogVisible" [modal]="true" [style]="{ width: '400px' }">
+            <ng-template #content>
+                <div class="flex justify-center">
+                    <img *ngIf="imagePreviewUrl" [src]="imagePreviewUrl" style="max-width: 100%; max-height: 400px; object-fit: contain;" />
+                </div>
+            </ng-template>
+        </p-dialog>
+
         <p-toast />
     `,
     providers: [MessageService, ConfirmationService]
@@ -436,13 +523,25 @@ export class StudentsCrud implements OnInit {
     accountStatusOptions: { label: string; value: AccountStatus }[] = [];
     relationTypeOptions: { label: string; value: RelationType }[] = [];
 
+    importDialogVisible = false;
+    importFile: File | null = null;
+    importResult: ImportResult | null = null;
+    importSubmitting = false;
+    templateDownloading = false;
+
+    imageUploading = false;
+    imagePreviewUrl: string | null = null;
+    imageDialogVisible = false;
+
     constructor(
         private studentService: StudentService,
+        private studentImportService: StudentImportService,
         private familyRelationService: FamilyRelationService,
         private roleService: RoleService,
         private messageService: MessageService,
         private translate: TranslateService,
         private confirmationService: ConfirmationService,
+        private api: ApiService,
         private fb: FormBuilder
     ) {
         this.studentForm = this.fb.group({
@@ -575,6 +674,7 @@ export class StudentsCrud implements OnInit {
                 note: ''
             }
         });
+        this.imagePreviewUrl = null;
         this.guardianForm1.reset({
             firstName: '',
             lastName: '',
@@ -639,7 +739,7 @@ export class StudentsCrud implements OnInit {
                     lastName: data.profile?.lastName ?? '',
                     midName: data.profile?.midName ?? '',
                     additionalName: data.profile?.additionalName ?? '',
-                    birthDate: data.profile?.birthDate ?? '',
+                    birthDate: data.profile?.birthDate ? data.profile.birthDate.substring(0, 10) : '',
                     birthPlace: data.profile?.birthPlace ?? '',
                     nationalId: data.profile?.nationalId ?? '',
                     imageId: data.profile?.imageId ?? '',
@@ -650,6 +750,7 @@ export class StudentsCrud implements OnInit {
                     note: data.profile?.note ?? ''
                 }
             });
+            this.imagePreviewUrl = data.profile?.image?.url ?? null;
             const passwordControl = this.studentForm.get('password');
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
@@ -691,7 +792,7 @@ export class StudentsCrud implements OnInit {
                     lastName: data.profile?.lastName ?? '',
                     midName: data.profile?.midName ?? '',
                     additionalName: data.profile?.additionalName ?? '',
-                    birthDate: data.profile?.birthDate ?? '',
+                    birthDate: data.profile?.birthDate ? data.profile.birthDate.substring(0, 10) : '',
                     birthPlace: data.profile?.birthPlace ?? '',
                     nationalId: data.profile?.nationalId ?? '',
                     imageId: data.profile?.imageId ?? '',
@@ -702,6 +803,7 @@ export class StudentsCrud implements OnInit {
                     note: data.profile?.note ?? ''
                 }
             });
+            this.imagePreviewUrl = data.profile?.image?.url ?? null;
             const passwordControl = this.studentForm.get('password');
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
@@ -787,6 +889,16 @@ export class StudentsCrud implements OnInit {
         this.step1Submitted = true;
         this.step2Submitted = true;
         if (this.submitting) return;
+
+        if (this.currentStudentId) {
+            const passwordControl = this.studentForm.get('password');
+            passwordControl?.clearValidators();
+            passwordControl?.updateValueAndValidity();
+            const roleControl = this.studentForm.get('roleId');
+            roleControl?.clearValidators();
+            roleControl?.updateValueAndValidity();
+        }
+
         if (this.studentForm.invalid) {
             this.activeStep = this.studentForm.get('profile')?.invalid ? 2 : 1;
             return;
@@ -794,6 +906,9 @@ export class StudentsCrud implements OnInit {
 
         const formValue = this.studentForm.getRawValue();
         const profile = this.stripEmpty(formValue.profile);
+        if (profile['birthDate']) {
+            profile['birthDate'] = new Date(profile['birthDate']).toISOString();
+        }
         const payload: any = this.stripEmpty({
             username: formValue.username,
             email: formValue.email,
@@ -852,6 +967,35 @@ export class StudentsCrud implements OnInit {
                 this.studentForm.enable();
             }
         });
+    }
+
+    onImageUpload(event: any) {
+        const file = event.files?.[0];
+        if (!file) return;
+        this.imageUploading = true;
+        const formData = new FormData();
+        formData.append('file', file);
+        this.api.upload<any>('files/upload', formData).subscribe({
+            next: (res) => {
+                this.imageUploading = false;
+                const profileGroup = this.studentForm.get('profile');
+                if (profileGroup) {
+                    profileGroup.patchValue({ imageId: res.id });
+                }
+                this.imagePreviewUrl = res.url;
+            },
+            error: () => {
+                this.imageUploading = false;
+            }
+        });
+    }
+
+    removeImage() {
+        const profileGroup = this.studentForm.get('profile');
+        if (profileGroup) {
+            profileGroup.patchValue({ imageId: '' });
+        }
+        this.imagePreviewUrl = null;
     }
 
     saveGuardian1() {
@@ -1041,6 +1185,64 @@ export class StudentsCrud implements OnInit {
         this.loadStudents(page, perPage);
     }
 
+    openImportDialog() {
+        this.importFile = null;
+        this.importResult = null;
+        this.importSubmitting = false;
+        this.templateDownloading = false;
+        this.importDialogVisible = true;
+    }
+
+    closeImportDialog() {
+        this.importDialogVisible = false;
+    }
+
+    onImportFileSelect(event: { files: File[] }) {
+        if (event.files?.length) {
+            this.importFile = event.files[0];
+            this.importResult = null;
+        }
+    }
+
+    submitImport() {
+        if (!this.importFile || this.importSubmitting) return;
+        const roleId = this.getRoleId();
+        if (!roleId) return;
+        this.importSubmitting = true;
+        this.studentImportService.importFile(this.importFile, roleId).subscribe({
+            next: (res) => {
+                this.importResult = res ?? { imported: 0, skipped: 0, errors: [] };
+                this.importSubmitting = false;
+                if ((res?.imported ?? 0) > 0) {
+                    this.loadStudents(this.meta().page, this.meta().perPage);
+                }
+            },
+            error: () => {
+                this.importSubmitting = false;
+            }
+        });
+    }
+
+    downloadTemplate() {
+        this.templateDownloading = true;
+        this.studentImportService.downloadTemplate().subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'students-import-template.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                this.templateDownloading = false;
+            },
+            error: () => {
+                this.templateDownloading = false;
+            }
+        });
+    }
+
     private setColumns() {
         this.cols = [
             { field: 'username', header: this.translate.instant('fields.username') },
@@ -1137,7 +1339,7 @@ export class StudentsCrud implements OnInit {
     }
 
     private loadGuardians(studentId: string) {
-        this.familyRelationService.listByStudent(studentId, 1, 10).subscribe({
+        this.familyRelationService.listGuardians(studentId, 1, 100).subscribe({
             next: (res) => {
                 const relations = res?.data ?? [];
                 const first = relations[0];

@@ -23,6 +23,9 @@ import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role } from '@/app/features/roles/models/role.model';
 import { RoleName } from '@/app/core/constants/role-name.enum';
+import { ApiService } from '@/app/core/services/api.service';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ImageModule } from 'primeng/image';
 
 interface Column {
     field: string;
@@ -54,6 +57,8 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
         InputIconModule,
         IconFieldModule,
         ConfirmDialogModule,
+        FileUploadModule,
+        ImageModule,
         StepperModule,
         PasswordModule,
         FormErrors,
@@ -190,7 +195,7 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
                                         <input type="hidden" formControlName="roleId" />
                                     </div>
                                     <div class="flex justify-end gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep1()" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (click)="nextFromStep1()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -228,13 +233,29 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
                                             <input type="text" pInputText id="nationalId" formControlName="nationalId" fluid [readonly]="viewOnly" [disabled]="submitting" />
                                         </div>
                                         <div>
-                                            <label for="imageId" class="block font-bold mb-3">{{ 'fields.image_id' | translate }}</label>
-                                            <input type="text" pInputText id="imageId" formControlName="imageId" fluid [readonly]="viewOnly" [disabled]="submitting" />
+                                            <label class="block font-bold mb-3">{{ 'fields.image_id' | translate }}</label>
+                                            <div class="flex items-center gap-4">
+                                                <p-fileUpload
+                                                    mode="basic"
+                                                    accept="image/*"
+                                                    [maxFileSize]="5000000"
+                                                    chooseLabel="Choose"
+                                                    chooseIcon="pi pi-upload"
+                                                    [auto]="true"
+                                                    [customUpload]="true"
+                                                    (uploadHandler)="onImageUpload($event)"
+                                                    [disabled]="viewOnly || submitting || imageUploading"
+                                                />
+                                                <p-button *ngIf="imagePreviewUrl" icon="pi pi-eye" [rounded]="true" [outlined]="true" (onClick)="imageDialogVisible = true" />
+                                                <p-button *ngIf="imagePreviewUrl" icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (onClick)="removeImage()" [disabled]="viewOnly" />
+                                                <p-button *ngIf="imageUploading" icon="pi pi-spin pi-spinner" [rounded]="true" [outlined]="true" [disabled]="true" />
+                                            </div>
+                                            <input type="hidden" formControlName="imageId" />
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 1" [disabled]="submitting"></p-button>
-                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextFromStep2()" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="activeStep = 1" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.next' | translate" icon="pi pi-arrow-right" iconPos="right" (click)="nextFromStep2()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -263,8 +284,8 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
                                         </div>
                                     </div>
                                     <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (onClick)="activeStep = 2" [disabled]="submitting"></p-button>
-                                        <p-button [label]="'common.save' | translate" icon="pi pi-check" (onClick)="saveTeacher()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
+                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="activeStep = 2" [disabled]="submitting"></p-button>
+                                        <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="saveTeacher()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -275,6 +296,15 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
         </p-dialog>
 
         <p-confirmdialog [style]="{ width: '450px' }" />
+
+        <p-dialog [header]="'fields.image_id' | translate" [(visible)]="imageDialogVisible" [modal]="true" [style]="{ width: '400px' }">
+            <ng-template #content>
+                <div class="flex justify-center">
+                    <img *ngIf="imagePreviewUrl" [src]="imagePreviewUrl" style="max-width: 100%; max-height: 400px; object-fit: contain;" />
+                </div>
+            </ng-template>
+        </p-dialog>
+
         <p-toast />
     `,
     providers: [MessageService, ConfirmationService]
@@ -300,6 +330,10 @@ export class TeachersCrud implements OnInit {
     step1Submitted = false;
     step2Submitted = false;
 
+    imageUploading = false;
+    imagePreviewUrl: string | null = null;
+    imageDialogVisible = false;
+
     @ViewChild('dt') dt!: Table;
 
     exportColumns!: ExportColumn[];
@@ -312,6 +346,7 @@ export class TeachersCrud implements OnInit {
         private messageService: MessageService,
         private translate: TranslateService,
         private confirmationService: ConfirmationService,
+        private api: ApiService,
         private fb: FormBuilder
     ) {
         this.teacherForm = this.fb.group({
@@ -418,6 +453,7 @@ export class TeachersCrud implements OnInit {
                 note: ''
             }
         });
+        this.imagePreviewUrl = null;
         const passwordControl = this.teacherForm.get('password');
         passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(20)]);
         passwordControl?.updateValueAndValidity();
@@ -446,7 +482,7 @@ export class TeachersCrud implements OnInit {
                     lastName: data.profile?.lastName ?? '',
                     midName: data.profile?.midName ?? '',
                     additionalName: data.profile?.additionalName ?? '',
-                    birthDate: data.profile?.birthDate ?? '',
+                    birthDate: data.profile?.birthDate ? data.profile.birthDate.substring(0, 10) : '',
                     birthPlace: data.profile?.birthPlace ?? '',
                     nationalId: data.profile?.nationalId ?? '',
                     imageId: data.profile?.imageId ?? '',
@@ -457,6 +493,7 @@ export class TeachersCrud implements OnInit {
                     note: data.profile?.note ?? ''
                 }
             });
+            this.imagePreviewUrl = data.profile?.image?.url ?? null;
             const passwordControl = this.teacherForm.get('password');
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
@@ -484,7 +521,7 @@ export class TeachersCrud implements OnInit {
                     lastName: data.profile?.lastName ?? '',
                     midName: data.profile?.midName ?? '',
                     additionalName: data.profile?.additionalName ?? '',
-                    birthDate: data.profile?.birthDate ?? '',
+                    birthDate: data.profile?.birthDate ? data.profile.birthDate.substring(0, 10) : '',
                     birthPlace: data.profile?.birthPlace ?? '',
                     nationalId: data.profile?.nationalId ?? '',
                     imageId: data.profile?.imageId ?? '',
@@ -495,6 +532,7 @@ export class TeachersCrud implements OnInit {
                     note: data.profile?.note ?? ''
                 }
             });
+            this.imagePreviewUrl = data.profile?.image?.url ?? null;
             const passwordControl = this.teacherForm.get('password');
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
@@ -557,17 +595,84 @@ export class TeachersCrud implements OnInit {
         });
     }
 
+    onImageUpload(event: any) {
+        const file = event.files?.[0];
+        if (!file) return;
+        this.imageUploading = true;
+        const formData = new FormData();
+        formData.append('file', file);
+        this.api.upload<any>('files/upload', formData).subscribe({
+            next: (res) => {
+                this.imageUploading = false;
+                const profileGroup = this.teacherForm.get('profile');
+                if (profileGroup) {
+                    profileGroup.patchValue({ imageId: res.id });
+                }
+                this.imagePreviewUrl = res.url;
+            },
+            error: () => {
+                this.imageUploading = false;
+            }
+        });
+    }
+
+    removeImage() {
+        const profileGroup = this.teacherForm.get('profile');
+        if (profileGroup) {
+            profileGroup.patchValue({ imageId: '' });
+        }
+        this.imagePreviewUrl = null;
+    }
+
     saveTeacher() {
+        console.log('saving')
         this.step1Submitted = true;
         this.step2Submitted = true;
         if (this.submitting) return;
+
+        if (this.currentTeacherId) {
+            const passwordControl = this.teacherForm.get('password');
+            passwordControl?.clearValidators();
+            passwordControl?.updateValueAndValidity();
+        }
+
+        const roleId = this.getRoleId();
+        if (roleId) {
+            this.teacherForm.get('roleId')?.setValue(roleId);
+        }
+
         if (this.teacherForm.invalid) {
+            const invalidFields: string[] = [];
+            Object.keys(this.teacherForm.controls).forEach(key => {
+                if (key === 'roleId') return;
+                const control = this.teacherForm.get(key);
+                if (control instanceof FormGroup && control.invalid) {
+                    Object.keys(control.controls).forEach(subKey => {
+                        if (control.get(subKey)?.invalid) {
+                            invalidFields.push(`${key}.${subKey}`);
+                        }
+                    });
+                } else if (control?.invalid) {
+                    invalidFields.push(key);
+                }
+            });
+            if (invalidFields.length > 0) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: this.translate.instant('common.validation_error'),
+                    detail: invalidFields.map(f => this.translate.instant('fields.' + f)).join(', '),
+                    life: 5000
+                });
+            }
             this.activeStep = this.teacherForm.get('profile')?.invalid ? 2 : 1;
             return;
         }
 
         const formValue = this.teacherForm.getRawValue();
         const profile = this.stripEmpty(formValue.profile);
+        if (profile['birthDate']) {
+            profile['birthDate'] = new Date(profile['birthDate']).toISOString();
+        }
         const payload: any = this.stripEmpty({
             username: formValue.username,
             email: formValue.email,
@@ -631,6 +736,8 @@ export class TeachersCrud implements OnInit {
         this.step1Submitted = true;
         if (this.isStep1Valid()) {
             this.activeStep = 2;
+        } else {
+            this.showStepErrors(1);
         }
     }
 
@@ -638,11 +745,36 @@ export class TeachersCrud implements OnInit {
         this.step2Submitted = true;
         if (this.isStep2Valid()) {
             this.activeStep = 3;
+        } else {
+            this.showStepErrors(2);
         }
     }
 
+    private showStepErrors(step: number) {
+        const fields: string[] = [];
+        if (step === 1) {
+            Object.keys(this.teacherForm.controls).forEach(key => {
+                if (key === 'profile' || key === 'roleId') return;
+                if (this.teacherForm.get(key)?.invalid) fields.push('fields.' + key);
+            });
+        } else if (step === 2) {
+            const profile = this.teacherForm.get('profile');
+            if (profile) {
+                Object.keys((profile as FormGroup).controls).forEach(key => {
+                    if (profile.get(key)?.invalid) fields.push('fields.' + key);
+                });
+            }
+        }
+        this.messageService.add({
+            severity: 'warn',
+            summary: this.translate.instant('common.validation_error'),
+            detail: fields.map(f => this.translate.instant(f)).join(', '),
+            life: 5000
+        });
+    }
+
     private isStep1Valid(): boolean {
-        const controls = ['username', 'password', 'roleId'];
+        const controls = ['username', 'password'];
         if (this.currentTeacherId) {
             controls.splice(1, 1);
         }

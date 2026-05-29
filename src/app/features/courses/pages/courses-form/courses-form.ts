@@ -309,7 +309,24 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
         <ng-template #groupsSection>
             <div class="flex items-center justify-between mb-4">
                 <h5 class="m-0">{{ 'entities.groups' | translate }}</h5>
-                <p-button [label]="'common.create_group' | translate" icon="pi pi-plus" severity="secondary" (onClick)="openCreateGroup()" [disabled]="viewOnly"></p-button>
+                <div class="flex gap-2">
+                    <p-select
+                        *ngIf="isEditMode"
+                        [options]="availableGroupOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [(ngModel)]="selectedExistingGroupId"
+                        [ngModelOptions]="{ standalone: true }"
+                        appendTo="body"
+                        [placeholder]="'common.add_existing_group' | translate"
+                        [showClear]="true"
+                        [filter]="true"
+                        (onChange)="onAddExistingGroup()"
+                        styleClass="min-w-[16rem]"
+                        [disabled]="viewOnly"
+                    />
+                    <p-button [label]="'common.create_group' | translate" icon="pi pi-plus" severity="secondary" (onClick)="openCreateGroup()" [disabled]="viewOnly"></p-button>
+                </div>
             </div>
             <p-table [value]="groups" [tableStyle]="{ 'min-width': '60rem' }">
                 <ng-template #header>
@@ -702,6 +719,8 @@ export class CoursesForm implements OnInit {
     createGroupFilteredStudents: Person[] = [];
 
     groups: Group[] = [];
+    availableGroupOptions: { label: string; value: string }[] = [];
+    selectedExistingGroupId: string | null = null;
     teachers: Person[] = [];
     students: Person[] = [];
 
@@ -1425,8 +1444,44 @@ export class CoursesForm implements OnInit {
                     teacherCount: group.teacherCount,
                     studentCount: group.studentCount
                 }));
+                this.loadAvailableGroups(String(courseId));
             },
             error: () => {}
+        });
+    }
+
+    private loadAvailableGroups(currentCourseId: string) {
+        this.courseGroupsService.list(1, 100).subscribe({
+            next: (res) => {
+                const currentIds = new Set(this.groups.map((g) => g.id));
+                this.availableGroupOptions = (res?.data ?? [])
+                    .filter((g) => !currentIds.has(String(g.id)))
+                    .map((g) => ({ label: `${g.name} (${g.courseName ?? g.courseId})`, value: String(g.id) }));
+            }
+        });
+    }
+
+    onAddExistingGroup() {
+        if (!this.selectedExistingGroupId || !this.currentCourseId) return;
+        const courseId = this.currentCourseId;
+        const selected = this.availableGroupOptions.find((g) => g.value === this.selectedExistingGroupId);
+        if (!selected) return;
+        const groupName = selected.label.split(' (')[0];
+        this.courseGroupsService.create({ name: groupName, courseId }).subscribe({
+            next: (created) => {
+                const newGroup: Group = {
+                    id: String(created.id),
+                    name: created.name,
+                    teachers: [],
+                    students: [],
+                    teacherCount: created.teacherCount,
+                    studentCount: created.studentCount
+                };
+                this.groups = [...this.groups, newGroup];
+                this.selectedExistingGroupId = null;
+                this.loadAvailableGroups(courseId);
+                this.notification.success(this.translate.instant('common.created', { entity: this.translate.instant('entities.groups') }));
+            }
         });
     }
 

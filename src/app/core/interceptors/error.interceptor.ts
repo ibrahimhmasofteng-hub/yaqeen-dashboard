@@ -20,7 +20,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 router.navigate(['/auth/login']);
       } else {
         const raw = error.error?.message;
-        const message = raw !== undefined ? JSON.stringify(raw) : error.message || 'Unexpected error';
+        let message: string;
+        if (Array.isArray(raw) && raw.length > 0 && raw[0].property && raw[0].errors) {
+            message = raw.map((e: { property: string; errors: string[] }) =>
+                `${e.property}: ${e.errors.join(', ')}`
+            ).join('\n');
+        } else if (typeof raw === 'string' && raw.length > 0) {
+            message = raw;
+        } else if (raw !== undefined && raw !== null) {
+            message = JSON.stringify(raw);
+        } else {
+            message = error.message || 'Unexpected error';
+        }
         notify.error(message);
       }
 

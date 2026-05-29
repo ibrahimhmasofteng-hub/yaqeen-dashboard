@@ -49,4 +49,8 @@ export class CourseGroupsService {
     listByCourse(courseId: string | number, page = 1, perPage = 10): Observable<CourseGroupsResponse> {
         return this.api.get<CourseGroupsResponse>(`course-groups/by-course/${courseId}`, { params: { page, perPage } });
     }
+
+    list(page = 1, perPage = 100): Observable<CourseGroupsResponse> {
+        return this.api.get<CourseGroupsResponse>('course-groups', { params: { page, perPage } });
+    }
 }
