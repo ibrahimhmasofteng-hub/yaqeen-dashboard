@@ -9,6 +9,7 @@ export interface CourseFilters {
     name?: string;
     type?: string;
     isActive?: boolean;
+    sort?: { field: string; direction: 'asc' | 'desc' };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +21,8 @@ export class CourseService {
             page, perPage,
             ...(filters?.name ? { name: filters.name } : {}),
             ...(filters?.type ? { type: filters.type } : {}),
-            ...(filters?.isActive !== undefined ? { isActive: filters.isActive } : {})
+            ...(filters?.isActive !== undefined ? { isActive: filters.isActive } : {}),
+            ...(filters?.sort ? { sort: JSON.stringify({ field: filters.sort.field, direction: filters.sort.direction }) } : {})
         };
         return this.api.get<CoursesListResponse>('courses', { params });
     }
@@ -56,5 +58,9 @@ export class CourseService {
 
     delete(id: string | number): Observable<unknown> {
         return this.api.delete<unknown>(`courses/${id}`);
+    }
+
+    duplicate(id: string | number): Observable<Course> {
+        return this.api.post<Course>(`courses/${id}/duplicate`, {});
     }
 }

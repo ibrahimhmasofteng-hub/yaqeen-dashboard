@@ -26,6 +26,9 @@ import { RoleName } from '@/app/core/constants/role-name.enum';
 import { ApiService } from '@/app/core/services/api.service';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ImageModule } from 'primeng/image';
+import { TagModule } from 'primeng/tag';
+import { DataManagementService } from '@/app/core/services/data-management.service';
+import { ImportResult } from '@/app/features/students/models/import-result.model';
 
 interface Column {
     field: string;
@@ -60,6 +63,7 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
         ConfirmDialogModule,
         FileUploadModule,
         ImageModule,
+        TagModule,
         StepperModule,
         PasswordModule,
         FormErrors,
@@ -73,6 +77,7 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
             </ng-template>
 
             <ng-template #end>
+                <p-button [label]="'common.import' | translate" icon="pi pi-download" severity="secondary" class="mr-2" (onClick)="openImportDialog()" />
                 <p-button [label]="'common.export' | translate" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
             </ng-template>
         </p-toolbar>
@@ -299,6 +304,58 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
             </ng-template>
         </p-dialog>
 
+        <p-dialog [(visible)]="importDialogVisible" [style]="{ width: '600px' }" [header]="'common.import_teachers' | translate" [modal]="true" [draggable]="false">
+            <ng-template #content>
+                <div class="flex flex-col gap-4">
+                    <p-button [label]="'common.download_template' | translate" icon="pi pi-file-excel" severity="secondary" [outlined]="true" (onClick)="downloadTemplate()" [loading]="templateDownloading" styleClass="w-full" />
+
+                    <p-fileupload
+                        mode="basic"
+                        [chooseLabel]="'common.select_file' | translate"
+                        accept=".csv,.xlsx,.xls"
+                        [maxFileSize]="5000000"
+                        [auto]="false"
+                        (onSelect)="onImportFileSelect($event)"
+                        [invalidFileSizeMessageSummary]="'common.file_too_large' | translate"
+                    />
+
+                    <p *ngIf="importFile" class="text-sm text-surface-700">
+                        {{ importFile.name }} ({{ (importFile.size / 1024).toFixed(1) }} KB)
+                    </p>
+
+                    <div *ngIf="importResult" class="flex flex-col gap-3">
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div class="card p-3">
+                                <div class="text-2xl font-bold text-green-600">{{ importResult.imported }}</div>
+                                <div class="text-sm text-surface-500">{{ 'common.imported' | translate }}</div>
+                            </div>
+                            <div class="card p-3">
+                                <div class="text-2xl font-bold text-orange-500">{{ importResult.skipped }}</div>
+                                <div class="text-sm text-surface-500">{{ 'common.skipped' | translate }}</div>
+                            </div>
+                            <div class="card p-3">
+                                <div class="text-2xl font-bold text-red-500">{{ importResult.errors.length ?? 0 }}</div>
+                                <div class="text-sm text-surface-500">{{ 'common.errors' | translate }}</div>
+                            </div>
+                        </div>
+                        <div *ngIf="importResult.errors && importResult.errors.length" class="mt-2">
+                            <h6 class="m-0 mb-2">{{ 'common.import_errors' | translate }}</h6>
+                            <div class="max-h-48 overflow-y-auto">
+                                <div *ngFor="let err of importResult.errors" class="flex items-center gap-2 py-1 text-sm">
+                                    <p-tag [value]="'Row ' + err.row" severity="danger" styleClass="text-xs" />
+                                    <span>{{ err.message }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template #footer>
+                <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="closeImportDialog()" [disabled]="importSubmitting" />
+                <p-button [label]="'common.import' | translate" icon="pi pi-upload" (click)="submitImport()" [loading]="importSubmitting" [disabled]="!importFile || importSubmitting" />
+            </ng-template>
+        </p-dialog>
+
         <p-confirmdialog [style]="{ width: '450px' }" />
 
         <p-dialog [header]="'fields.image_id' | translate" [(visible)]="imageDialogVisible" [modal]="true" [style]="{ width: '400px' }">
@@ -339,6 +396,12 @@ export class TeachersCrud implements OnInit {
     step1Submitted = false;
     step2Submitted = false;
 
+    importDialogVisible = false;
+    importFile: File | null = null;
+    importResult: ImportResult | null = null;
+    importSubmitting = false;
+    templateDownloading = false;
+
     imageUploading = false;
     imagePreviewUrl: string | null = null;
     imageDialogVisible = false;
@@ -351,6 +414,7 @@ export class TeachersCrud implements OnInit {
 
     constructor(
         private teacherService: TeacherService,
+        private dataManagementService: DataManagementService,
         private roleService: RoleService,
         private messageService: MessageService,
         private translate: TranslateService,
@@ -815,6 +879,62 @@ export class TeachersCrud implements OnInit {
         firstName?.markAsTouched();
         lastName?.markAsTouched();
         return !!firstName?.valid && !!lastName?.valid;
+    }
+
+    openImportDialog() {
+        this.importFile = null;
+        this.importResult = null;
+        this.importSubmitting = false;
+        this.templateDownloading = false;
+        this.importDialogVisible = true;
+    }
+
+    closeImportDialog() {
+        this.importDialogVisible = false;
+    }
+
+    onImportFileSelect(event: { files: File[] }) {
+        if (event.files?.length) {
+            this.importFile = event.files[0];
+            this.importResult = null;
+        }
+    }
+
+    submitImport() {
+        if (!this.importFile || this.importSubmitting) return;
+        this.importSubmitting = true;
+        this.dataManagementService.importFile('teacher', this.importFile).subscribe({
+            next: (res) => {
+                this.importResult = res ?? { imported: 0, skipped: 0, errors: [] };
+                this.importSubmitting = false;
+                if ((res?.imported ?? 0) > 0) {
+                    this.loadTeachers(this.meta().page, this.meta().perPage);
+                }
+            },
+            error: () => {
+                this.importSubmitting = false;
+            }
+        });
+    }
+
+    downloadTemplate() {
+        this.templateDownloading = true;
+        this.dataManagementService.downloadTemplate('teacher').subscribe({
+            next: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'teachers-import-template.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                this.templateDownloading = false;
+            },
+            error: () => {
+                this.templateDownloading = false;
+            }
+        });
     }
 
     onPage(event: { first: number; rows: number }) {

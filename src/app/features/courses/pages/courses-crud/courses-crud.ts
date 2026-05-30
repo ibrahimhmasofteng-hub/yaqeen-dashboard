@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -45,7 +46,8 @@ interface ExportColumn {
         InputIconModule,
         ConfirmDialogModule,
         SelectModule,
-        TranslateModule
+        TranslateModule,
+        TooltipModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
@@ -132,6 +134,7 @@ interface ExportColumn {
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewCourse(course)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editCourse(course)" />
+                        <p-button icon="pi pi-copy" class="mr-2" severity="secondary" [rounded]="true" [outlined]="true" [loading]="duplicatingId === course.id" (click)="duplicateCourse(course)" [pTooltip]="'common.duplicate_course' | translate" tooltipPosition="top" />
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteCourse(course)" />
                     </td>
                 </tr>
@@ -151,6 +154,8 @@ export class CoursesCrud implements OnInit {
     searchTerm: string = '';
     filterType: string = '';
     filterIsActive: string = '';
+    currentSort: { field: string; direction: 'asc' | 'desc' } | null = null;
+    duplicatingId: string | null = null;
     private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
     courseTypeOptions = [
@@ -196,7 +201,8 @@ export class CoursesCrud implements OnInit {
         const filters: CourseFilters = {
             ...(this.searchTerm ? { name: this.searchTerm } : {}),
             ...(this.filterType ? { type: this.filterType } : {}),
-            ...(this.filterIsActive !== '' ? { isActive: this.filterIsActive === 'true' } : {})
+            ...(this.filterIsActive !== '' ? { isActive: this.filterIsActive === 'true' } : {}),
+            ...(this.currentSort ? { sort: this.currentSort } : {})
         };
         this.courseService.list(page, perPage, filters).subscribe({
             next: (res) => {
@@ -228,11 +234,8 @@ export class CoursesCrud implements OnInit {
     }
 
     onSort(event: { field: string; order: number }) {
-        const dir = event.order;
-        const field = event.field as keyof Course;
-        this.courses.update(list =>
-            [...list].sort((a, b) => String(a[field] ?? '').localeCompare(String(b[field] ?? '')) * dir)
-        );
+        this.currentSort = event.field ? { field: event.field, direction: event.order === 1 ? 'asc' : 'desc' } : null;
+        this.loadCourses(1, this.meta().perPage);
     }
 
     openNew() {
@@ -245,6 +248,26 @@ export class CoursesCrud implements OnInit {
 
     viewCourse(course: Course) {
         this.router.navigate(['/courses', course.id, 'edit'], { queryParams: { view: '1' } });
+    }
+
+    duplicateCourse(course: Course) {
+        if (this.duplicatingId) return;
+        this.duplicatingId = course.id as string;
+        this.courseService.duplicate(course.id as string).subscribe({
+            next: (newCourse) => {
+                this.duplicatingId = null;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: this.translate.instant('common.successful'),
+                    detail: this.translate.instant('common.course_duplicated'),
+                    life: 3000
+                });
+                this.router.navigate(['/courses', newCourse.id, 'edit']);
+            },
+            error: () => {
+                this.duplicatingId = null;
+            }
+        });
     }
 
     deleteSelectedCourses() {

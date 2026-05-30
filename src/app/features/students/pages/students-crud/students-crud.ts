@@ -28,9 +28,9 @@ import { Role } from '@/app/features/roles/models/role.model';
 import { FamilyRelation, FamilyRelationService } from '@/app/features/students/services/family-relation.service';
 import { RelationType } from '@/app/features/students/models/relation-type.enum';
 import { RoleName } from '@/app/core/constants/role-name.enum';
-import { StudentImportService } from '@/app/features/students/services/student-import.service';
 import { ImportResult } from '@/app/features/students/models/import-result.model';
 import { ApiService } from '@/app/core/services/api.service';
+import { DataManagementService } from '@/app/core/services/data-management.service';
 
 interface Column {
     field: string;
@@ -544,7 +544,7 @@ export class StudentsCrud implements OnInit {
 
     constructor(
         private studentService: StudentService,
-        private studentImportService: StudentImportService,
+        private dataManagementService: DataManagementService,
         private familyRelationService: FamilyRelationService,
         private roleService: RoleService,
         private messageService: MessageService,
@@ -1233,10 +1233,8 @@ export class StudentsCrud implements OnInit {
 
     submitImport() {
         if (!this.importFile || this.importSubmitting) return;
-        const roleId = this.getRoleId();
-        if (!roleId) return;
         this.importSubmitting = true;
-        this.studentImportService.importFile(this.importFile, roleId).subscribe({
+        this.dataManagementService.importFile('student', this.importFile).subscribe({
             next: (res) => {
                 this.importResult = res ?? { imported: 0, skipped: 0, errors: [] };
                 this.importSubmitting = false;
@@ -1252,7 +1250,7 @@ export class StudentsCrud implements OnInit {
 
     downloadTemplate() {
         this.templateDownloading = true;
-        this.studentImportService.downloadTemplate().subscribe({
+        this.dataManagementService.downloadTemplate('student').subscribe({
             next: (blob) => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
