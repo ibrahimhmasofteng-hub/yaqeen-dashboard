@@ -1488,7 +1488,7 @@ export class CoursesForm implements OnInit {
     private loadSupervisors() {
         if (this.supervisorsLoading) return;
         this.supervisorsLoading = true;
-        this.supervisorService.list(1, 100, SUPERVISOR_ROLE_FILTER).subscribe({
+        this.supervisorService.list(1, 100, { role: SUPERVISOR_ROLE_FILTER }).subscribe({
             next: (res) => {
                 this.supervisors.set(res?.data ?? []);
                 this.supervisorsLoading = false;
@@ -1502,7 +1502,7 @@ export class CoursesForm implements OnInit {
     private loadTeachers() {
         if (this.teachersLoading) return;
         this.teachersLoading = true;
-        this.teacherService.list(1, 100, TEACHER_ROLE_FILTER).subscribe({
+        this.teacherService.list(1, 100, { role: TEACHER_ROLE_FILTER }).subscribe({
             next: (res) => {
                 const data = (res?.data ?? []) as Teacher[];
                 this.teachers = data.map((teacher) => ({
@@ -1521,7 +1521,7 @@ export class CoursesForm implements OnInit {
     private loadStudents() {
         if (this.studentsLoading) return;
         this.studentsLoading = true;
-        this.studentService.list(1, 100, STUDENT_ROLE_FILTER).subscribe({
+        this.studentService.list(1, 100, { role: STUDENT_ROLE_FILTER }).subscribe({
             next: (res) => {
                 const data = (res?.data ?? []) as Student[];
                 this.students = data.map((student) => ({

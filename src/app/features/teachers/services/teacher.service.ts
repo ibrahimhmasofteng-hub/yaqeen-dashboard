@@ -2,18 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { Teacher, TeacherProfile, TeachersListResponse } from '@/app/features/teachers/models/teacher.model';
+import { ActorFilters, buildActorParams } from '@/app/features/students/services/student.service';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number, role?: string): Observable<TeachersListResponse> {
-        const params = {
-            page,
-            perPage,
-            ...(role ? { role } : {})
-        };
-        return this.api.get<TeachersListResponse>('actors', { params });
+    list(page: number, perPage: number, filters?: ActorFilters): Observable<TeachersListResponse> {
+        return this.api.get<TeachersListResponse>('actors', { params: buildActorParams(page, perPage, filters) });
     }
 
     get(id: string | number): Observable<Teacher> {

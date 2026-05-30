@@ -53,7 +53,6 @@ interface ExportColumn {
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
-            [globalFilterFields]="['method', 'url', 'statusCode', 'ip', 'duration', 'errorMessage', 'actorName', 'createdAt']"
             [tableStyle]="{ 'min-width': '90rem' }"
             [rowHover]="true"
             dataKey="id"
@@ -63,13 +62,14 @@ interface ExportColumn {
             [totalRecords]="meta().total"
             [lazy]="true"
             (onPage)="onPage($event)"
+            (onSort)="onSort($event)"
         >
             <ng-template #caption>
                 <div class="flex items-center justify-between">
                     <h5 class="m-0">{{ 'pages.audit.logs_title' | translate }}</h5>
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
+                        <input pInputText type="text" (input)="onSearch($event)" [placeholder]="'common.search' | translate" />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -142,6 +142,9 @@ export class AuditLogsTable implements OnInit {
     meta = signal<AuditLogsMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
     loading: boolean = false;
 
+    filterMethod: string = '';
+    private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
     @ViewChild('dt') dt!: Table;
 
     exportColumns!: ExportColumn[];
@@ -159,7 +162,7 @@ export class AuditLogsTable implements OnInit {
     loadLogs(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.auditLogsService.list(page, perPage).subscribe({
+        this.auditLogsService.list(page, perPage, { method: this.filterMethod || undefined }).subscribe({
             next: (res) => {
                 this.logs.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -171,8 +174,19 @@ export class AuditLogsTable implements OnInit {
         });
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    onSearch(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        this.filterMethod = value;
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => this.loadLogs(1, this.meta().perPage), 400);
+    }
+
+    onSort(event: { field: string; order: number }) {
+        const dir = event.order;
+        const field = event.field;
+        this.logs.update(list =>
+            [...list].sort((a: any, b: any) => String(a[field] ?? '').localeCompare(String(b[field] ?? '')) * dir)
+        );
     }
 
     exportCSV() {

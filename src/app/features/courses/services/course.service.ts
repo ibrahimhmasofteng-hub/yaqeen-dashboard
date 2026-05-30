@@ -5,12 +5,24 @@ import { Course, CourseTime, CoursesListResponse } from '@/app/features/courses/
 import { CourseType } from '@/app/features/courses/models/course-type.enum';
 import { WeekDay } from '@/app/features/courses/models/week-day.enum';
 
+export interface CourseFilters {
+    name?: string;
+    type?: string;
+    isActive?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CourseService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<CoursesListResponse> {
-        return this.api.get<CoursesListResponse>('courses', { params: { page, perPage } });
+    list(page: number, perPage: number, filters?: CourseFilters): Observable<CoursesListResponse> {
+        const params: Record<string, string | number | boolean | undefined> = {
+            page, perPage,
+            ...(filters?.name ? { name: filters.name } : {}),
+            ...(filters?.type ? { type: filters.type } : {}),
+            ...(filters?.isActive !== undefined ? { isActive: filters.isActive } : {})
+        };
+        return this.api.get<CoursesListResponse>('courses', { params });
     }
 
     get(id: string | number): Observable<Course> {

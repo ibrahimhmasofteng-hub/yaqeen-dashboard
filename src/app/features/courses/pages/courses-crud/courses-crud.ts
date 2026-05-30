@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -8,11 +9,12 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
+import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CourseService } from '@/app/features/courses/services/course.service';
+import { CourseService, CourseFilters } from '@/app/features/courses/services/course.service';
 import { Course, CoursesMeta } from '@/app/features/courses/models/course.model';
 import { CourseType } from '@/app/features/courses/models/course-type.enum';
 
@@ -32,6 +34,7 @@ interface ExportColumn {
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         TableModule,
         ButtonModule,
         RippleModule,
@@ -41,6 +44,7 @@ interface ExportColumn {
         IconFieldModule,
         InputIconModule,
         ConfirmDialogModule,
+        SelectModule,
         TranslateModule
     ],
     template: `
@@ -62,7 +66,6 @@ interface ExportColumn {
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
-            [globalFilterFields]="['name', 'type', 'startDate', 'endDate']"
             [tableStyle]="{ 'min-width': '80rem' }"
             [(selection)]="selectedCourses"
             [rowHover]="true"
@@ -73,14 +76,19 @@ interface ExportColumn {
             [totalRecords]="meta().total"
             [lazy]="true"
             (onPage)="onPage($event)"
+            (onSort)="onSort($event)"
         >
             <ng-template #caption>
-                <div class="flex items-center justify-between">
+                <div class="flex flex-wrap items-center justify-between gap-2">
                     <h5 class="m-0">{{ 'pages.courses.manage_title' | translate }}</h5>
-                    <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
-                    </p-iconfield>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <p-select [options]="courseTypeOptions" [(ngModel)]="filterType" optionLabel="label" optionValue="value" [showClear]="true" [placeholder]="'fields.course_type' | translate" (onChange)="onFilterType($event.value ?? '')" appendTo="body" />
+                        <p-select [options]="isActiveOptions" [(ngModel)]="filterIsActive" optionLabel="label" optionValue="value" [showClear]="true" [placeholder]="'common.status' | translate" (onChange)="onFilterIsActive($event.value ?? '')" appendTo="body" />
+                        <p-iconfield>
+                            <p-inputicon styleClass="pi pi-search" />
+                            <input pInputText type="text" (input)="onSearch($event)" [placeholder]="'common.search' | translate" />
+                        </p-iconfield>
+                    </div>
                 </div>
             </ng-template>
             <ng-template #header>
@@ -140,6 +148,21 @@ export class CoursesCrud implements OnInit {
     meta = signal<CoursesMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
     loading: boolean = false;
 
+    searchTerm: string = '';
+    filterType: string = '';
+    filterIsActive: string = '';
+    private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+    courseTypeOptions = [
+        { label: 'Quran', value: 'Quran' },
+        { label: 'Hadith', value: 'Hadith' },
+        { label: 'Fiqh', value: 'Fiqh' }
+    ];
+    isActiveOptions = [
+        { label: 'Active', value: 'true' },
+        { label: 'Inactive', value: 'false' }
+    ];
+
     selectedCourses!: Course[] | null;
 
     @ViewChild('dt') dt!: Table;
@@ -170,7 +193,12 @@ export class CoursesCrud implements OnInit {
     loadCourses(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.courseService.list(page, perPage).subscribe({
+        const filters: CourseFilters = {
+            ...(this.searchTerm ? { name: this.searchTerm } : {}),
+            ...(this.filterType ? { type: this.filterType } : {}),
+            ...(this.filterIsActive !== '' ? { isActive: this.filterIsActive === 'true' } : {})
+        };
+        this.courseService.list(page, perPage, filters).subscribe({
             next: (res) => {
                 this.courses.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -182,8 +210,29 @@ export class CoursesCrud implements OnInit {
         });
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    onSearch(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        this.searchTerm = value;
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => this.loadCourses(1, this.meta().perPage), 400);
+    }
+
+    onFilterType(value: string) {
+        this.filterType = value;
+        this.loadCourses(1, this.meta().perPage);
+    }
+
+    onFilterIsActive(value: string) {
+        this.filterIsActive = value;
+        this.loadCourses(1, this.meta().perPage);
+    }
+
+    onSort(event: { field: string; order: number }) {
+        const dir = event.order;
+        const field = event.field as keyof Course;
+        this.courses.update(list =>
+            [...list].sort((a, b) => String(a[field] ?? '').localeCompare(String(b[field] ?? '')) * dir)
+        );
     }
 
     openNew() {

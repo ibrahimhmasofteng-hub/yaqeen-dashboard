@@ -2,7 +2,7 @@ import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
@@ -41,6 +41,7 @@ const USER_ROLE_FILTER = RoleName.Admin;
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         TableModule,
         ReactiveFormsModule,
         ButtonModule,
@@ -76,7 +77,6 @@ const USER_ROLE_FILTER = RoleName.Admin;
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
-            [globalFilterFields]="['username', 'email', 'phone', 'accountStatus']"
             [tableStyle]="{ 'min-width': '75rem' }"
             [(selection)]="selectedUsers"
             [rowHover]="true"
@@ -87,14 +87,18 @@ const USER_ROLE_FILTER = RoleName.Admin;
             [totalRecords]="meta().total"
             [lazy]="true"
             (onPage)="onPage($event)"
+            (onSort)="onSort($event)"
         >
             <ng-template #caption>
-                <div class="flex items-center justify-between">
+                <div class="flex flex-wrap items-center justify-between gap-2">
                     <h5 class="m-0">{{ 'pages.users.manage_title' | translate }}</h5>
-                    <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
-                    </p-iconfield>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <p-select [options]="accountStatusOptions" [(ngModel)]="filterStatus" optionLabel="label" optionValue="value" [showClear]="true" [placeholder]="'fields.account_status' | translate" (onChange)="onFilterStatus($event.value ?? '')" appendTo="body" />
+                        <p-iconfield>
+                            <p-inputicon styleClass="pi pi-search" />
+                            <input pInputText type="text" (input)="onSearch($event)" [placeholder]="'common.search' | translate" />
+                        </p-iconfield>
+                    </div>
                 </div>
             </ng-template>
             <ng-template #header>
@@ -236,6 +240,11 @@ export class UsersCrud implements OnInit {
     submitted: boolean = false;
     submitting: boolean = false;
 
+    searchTerm: string = '';
+    filterStatus: string = '';
+    currentSort: { field: string; direction: 'asc' | 'desc' } | null = null;
+    private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
     @ViewChild('dt') dt!: Table;
 
     exportColumns!: ExportColumn[];
@@ -295,7 +304,12 @@ export class UsersCrud implements OnInit {
     loadUsers(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.userService.list(page, perPage, USER_ROLE_FILTER).subscribe({
+        this.userService.list(page, perPage, {
+            role: USER_ROLE_FILTER,
+            name: this.searchTerm || undefined,
+            accountStatus: this.filterStatus || undefined,
+            sort: this.currentSort || undefined
+        }).subscribe({
             next: (res) => {
                 this.users.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -307,8 +321,21 @@ export class UsersCrud implements OnInit {
         });
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    onSearch(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        this.searchTerm = value;
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => this.loadUsers(1, this.meta().perPage), 400);
+    }
+
+    onFilterStatus(value: string) {
+        this.filterStatus = value;
+        this.loadUsers(1, this.meta().perPage);
+    }
+
+    onSort(event: { field: string; order: number }) {
+        this.currentSort = event.field ? { field: event.field, direction: event.order === 1 ? 'asc' : 'desc' } : null;
+        this.loadUsers(1, this.meta().perPage);
     }
 
     openNew() {

@@ -2,18 +2,14 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { Supervisor, SupervisorProfile, SupervisorsListResponse } from '@/app/features/supervisors/models/supervisor.model';
+import { ActorFilters, buildActorParams } from '@/app/features/students/services/student.service';
 
 @Injectable({ providedIn: 'root' })
 export class SupervisorService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number, role?: string): Observable<SupervisorsListResponse> {
-        const params = {
-            page,
-            perPage,
-            ...(role ? { role } : {})
-        };
-        return this.api.get<SupervisorsListResponse>('actors', { params });
+    list(page: number, perPage: number, filters?: ActorFilters): Observable<SupervisorsListResponse> {
+        return this.api.get<SupervisorsListResponse>('actors', { params: buildActorParams(page, perPage, filters) });
     }
 
     get(id: string | number): Observable<Supervisor> {

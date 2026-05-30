@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -45,6 +45,7 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         TableModule,
         ReactiveFormsModule,
         ButtonModule,
@@ -83,7 +84,6 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
-            [globalFilterFields]="['username', 'email', 'phone', 'accountStatus']"
             [tableStyle]="{ 'min-width': '75rem' }"
             [(selection)]="selectedTeachers"
             [rowHover]="true"
@@ -94,14 +94,18 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
             [totalRecords]="meta().total"
             [lazy]="true"
             (onPage)="onPage($event)"
+            (onSort)="onSort($event)"
         >
             <ng-template #caption>
-                <div class="flex items-center justify-between">
+                <div class="flex flex-wrap items-center justify-between gap-2">
                     <h5 class="m-0">{{ 'pages.teachers.manage_title' | translate }}</h5>
-                    <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
-                    </p-iconfield>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <p-select [options]="accountStatusOptions" [(ngModel)]="filterStatus" optionLabel="label" optionValue="value" [showClear]="true" [placeholder]="'fields.account_status' | translate" (onChange)="onFilterStatus($event.value ?? '')" appendTo="body" />
+                        <p-iconfield>
+                            <p-inputicon styleClass="pi pi-search" />
+                            <input pInputText type="text" (input)="onSearch($event)" [placeholder]="'common.search' | translate" />
+                        </p-iconfield>
+                    </div>
                 </div>
             </ng-template>
             <ng-template #header>
@@ -326,6 +330,11 @@ export class TeachersCrud implements OnInit {
     rolesLoading: boolean = false;
     submitting: boolean = false;
 
+    searchTerm: string = '';
+    filterStatus: string = '';
+    currentSort: { field: string; direction: 'asc' | 'desc' } | null = null;
+    private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
     activeStep = 1;
     step1Submitted = false;
     step2Submitted = false;
@@ -393,7 +402,12 @@ export class TeachersCrud implements OnInit {
     loadTeachers(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.teacherService.list(page, perPage, TEACHER_ROLE_FILTER).subscribe({
+        this.teacherService.list(page, perPage, {
+            role: TEACHER_ROLE_FILTER,
+            name: this.searchTerm || undefined,
+            accountStatus: this.filterStatus || undefined,
+            sort: this.currentSort || undefined
+        }).subscribe({
             next: (res) => {
                 this.teachers.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -420,8 +434,21 @@ export class TeachersCrud implements OnInit {
         });
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    onSearch(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        this.searchTerm = value;
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => this.loadTeachers(1, this.meta().perPage), 400);
+    }
+
+    onFilterStatus(value: string) {
+        this.filterStatus = value;
+        this.loadTeachers(1, this.meta().perPage);
+    }
+
+    onSort(event: { field: string; order: number }) {
+        this.currentSort = event.field ? { field: event.field, direction: event.order === 1 ? 'asc' : 'desc' } : null;
+        this.loadTeachers(1, this.meta().perPage);
     }
 
     openNew() {

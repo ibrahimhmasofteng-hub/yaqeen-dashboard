@@ -7,7 +7,11 @@ import { AuditLogsListResponse } from '@/app/features/audit-logs/models/audit-lo
 export class AuditLogsService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<AuditLogsListResponse> {
-        return this.api.get<AuditLogsListResponse>('audit-logs', { params: { page, perPage } });
+    list(page: number, perPage: number, filters?: { method?: string }): Observable<AuditLogsListResponse> {
+        const params: Record<string, string | number | undefined> = {
+            page, perPage,
+            ...(filters?.method ? { method: filters.method } : {})
+        };
+        return this.api.get<AuditLogsListResponse>('audit-logs', { params });
     }
 }

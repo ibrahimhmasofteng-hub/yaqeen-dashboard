@@ -3,17 +3,29 @@ import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { Student, StudentProfile, StudentsListResponse } from '@/app/features/students/models/student.model';
 
+export interface ActorFilters {
+    role?: string;
+    name?: string;
+    accountStatus?: string;
+    sort?: { field: string; direction: 'asc' | 'desc' };
+}
+
+export function buildActorParams(page: number, perPage: number, f?: ActorFilters): Record<string, string | number | boolean | undefined> {
+    return {
+        page, perPage,
+        ...(f?.role ? { role: f.role } : {}),
+        ...(f?.name ? { name: f.name } : {}),
+        ...(f?.accountStatus ? { accountStatus: f.accountStatus } : {}),
+        ...(f?.sort ? { sort: JSON.stringify({ field: f.sort.field, direction: f.sort.direction }) } : {})
+    };
+}
+
 @Injectable({ providedIn: 'root' })
 export class StudentService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number, role?: string): Observable<StudentsListResponse> {
-        const params = {
-            page,
-            perPage,
-            ...(role ? { role } : {})
-        };
-        return this.api.get<StudentsListResponse>('actors', { params });
+    list(page: number, perPage: number, filters?: ActorFilters): Observable<StudentsListResponse> {
+        return this.api.get<StudentsListResponse>('actors', { params: buildActorParams(page, perPage, filters) });
     }
 
     get(id: string | number): Observable<Student> {

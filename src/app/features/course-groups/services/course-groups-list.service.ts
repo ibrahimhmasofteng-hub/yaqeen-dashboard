@@ -7,7 +7,11 @@ import { CourseGroupsListResponse } from '@/app/features/course-groups/models/co
 export class CourseGroupsListService {
     private api: ApiService = inject(ApiService);
 
-    list(page: number, perPage: number): Observable<CourseGroupsListResponse> {
-        return this.api.get<CourseGroupsListResponse>('course-groups', { params: { page, perPage } });
+    list(page: number, perPage: number, filters?: { name?: string }): Observable<CourseGroupsListResponse> {
+        const params: Record<string, string | number | undefined> = {
+            page, perPage,
+            ...(filters?.name ? { name: filters.name } : {})
+        };
+        return this.api.get<CourseGroupsListResponse>('course-groups', { params });
     }
 }

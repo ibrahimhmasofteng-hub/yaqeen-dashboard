@@ -89,7 +89,6 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
-            [globalFilterFields]="['name', 'courseName', 'courseId']"
             [tableStyle]="{ 'min-width': '75rem' }"
             [rowHover]="true"
             dataKey="id"
@@ -99,13 +98,14 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
             [totalRecords]="meta().total"
             [lazy]="true"
             (onPage)="onPage($event)"
+            (onSort)="onSort($event)"
         >
             <ng-template #caption>
                 <div class="flex items-center justify-between">
                     <h5 class="m-0">{{ 'pages.groups.manage_title' | translate }}</h5>
                     <p-iconfield>
                         <p-inputicon styleClass="pi pi-search" />
-                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" [placeholder]="'common.search' | translate" />
+                        <input pInputText type="text" (input)="onSearch($event)" [placeholder]="'common.search' | translate" />
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -435,6 +435,9 @@ export class CourseGroupsList implements OnInit {
     meta = signal<CourseGroupsMeta>({ page: 1, perPage: 10, nextPage: 0, previousPage: 0, total: 0 });
     loading = false;
 
+    searchTerm: string = '';
+    private searchTimer: ReturnType<typeof setTimeout> | null = null;
+
     @ViewChild('dt') dt!: Table;
 
     exportColumns!: ExportColumn[];
@@ -507,7 +510,7 @@ export class CourseGroupsList implements OnInit {
     loadGroups(page: number, perPage: number) {
         if (this.loading) return;
         this.loading = true;
-        this.groupsService.list(page, perPage).subscribe({
+        this.groupsService.list(page, perPage, { name: this.searchTerm || undefined }).subscribe({
             next: (res) => {
                 this.groups.set(res?.data ?? []);
                 this.meta.set(res?.meta ?? { page, perPage, nextPage: 0, previousPage: 0, total: 0 });
@@ -519,8 +522,19 @@ export class CourseGroupsList implements OnInit {
         });
     }
 
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    onSearch(event: Event) {
+        const value = (event.target as HTMLInputElement).value;
+        this.searchTerm = value;
+        if (this.searchTimer) clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => this.loadGroups(1, this.meta().perPage), 400);
+    }
+
+    onSort(event: { field: string; order: number }) {
+        const dir = event.order;
+        const field = event.field as keyof CourseGroup;
+        this.groups.update(list =>
+            [...list].sort((a, b) => String(a[field] ?? '').localeCompare(String(b[field] ?? '')) * dir)
+        );
     }
 
     onPage(event: { first: number; rows: number }) {
@@ -840,8 +854,8 @@ export class CourseGroupsList implements OnInit {
     }
 
     private loadTeachersAndStudents(callback?: () => void) {
-        const teachers$ = this.teacherService.list(1, 100, TEACHER_ROLE_FILTER);
-        const students$ = this.studentService.list(1, 100, STUDENT_ROLE_FILTER);
+        const teachers$ = this.teacherService.list(1, 100, { role: TEACHER_ROLE_FILTER });
+        const students$ = this.studentService.list(1, 100, { role: STUDENT_ROLE_FILTER });
         forkJoin({ teachers: teachers$, students: students$ }).subscribe({
             next: (res) => {
                 this.allTeachers = ((res.teachers?.data ?? []) as Teacher[]).map((teacher) => ({
@@ -879,7 +893,7 @@ export class CourseGroupsList implements OnInit {
 
     private loadTeachers() {
         if (this.allTeachers.length) return;
-        this.teacherService.list(1, 100, TEACHER_ROLE_FILTER).subscribe({
+        this.teacherService.list(1, 100, { role: TEACHER_ROLE_FILTER }).subscribe({
             next: (res) => {
                 const data = (res?.data ?? []) as Teacher[];
                 this.allTeachers = data.map((teacher) => ({
@@ -894,7 +908,7 @@ export class CourseGroupsList implements OnInit {
 
     private loadStudents() {
         if (this.allStudents.length) return;
-        this.studentService.list(1, 100, STUDENT_ROLE_FILTER).subscribe({
+        this.studentService.list(1, 100, { role: STUDENT_ROLE_FILTER }).subscribe({
             next: (res) => {
                 const data = (res?.data ?? []) as Student[];
                 this.allStudents = data.map((student) => ({
