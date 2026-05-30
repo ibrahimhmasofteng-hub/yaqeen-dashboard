@@ -81,6 +81,7 @@
         "active": "نشط",
         "inactive": "غير نشط",
         "select_role": "اختر الدور",
+        "select_group":"اختر الحلقة",
         "select_status": "اختر الحالة",
         "select_role": "اختر الدور",
         "select_type": "اختر النوع",

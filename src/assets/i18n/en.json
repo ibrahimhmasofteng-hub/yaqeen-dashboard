@@ -81,6 +81,7 @@
         "active": "Active",
         "inactive": "Inactive",
         "select_role": "Select Role",
+        "select_gorup":"Select Group",
         "select_status": "Select Status",
         "select_role": "Select Role",
         "select_type": "Select Type",
