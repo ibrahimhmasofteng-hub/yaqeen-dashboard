@@ -1,16 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface RecentActor {
-    id: string;
-    name: string;
-    roleKey: 'student' | 'teacher' | 'guardian' | 'supervisor';
-    createdAt: string;
-}
+import { DashboardData } from '../services/dashboard.service';
 
 @Component({
     standalone: true,
@@ -18,7 +12,7 @@ interface RecentActor {
     imports: [CommonModule, TableModule, ButtonModule, RippleModule, TranslateModule],
     template: `<div class="card mb-8!">
         <div class="font-semibold text-xl mb-4">{{ 'dashboard.recent_registrations' | translate }}</div>
-        <p-table [value]="recentActors()" [paginator]="true" [rows]="5" responsiveLayout="scroll">
+        <p-table [value]="data?.recentRegistrations ?? []" [paginator]="true" [rows]="5" responsiveLayout="scroll">
             <ng-template #header>
                 <tr>
                     <th pSortableColumn="name">{{ 'fields.name' | translate }} <p-sortIcon field="name"></p-sortIcon></th>
@@ -41,11 +35,5 @@ interface RecentActor {
     </div>`
 })
 export class RecentRegistrationsWidget {
-    recentActors = signal<RecentActor[]>([
-        { id: '1', name: 'Ahmad Saleh', roleKey: 'student', createdAt: '2026-03-29 09:40' },
-        { id: '2', name: 'Rana Nasser', roleKey: 'teacher', createdAt: '2026-03-29 08:15' },
-        { id: '3', name: 'Yousef Omar', roleKey: 'guardian', createdAt: '2026-03-28 18:20' },
-        { id: '4', name: 'Maya Ali', roleKey: 'student', createdAt: '2026-03-28 16:05' },
-        { id: '5', name: 'Khaled Taha', roleKey: 'supervisor', createdAt: '2026-03-27 12:30' }
-    ]);
+    @Input() data: DashboardData | null = null;
 }

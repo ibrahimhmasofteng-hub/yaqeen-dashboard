@@ -1,8 +1,9 @@
-import { afterNextRender, Component, effect, inject, signal } from '@angular/core';
+import { afterNextRender, Component, Input, OnChanges, effect, inject, signal } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { TranslateModule } from '@ngx-translate/core';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { TranslateService } from '@ngx-translate/core';
+import { DashboardData } from '../services/dashboard.service';
 
 @Component({
     standalone: true,
@@ -13,32 +14,32 @@ import { TranslateService } from '@ngx-translate/core';
         <p-chart type="bar" [data]="chartData()" [options]="chartOptions()" class="h-100" />
     </div>`
 })
-export class MonthlyGrowthWidget {
+export class MonthlyGrowthWidget implements OnChanges {
     layoutService = inject(LayoutService);
     translate = inject(TranslateService);
 
-    chartData = signal<any>(null);
+    @Input() data: DashboardData | null = null;
 
+    chartData = signal<any>(null);
     chartOptions = signal<any>(null);
 
     constructor() {
         afterNextRender(() => {
-            setTimeout(() => {
-                this.initChart();
-            }, 150);
+            setTimeout(() => this.initChart(), 150);
         });
 
         effect(() => {
             this.layoutService.layoutConfig().darkTheme;
-            setTimeout(() => {
-                this.initChart();
-            }, 150);
+            setTimeout(() => this.initChart(), 150);
         });
+
         this.translate.onLangChange.subscribe(() => {
-            setTimeout(() => {
-                this.initChart();
-            }, 150);
+            setTimeout(() => this.initChart(), 150);
         });
+    }
+
+    ngOnChanges() {
+        if (this.data) this.initChart();
     }
 
     initChart() {
@@ -46,42 +47,31 @@ export class MonthlyGrowthWidget {
         const textColor = documentStyle.getPropertyValue('--text-color');
         const borderColor = documentStyle.getPropertyValue('--surface-border');
         const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
+        const growth = this.data?.monthlyGrowth;
 
         this.chartData.set({
-            labels: [
-                this.translate.instant('dashboard.months.jan'),
-                this.translate.instant('dashboard.months.feb'),
-                this.translate.instant('dashboard.months.mar'),
-                this.translate.instant('dashboard.months.apr'),
-                this.translate.instant('dashboard.months.may'),
-                this.translate.instant('dashboard.months.jun')
-            ],
+            labels: growth?.labels ?? [],
             datasets: [
                 {
                     type: 'bar',
                     label: this.translate.instant('dashboard.students'),
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
-                    data: [40, 55, 62, 58, 71, 80],
+                    data: growth?.students ?? [],
                     barThickness: 24
                 },
                 {
                     type: 'bar',
                     label: this.translate.instant('dashboard.groups'),
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-300'),
-                    data: [6, 7, 9, 8, 10, 12],
+                    data: growth?.groups ?? [],
                     barThickness: 24
                 },
                 {
                     type: 'bar',
                     label: this.translate.instant('dashboard.courses'),
                     backgroundColor: documentStyle.getPropertyValue('--p-primary-200'),
-                    data: [1, 2, 2, 3, 3, 4],
-                    borderRadius: {
-                        topLeft: 8,
-                        topRight: 8,
-                        bottomLeft: 0,
-                        bottomRight: 0
-                    },
+                    data: growth?.courses ?? [],
+                    borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },
                     borderSkipped: false,
                     barThickness: 24
                 }
@@ -91,34 +81,17 @@ export class MonthlyGrowthWidget {
         this.chartOptions.set({
             maintainAspectRatio: false,
             aspectRatio: 0.8,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor
-                    }
-                }
-            },
+            plugins: { legend: { labels: { color: textColor } } },
             scales: {
                 x: {
                     stacked: true,
-                    ticks: {
-                        color: textMutedColor
-                    },
-                    grid: {
-                        color: 'transparent',
-                        borderColor: 'transparent'
-                    }
+                    ticks: { color: textMutedColor },
+                    grid: { color: 'transparent', borderColor: 'transparent' }
                 },
                 y: {
                     stacked: true,
-                    ticks: {
-                        color: textMutedColor
-                    },
-                    grid: {
-                        color: borderColor,
-                        borderColor: 'transparent',
-                        drawTicks: false
-                    }
+                    ticks: { color: textMutedColor },
+                    grid: { color: borderColor, borderColor: 'transparent', drawTicks: false }
                 }
             }
         });
