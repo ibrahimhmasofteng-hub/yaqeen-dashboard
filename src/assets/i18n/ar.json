@@ -14,7 +14,8 @@
         "groups": "الحلقات",
         "attendance": "الحضور",
         "attendance_record": "تسجيل الحضور",
-        "audit_logs": "سجلات التدقيق"
+        "audit_logs": "سجلات التدقيق",
+        "recommendations": "التوصيات"
     },
     "auth": {
         "welcome": "مرحبًا بك",
@@ -283,6 +284,30 @@
             "create_subtitle": "أدخل تفاصيل المنشور وأرفق الملفات.",
             "edit_title": "تعديل المنشور",
             "edit_subtitle": "حدّث تفاصيل المنشور."
+        },
+        "recommendations": {
+            "title": "توصيات الطالب",
+            "select_student": "اختر الطالب",
+            "select_filters": "اختر دورة وطالب لعرض التوصيات",
+            "send": "إرسال التوصية",
+            "send_confirm": "هل أنت متأكد من إرسال إشعار التوصية إلى هذا الطالب؟",
+            "sent_success": "تم إرسال إشعار التوصية بنجاح",
+            "tab_recommendations": "التوصيات",
+            "tab_juzz_test": "اختبار الجزء",
+            "pages_to_review": "صفحات للمراجعة",
+            "pages_to_memorize": "صفحات للحفظ",
+            "error_summary": "ملخص أنواع الأخطاء",
+            "weak_surahs": "السور الضعيفة",
+            "page": "الصفحة",
+            "reason": "السبب",
+            "priority": "الأولوية",
+            "surah": "السورة",
+            "error_count": "الأخطاء",
+            "total_errors": "إجمالي الأخطاء",
+            "priority_score": "درجة الأولوية",
+            "ayah_count": "عدد الآيات",
+            "problematic_verses": "الآيات المُشكِلة",
+            "verse_number": "الآية"
         }
     },
     "wizard": {

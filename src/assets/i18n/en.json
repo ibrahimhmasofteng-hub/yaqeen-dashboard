@@ -14,7 +14,8 @@
         "groups": "Groups",
         "attendance": "Attendance",
         "attendance_record": "Record Attendance",
-        "audit_logs": "Audit Logs"
+        "audit_logs": "Audit Logs",
+        "recommendations": "Recommendations"
     },
     "auth": {
         "welcome": "Welcome",
@@ -283,6 +284,30 @@
             "create_subtitle": "Fill in post details and attach files.",
             "edit_title": "Edit Post",
             "edit_subtitle": "Update post details."
+        },
+        "recommendations": {
+            "title": "Student Recommendations",
+            "select_student": "Select Student",
+            "select_filters": "Select a course and student to view recommendations",
+            "send": "Send Recommendation",
+            "send_confirm": "Are you sure you want to send a recommendation notification to this student?",
+            "sent_success": "Recommendation notification sent successfully",
+            "tab_recommendations": "Recommendations",
+            "tab_juzz_test": "Juzz Test",
+            "pages_to_review": "Pages to Review",
+            "pages_to_memorize": "Pages to Memorize",
+            "error_summary": "Error Type Summary",
+            "weak_surahs": "Weak Surahs",
+            "page": "Page",
+            "reason": "Reason",
+            "priority": "Priority",
+            "surah": "Surah",
+            "error_count": "Errors",
+            "total_errors": "Total Errors",
+            "priority_score": "Priority Score",
+            "ayah_count": "Ayah Count",
+            "problematic_verses": "Problematic Verses",
+            "verse_number": "Verse"
         }
     },
     "wizard": {

@@ -43,6 +43,7 @@ export class AppMenu {
                     { label: 'menu.posts', icon: 'pi pi-fw pi-comment', routerLink: ['/posts'] },
                     { label: 'menu.groups', icon: 'pi pi-fw pi-sitemap', routerLink: ['/groups'] },
                     { label: 'menu.attendance', icon: 'pi pi-fw pi-calendar-check', routerLink: ['/attendance/record'] },
+                    { label: 'menu.recommendations', icon: 'pi pi-fw pi-chart-line', routerLink: ['/recommendations'] },
                     { label: 'menu.roles', icon: 'pi pi-fw pi-id-card', routerLink: ['/roles'] },
                     { label: 'menu.audit_logs', icon: 'pi pi-fw pi-file', routerLink: ['/audit-logs'] }
                 ]
