@@ -9,6 +9,7 @@
         "teachers": "المعلمون",
         "students": "الطلاب",
         "courses": "الدورات",
+        "events": "الفعاليات",
         "groups": "الحلقات",
         "attendance": "الحضور",
         "attendance_record": "تسجيل الحضور",
@@ -101,6 +102,10 @@
         "attendance_saved": "تم حفظ الحضور",
         "no_data": "لا توجد سجلات",
         "select_target_group": "اختر الحلقة المستهدفة",
+        "view_stats": "عرض الإحصائيات",
+        "qualified": "مؤهل",
+        "not_qualified": "غير مؤهل",
+        "completed": "مكتمل",
         "add_time": "إضافة وقت",
         "activate": "تنشيط",
         "transfer": "نقل",
@@ -171,7 +176,18 @@
         "attendance_status": "حالة الحضور",
         "attended_at": "تاريخ البداية",
         "attended_end": "تاريخ النهاية",
-        "date": "التاريخ"
+        "date": "التاريخ",
+        "event_name": "اسم الفعالية",
+        "event_type": "نوع الفعالية",
+        "course": "الدورة",
+        "points_reward": "نقاط المكافأة",
+        "target_criteria": "معيار الهدف",
+        "is_active": "نشط",
+        "description": "الوصف",
+        "total": "الإجمالي",
+        "completed": "مكتمل",
+        "unique_participants": "المشاركون الفريدون",
+        "completion": "الإكمال"
     },
     "entities": {
         "user": "المستخدم",
@@ -191,7 +207,9 @@
         "guardians": "أولياء الأمور",
         "audit_log": "سجل التدقيق",
         "audit_logs": "سجلات التدقيق",
-        "attendance": "الحضور"
+        "attendance": "الحضور",
+        "event": "فعالية",
+        "events": "الفعاليات"
     },
     "roles": {
         "permissions_loading": "جاري تحميل الصلاحيات...",
@@ -236,6 +254,16 @@
         },
         "attendance": {
             "record_title": "إدارة الحضور"
+        },
+        "events": {
+            "manage_title": "إدارة الفعاليات",
+            "create_title": "إنشاء فعالية",
+            "create_subtitle": "أدخل تفاصيل الفعالية.",
+            "edit_title": "تعديل الفعالية",
+            "edit_subtitle": "حدّث تفاصيل الفعالية.",
+            "detail_title": "تفاصيل الفعالية",
+            "stats_title": "إحصائيات الفعالية",
+            "my_progress": "تقدمي"
         }
     },
     "wizard": {
@@ -329,6 +357,10 @@
             "LATE": "متأخر",
             "JUSTIFIED_ABSENCE": "غيب بعذر",
             "UNJUSTIFIED_ABSENCE": "غيب بلا عذر"
+        },
+        "event_type": {
+            "Recitations": "التلاوات",
+            "Attendances": "الحضور"
         }
     }
 }

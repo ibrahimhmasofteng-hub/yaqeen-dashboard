@@ -9,6 +9,7 @@
         "teachers": "Teachers",
         "students": "Students",
         "courses": "Courses",
+        "events": "Events",
         "groups": "Groups",
         "attendance": "Attendance",
         "attendance_record": "Record Attendance",
@@ -101,6 +102,10 @@
         "attendance_saved": "Attendance Saved",
         "no_data": "No records found",
         "select_target_group": "Select Target Group",
+        "view_stats": "View Stats",
+        "qualified": "Qualified",
+        "not_qualified": "Not Qualified",
+        "completed": "Completed",
         "add_time": "Add Time",
         "activate": "Activate",
         "transfer": "Transfer",
@@ -171,7 +176,18 @@
         "attendance_status": "Attendance Status",
         "attended_at": "Start Date",
         "attended_end": "End Date",
-        "date": "Date"
+        "date": "Date",
+        "event_name": "Event Name",
+        "event_type": "Event Type",
+        "course": "Course",
+        "points_reward": "Points Reward",
+        "target_criteria": "Target Criteria",
+        "is_active": "Active",
+        "description": "Description",
+        "total": "Total",
+        "completed": "Completed",
+        "unique_participants": "Unique Participants",
+        "completion": "Completion"
     },
     "entities": {
         "user": "User",
@@ -191,7 +207,9 @@
         "guardians": "Guardians",
         "audit_log": "Audit Log",
         "audit_logs": "Audit Logs",
-        "attendance": "Attendance"
+        "attendance": "Attendance",
+        "event": "Event",
+        "events": "Events"
     },
     "roles": {
         "permissions_loading": "Loading permissions...",
@@ -236,6 +254,16 @@
         },
         "attendance": {
             "record_title": "Manage Attendance"
+        },
+        "events": {
+            "manage_title": "Manage Events",
+            "create_title": "Create Event",
+            "create_subtitle": "Fill in event details.",
+            "edit_title": "Edit Event",
+            "edit_subtitle": "Update event details.",
+            "detail_title": "Event Details",
+            "stats_title": "Event Statistics",
+            "my_progress": "My Progress"
         }
     },
     "wizard": {
@@ -329,6 +357,10 @@
             "LATE": "Late",
             "JUSTIFIED_ABSENCE": "Justified Absence",
             "UNJUSTIFIED_ABSENCE": "Unjustified Absence"
+        },
+        "event_type": {
+            "Recitations": "Recitations",
+            "Attendances": "Attendances"
         }
     }
 }
