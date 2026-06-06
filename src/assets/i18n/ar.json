@@ -10,6 +10,7 @@
         "students": "الطلاب",
         "courses": "الدورات",
         "events": "الفعاليات",
+        "posts": "المنشورات",
         "groups": "الحلقات",
         "attendance": "الحضور",
         "attendance_record": "تسجيل الحضور",
@@ -106,6 +107,10 @@
         "qualified": "مؤهل",
         "not_qualified": "غير مؤهل",
         "completed": "مكتمل",
+        "upload_file": "رفع ملف",
+        "published": "منشور",
+        "draft": "مسودة",
+        "no_files": "لا توجد ملفات مرفقة",
         "add_time": "إضافة وقت",
         "activate": "تنشيط",
         "transfer": "نقل",
@@ -187,7 +192,12 @@
         "total": "الإجمالي",
         "completed": "مكتمل",
         "unique_participants": "المشاركون الفريدون",
-        "completion": "الإكمال"
+        "completion": "الإكمال",
+        "title": "العنوان",
+        "author": "الكاتب",
+        "published": "النشر",
+        "files": "الملفات",
+        "attachments": "المرفقات"
     },
     "entities": {
         "user": "المستخدم",
@@ -209,7 +219,9 @@
         "audit_logs": "سجلات التدقيق",
         "attendance": "الحضور",
         "event": "فعالية",
-        "events": "الفعاليات"
+        "events": "الفعاليات",
+        "post": "منشور",
+        "posts": "المنشورات"
     },
     "roles": {
         "permissions_loading": "جاري تحميل الصلاحيات...",
@@ -264,6 +276,13 @@
             "detail_title": "تفاصيل الفعالية",
             "stats_title": "إحصائيات الفعالية",
             "my_progress": "تقدمي"
+        },
+        "posts": {
+            "manage_title": "إدارة المنشورات",
+            "create_title": "إنشاء منشور",
+            "create_subtitle": "أدخل تفاصيل المنشور وأرفق الملفات.",
+            "edit_title": "تعديل المنشور",
+            "edit_subtitle": "حدّث تفاصيل المنشور."
         }
     },
     "wizard": {

@@ -10,6 +10,7 @@
         "students": "Students",
         "courses": "Courses",
         "events": "Events",
+        "posts": "Posts",
         "groups": "Groups",
         "attendance": "Attendance",
         "attendance_record": "Record Attendance",
@@ -106,6 +107,10 @@
         "qualified": "Qualified",
         "not_qualified": "Not Qualified",
         "completed": "Completed",
+        "upload_file": "Upload File",
+        "published": "Published",
+        "draft": "Draft",
+        "no_files": "No files attached",
         "add_time": "Add Time",
         "activate": "Activate",
         "transfer": "Transfer",
@@ -187,7 +192,12 @@
         "total": "Total",
         "completed": "Completed",
         "unique_participants": "Unique Participants",
-        "completion": "Completion"
+        "completion": "Completion",
+        "title": "Title",
+        "author": "Author",
+        "published": "Published",
+        "files": "Files",
+        "attachments": "Attachments"
     },
     "entities": {
         "user": "User",
@@ -209,7 +219,9 @@
         "audit_logs": "Audit Logs",
         "attendance": "Attendance",
         "event": "Event",
-        "events": "Events"
+        "events": "Events",
+        "post": "Post",
+        "posts": "Posts"
     },
     "roles": {
         "permissions_loading": "Loading permissions...",
@@ -264,6 +276,13 @@
             "detail_title": "Event Details",
             "stats_title": "Event Statistics",
             "my_progress": "My Progress"
+        },
+        "posts": {
+            "manage_title": "Manage Posts",
+            "create_title": "Create Post",
+            "create_subtitle": "Fill in post details and attach files.",
+            "edit_title": "Edit Post",
+            "edit_subtitle": "Update post details."
         }
     },
     "wizard": {

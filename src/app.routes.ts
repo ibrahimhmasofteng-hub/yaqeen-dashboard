@@ -23,6 +23,7 @@ export const appRoutes: Routes = [
             { path: 'groups', loadChildren: () => import('./app/features/course-groups/course-groups.routes') },
             { path: 'attendance', loadChildren: () => import('./app/features/attendance/attendance.routes') },
             { path: 'events', loadChildren: () => import('./app/features/events/events.routes') },
+            { path: 'posts', loadChildren: () => import('./app/features/posts/posts.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
