@@ -12,6 +12,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
 import { EventService } from '@/app/features/events/services/event.service';
 import { EventType } from '@/app/features/events/models/event-type.enum';
+import { Event as EventModel } from '@/app/features/events/models/event.model';
 import { CourseService } from '@/app/features/courses/services/course.service';
 import { Course } from '@/app/features/courses/models/course.model';
 import { NotificationService } from '@/app/core/services/notification.service';
@@ -126,6 +127,7 @@ export class EventsForm implements OnInit {
     submitting = false;
 
     currentEventId?: string;
+    private originalEvent?: EventModel;
 
     courses = signal<Course[]>([]);
     coursesLoading = false;
@@ -199,6 +201,7 @@ export class EventsForm implements OnInit {
     loadEvent(id: string) {
         this.eventService.get(id).subscribe({
             next: (ev) => {
+                this.originalEvent = ev;
                 this.eventForm.patchValue({
                     name: ev.name ?? '',
                     courseId: ev.courseId ?? null,
@@ -234,7 +237,8 @@ export class EventsForm implements OnInit {
         this.eventForm.disable();
 
         if (this.isEditMode && this.currentEventId) {
-            this.eventService.update(this.currentEventId, formValue).subscribe({
+            const payload = this.buildUpdatePayload(formValue);
+            this.eventService.update(this.currentEventId, payload).subscribe({
                 next: () => {
                     this.submitting = false;
                     this.eventForm.enable();
@@ -260,5 +264,39 @@ export class EventsForm implements OnInit {
                 this.eventForm.enable();
             }
         });
+    }
+
+    private buildUpdatePayload(formValue: Record<string, unknown>): Record<string, unknown> {
+        const orig = this.originalEvent;
+        if (!orig) return formValue;
+
+        const normalizeDate = (v: unknown) => (typeof v === 'string' ? v.split('T')[0] : '');
+        const origStartDate = normalizeDate(orig.startDate);
+        const origEndDate = normalizeDate(orig.endDate);
+        const origActive = orig.isActive ?? false;
+
+        const changed: Record<string, unknown> = {};
+        const fields: string[] = [
+            'name', 'courseId', 'type', 'pointsRewardAmount',
+            'targetCriteria', 'description'
+        ];
+
+        for (const key of fields) {
+            if (formValue[key] !== (orig as Record<string, unknown>)[key]) {
+                changed[key] = formValue[key];
+            }
+        }
+
+        if (normalizeDate(formValue['startDate']) !== origStartDate) {
+            changed['startDate'] = formValue['startDate'];
+        }
+        if (normalizeDate(formValue['endDate']) !== origEndDate) {
+            changed['endDate'] = formValue['endDate'];
+        }
+        if (formValue['isActive'] !== origActive) {
+            changed['isActive'] = formValue['isActive'];
+        }
+
+        return changed;
     }
 }
