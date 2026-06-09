@@ -132,8 +132,8 @@ type RecTab = 'recommendations' | 'juzz-test';
                                                     <ng-template #body let-item>
                                                         <tr>
                                                             <td>{{ item.page }}</td>
-                                                            <td>{{ item.reason }}</td>
-                                                            <td><p-tag [value]="priorityLabel(item.priority)" [severity]="prioritySeverity(item.priority)" /></td>
+                                                            <td>{{ translateReason(item.reason) }}</td>
+                                                            <td><p-tag [value]="'pages.recommendations.priority_' + item.priority | translate" [severity]="prioritySeverity(item.priority)" /></td>
                                                         </tr>
                                                     </ng-template>
                                                 </p-table>
@@ -157,8 +157,8 @@ type RecTab = 'recommendations' | 'juzz-test';
                                                     <ng-template #body let-item>
                                                         <tr>
                                                             <td>{{ item.page }}</td>
-                                                            <td>{{ item.reason }}</td>
-                                                            <td><p-tag [value]="priorityLabel(item.priority)" [severity]="prioritySeverity(item.priority)" /></td>
+                                                            <td>{{ translateReason(item.reason) }}</td>
+                                                            <td><p-tag [value]="'pages.recommendations.priority_' + item.priority | translate" [severity]="prioritySeverity(item.priority)" /></td>
                                                         </tr>
                                                     </ng-template>
                                                 </p-table>
@@ -175,7 +175,7 @@ type RecTab = 'recommendations' | 'juzz-test';
                                                     @for (err of recommendation()!.errorTypeSummary; track err.type) {
                                                         <div class="card flex flex-col items-center gap-2 px-6 py-4">
                                                             <div class="text-3xl font-bold text-primary">{{ err.count }}</div>
-                                                            <div class="text-sm text-surface-500">{{ err.type }}</div>
+                                                            <div class="text-sm text-surface-500">{{ 'enums.error_type.' + err.type | translate }}</div>
                                                         </div>
                                                     }
                                                 </div>
@@ -197,7 +197,7 @@ type RecTab = 'recommendations' | 'juzz-test';
                                                     </ng-template>
                                                     <ng-template #body let-item>
                                                         <tr>
-                                                            <td>{{ item.surahArabicName || item.surahName }}</td>
+                                                            <td>{{ 'enums.surah.' + item.surahId | translate }}</td>
                                                             <td><p-tag [value]="item.errorCount" severity="danger" /></td>
                                                         </tr>
                                                     </ng-template>
@@ -254,7 +254,7 @@ type RecTab = 'recommendations' | 'juzz-test';
                                                             [pRowToggler]="item"
                                                         />
                                                     </td>
-                                                    <td>{{ item.surahArabicName || item.surahName }}</td>
+                                                    <td>{{ 'enums.surah.' + item.surahId | translate }}</td>
                                                     <td><p-tag [value]="item.totalErrors" [severity]="item.totalErrors > 5 ? 'danger' : item.totalErrors > 2 ? 'warn' : 'success'" /></td>
                                                     <td>
                                                         <div class="flex items-center gap-2">
@@ -473,11 +473,39 @@ export class RecommendationsDashboard implements OnInit {
         this.expandedSurahIds.set(current);
     }
 
-    priorityLabel(priority: number): string {
-        if (priority >= 3) return 'High';
-        if (priority === 2) return 'Medium';
-        return 'Low';
+    translateReason(reason: string): string {
+        const words = reason.split(' ');
+        const result: string[] = [];
+        let i = 0;
+        while (i < words.length) {
+            if (i + 2 < words.length) {
+                const three = words.slice(i, i + 3).join(' ');
+                const t3 = this.tryTranslateWord(three);
+                if (t3 !== null) { result.push(t3); i += 3; continue; }
+            }
+            if (i + 1 < words.length) {
+                const two = words.slice(i, i + 2).join(' ');
+                const t2 = this.tryTranslateWord(two);
+                if (t2 !== null) { result.push(t2); i += 2; continue; }
+            }
+            const t1 = this.tryTranslateWord(words[i]);
+            result.push(t1 ?? words[i]);
+            i++;
+        }
+        return result.join(' ');
     }
+
+    private tryTranslateWord(word: string): string | null {
+        const key = 'enums.reason_words.' + word;
+        const translated = this.translate.instant(key);
+        if (!translated.startsWith('enums.reason_words.')) return translated;
+        const hyphenKey = 'enums.reason_words.' + word.replace(/ /g, '-');
+        const hyphenTranslated = this.translate.instant(hyphenKey);
+        if (!hyphenTranslated.startsWith('enums.reason_words.')) return hyphenTranslated;
+        return null;
+    }
+
+
 
     prioritySeverity(priority: number): 'danger' | 'warn' | 'info' {
         if (priority >= 3) return 'danger';
