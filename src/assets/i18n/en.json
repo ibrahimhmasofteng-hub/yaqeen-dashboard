@@ -276,7 +276,8 @@
             "edit_subtitle": "Update event details.",
             "detail_title": "Event Details",
             "stats_title": "Event Statistics",
-            "my_progress": "My Progress"
+            "my_progress": "My Progress",
+            "participants": "Participants"
         },
         "posts": {
             "manage_title": "Manage Posts",

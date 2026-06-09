@@ -43,3 +43,13 @@ export interface EventProgress {
     targetCriteria: number;
     isQualified: boolean;
 }
+
+export interface EventParticipant {
+    studentId: string;
+    studentName: string;
+    imageUrl: string;
+    completed: number;
+    target: number;
+    qualified: boolean;
+    rank: number;
+}

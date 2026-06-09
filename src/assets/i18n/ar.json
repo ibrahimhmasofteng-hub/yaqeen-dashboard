@@ -276,7 +276,8 @@
             "edit_subtitle": "حدّث تفاصيل الفعالية.",
             "detail_title": "تفاصيل الفعالية",
             "stats_title": "إحصائيات الفعالية",
-            "my_progress": "تقدمي"
+            "my_progress": "تقدمي",
+            "participants": "المشاركون"
         },
         "posts": {
             "manage_title": "إدارة المنشورات",

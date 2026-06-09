@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Event, EventsListResponse, EventStats, EventProgress } from '@/app/features/events/models/event.model';
+import { Event, EventsListResponse, EventStats, EventProgress, EventParticipant } from '@/app/features/events/models/event.model';
 import { EventType } from '@/app/features/events/models/event-type.enum';
 
 export interface EventFilters {
@@ -82,5 +82,9 @@ export class EventService {
 
     getMyProgress(id: string | number): Observable<EventProgress> {
         return this.api.get<EventProgress>(`events/${id}/my-progress`);
+    }
+
+    getParticipants(id: string | number): Observable<EventParticipant[]> {
+        return this.api.get<EventParticipant[]>(`events/${id}/participants`);
     }
 }
