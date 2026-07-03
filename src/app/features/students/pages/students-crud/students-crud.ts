@@ -343,8 +343,10 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                                         [placeholder]="'entities.guardian' | translate"
                                                         fluid
                                                         [filter]="true"
-                                                        (onShow)="attachGuardianScrollListener()"
-                                                        (onHide)="detachGuardianScrollListener()"
+                                                        [virtualScroll]="true"
+                                                        [virtualScrollItemSize]="38"
+                                                        [lazy]="true"
+                                                        (onLazyLoad)="onGuardianLazyLoad($event)"
                                                     />
                                                     <app-form-errors [control]="guardianForm1.get('existingGuardianId')" [show]="guardian1Submitted"></app-form-errors>
                                                 </div>
@@ -440,8 +442,10 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                                         [placeholder]="'entities.guardian' | translate"
                                                         fluid
                                                         [filter]="true"
-                                                        (onShow)="attachGuardianScrollListener()"
-                                                        (onHide)="detachGuardianScrollListener()"
+                                                        [virtualScroll]="true"
+                                                        [virtualScrollItemSize]="38"
+                                                        [lazy]="true"
+                                                        (onLazyLoad)="onGuardianLazyLoad($event)"
                                                     />
                                                     <app-form-errors [control]="guardianForm2.get('existingGuardianId')" [show]="guardian2Submitted"></app-form-errors>
                                                 </div>
@@ -646,7 +650,6 @@ export class StudentsCrud implements OnInit {
     guardianLoading = false;
     guardianPage = 1;
     guardianAllLoaded = false;
-    private guardianScrollHandler: (() => void) | null = null;
     guardian1RelationId?: string;
     guardian2RelationId?: string;
     guardian1MemberId?: string;
@@ -1622,30 +1625,11 @@ export class StudentsCrud implements OnInit {
         this.guardianPage = 1;
         this.guardianAllLoaded = false;
         this.guardianLoading = true;
-        this.studentService.listGuardians(1, 100).subscribe({
-            next: (res) => {
-                this.existingGuardians = (res?.data ?? []).map(g => ({
-                    ...g,
-                    displayName: [g.profile?.firstName, g.profile?.lastName].filter(Boolean).join(' ') || g.username
-                }));
-                if (res?.meta?.nextPage == null) {
-                    this.guardianAllLoaded = true;
-                }
-                this.guardianLoading = false;
-            },
-            error: () => {
-                this.existingGuardians = [];
-                this.guardianLoading = false;
-                this.guardianAllLoaded = true;
-            }
-        });
+        this.loadGuardianPage();
     }
 
-    loadMoreGuardians() {
-        if (this.guardianLoading || this.guardianAllLoaded) return;
-        this.guardianLoading = true;
-        this.guardianPage++;
-        this.studentService.listGuardians(this.guardianPage, 100).subscribe({
+    private loadGuardianPage() {
+        this.studentService.listGuardians(this.guardianPage, 2).subscribe({
             next: (res) => {
                 const mapped = (res?.data ?? []).map(g => ({
                     ...g,
@@ -1658,32 +1642,19 @@ export class StudentsCrud implements OnInit {
                 this.guardianLoading = false;
             },
             error: () => {
-                this.guardianPage--;
                 this.guardianLoading = false;
+                this.guardianAllLoaded = true;
             }
         });
     }
 
-    attachGuardianScrollListener() {
-        this.detachGuardianScrollListener();
-        setTimeout(() => {
-            const panel = document.querySelector('.p-select-overlay') as HTMLElement | null;
-            if (!panel) return;
-            const handler = () => {
-                const threshold = 60;
-                const atBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight < threshold;
-                if (atBottom) {
-                    this.loadMoreGuardians();
-                }
-            };
-            panel.addEventListener('scroll', handler);
-            this.guardianScrollHandler = () => panel.removeEventListener('scroll', handler);
-        });
-    }
-
-    detachGuardianScrollListener() {
-        this.guardianScrollHandler?.();
-        this.guardianScrollHandler = null;
+    onGuardianLazyLoad(event: { first: number; last: number }) {
+        if (this.guardianLoading || this.guardianAllLoaded) return;
+        if (event.last >= this.existingGuardians.length - 5) {
+            this.guardianPage++;
+            this.guardianLoading = true;
+            this.loadGuardianPage();
+        }
     }
 
     setGuardianMode(index: 1 | 2, mode: 'new' | 'existing') {
