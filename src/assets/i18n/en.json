@@ -76,6 +76,8 @@
         "save": "Save",
         "edit": "Edit",
         "save_student": "Save Student",
+        "create_new": "Create New",
+        "select_existing": "Select Existing",
         "save_guardian": "Save Guardian",
         "save_course": "Save Course",
         "skip": "Skip",

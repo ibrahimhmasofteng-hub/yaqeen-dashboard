@@ -76,6 +76,8 @@
         "save": "حفظ",
         "edit": "تعديل",
         "save_student": "حفظ الطالب",
+        "create_new": "إنشاء جديد",
+        "select_existing": "اختيار موجود",
         "save_guardian": "حفظ ولي الأمر",
         "save_course": "حفظ الدورة",
         "skip": "تخطي",

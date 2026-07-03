@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { Student, StudentProfile, StudentsListResponse } from '@/app/features/students/models/student.model';
+import { RoleName } from '@/app/core/constants/role-name.enum';
 
 export interface ActorFilters {
     role?: string;
@@ -58,5 +59,9 @@ export class StudentService {
 
     delete(id: string | number): Observable<unknown> {
         return this.api.delete<unknown>(`actors/${id}`);
+    }
+
+    listGuardians(page: number, perPage: number): Observable<StudentsListResponse> {
+        return this.api.get<StudentsListResponse>('actors', { params: buildActorParams(page, perPage, { role: RoleName.Guardian }) });
     }
 }
