@@ -318,23 +318,6 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                         <ng-container *ngIf="guardianMode1 === 'existing'">
                                             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                                 <div>
-                                                    <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        [options]="existingGuardians"
-                                                        optionLabel="displayName"
-                                                        optionValue="id"
-                                                        formControlName="existingGuardianId"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'common.select' | translate"
-                                                        fluid
-                                                        [filter]="true"
-                                                        (onShow)="attachGuardianScrollListener()"
-                                                        (onHide)="detachGuardianScrollListener()"
-                                                    />
-                                                    <app-form-errors [control]="guardianForm1.get('existingGuardianId')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
                                                     <label class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
                                                     <p-select
                                                         [options]="relationTypeOptions"
@@ -347,6 +330,23 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                                         fluid
                                                     />
                                                     <app-form-errors [control]="guardianForm1.get('relationType')" [show]="guardian1Submitted"></app-form-errors>
+                                                </div>
+                                                <div>
+                                                    <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
+                                                    <p-select
+                                                        [options]="existingGuardians"
+                                                        optionLabel="displayName"
+                                                        optionValue="id"
+                                                        formControlName="existingGuardianId"
+                                                        appendTo="body"
+                                                        [disabled]="submitting || viewOnly"
+                                                        [placeholder]="'entities.guardian' | translate"
+                                                        fluid
+                                                        [filter]="true"
+                                                        (onShow)="attachGuardianScrollListener()"
+                                                        (onHide)="detachGuardianScrollListener()"
+                                                    />
+                                                    <app-form-errors [control]="guardianForm1.get('existingGuardianId')" [show]="guardian1Submitted"></app-form-errors>
                                                 </div>
                                             </div>
                                         </ng-container>
@@ -415,23 +415,6 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                         <ng-container *ngIf="guardianMode2 === 'existing'">
                                             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                                 <div>
-                                                    <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        [options]="existingGuardians"
-                                                        optionLabel="displayName"
-                                                        optionValue="id"
-                                                        formControlName="existingGuardianId"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'common.select' | translate"
-                                                        fluid
-                                                        [filter]="true"
-                                                        (onShow)="attachGuardianScrollListener()"
-                                                        (onHide)="detachGuardianScrollListener()"
-                                                    />
-                                                    <app-form-errors [control]="guardianForm2.get('existingGuardianId')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
                                                     <label class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
                                                     <p-select
                                                         [options]="relationTypeOptions"
@@ -444,6 +427,23 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                                                         fluid
                                                     />
                                                     <app-form-errors [control]="guardianForm2.get('relationType')" [show]="guardian2Submitted"></app-form-errors>
+                                                </div>
+                                                <div>
+                                                    <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
+                                                    <p-select
+                                                        [options]="existingGuardians"
+                                                        optionLabel="displayName"
+                                                        optionValue="id"
+                                                        formControlName="existingGuardianId"
+                                                        appendTo="body"
+                                                        [disabled]="submitting || viewOnly"
+                                                        [placeholder]="'entities.guardian' | translate"
+                                                        fluid
+                                                        [filter]="true"
+                                                        (onShow)="attachGuardianScrollListener()"
+                                                        (onHide)="detachGuardianScrollListener()"
+                                                    />
+                                                    <app-form-errors [control]="guardianForm2.get('existingGuardianId')" [show]="guardian2Submitted"></app-form-errors>
                                                 </div>
                                             </div>
                                         </ng-container>
