@@ -3,14 +3,12 @@ import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
@@ -20,7 +18,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EventService, EventFilters } from '@/app/features/events/services/event.service';
-import { Event as EventModel, EventsMeta, EventStats, EventParticipant } from '@/app/features/events/models/event.model';
+import { Event as EventModel, EventsMeta, EventStats } from '@/app/features/events/models/event.model';
 import { EventType } from '@/app/features/events/models/event-type.enum';
 
 interface Column {
@@ -53,9 +51,7 @@ interface ExportColumn {
         TranslateModule,
         TooltipModule,
         TagModule,
-        DialogModule,
-        AvatarModule,
-        ProgressBarModule
+        DialogModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
@@ -165,7 +161,7 @@ interface ExportColumn {
         <p-confirmdialog [style]="{ width: '450px' }" />
         <p-toast />
 
-        <p-dialog [(visible)]="statsDialog" [style]="{ width: '700px' }" [header]="'pages.events.stats_title' | translate" [modal]="true">
+        <p-dialog [(visible)]="statsDialog" [style]="{ width: '500px' }" [header]="'pages.events.stats_title' | translate" [modal]="true">
             <ng-template #content>
                 <div *ngIf="statsLoading" class="flex justify-center items-center py-8">
                     <i class="pi pi-spin pi-spinner text-2xl"></i>
@@ -189,40 +185,10 @@ interface ExportColumn {
                             <div class="text-xl font-semibold">{{ stats.uniqueParticipants }}</div>
                         </div>
                     </div>
-                    <div *ngIf="participantsLoading" class="flex justify-center items-center py-4">
-                        <i class="pi pi-spin pi-spinner text-2xl"></i>
-                    </div>
-                    <div *ngIf="!participantsLoading && participants.length > 0">
-                        <h6 class="mb-3 mt-0">{{ 'pages.events.participants' | translate }}</h6>
-                        <div class="flex flex-col gap-3" style="max-height: 320px; overflow-y: auto;">
-                            <div *ngFor="let p of participants" class="flex items-center gap-3 p-3 surface-ground border-round">
-                                <p-avatar [image]="p.imageUrl" shape="circle" size="large" [pTooltip]="p.studentName" tooltipPosition="top">
-                                    <span *ngIf="!p.imageUrl">{{ p.studentName?.charAt(0)?.toUpperCase() }}</span>
-                                </p-avatar>
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="font-medium">{{ p.studentName }}</span>
-                                        <p-tag *ngIf="p.qualified" [value]="'common.qualified' | translate" severity="success" />
-                                        <p-tag *ngIf="!p.qualified" [value]="'common.not_qualified' | translate" severity="warn" />
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <p-progressBar [value]="p.target > 0 ? (p.completed / p.target) * 100 : 0" [style]="{ height: '6px', flex: '1' }" />
-                                        <span class="text-sm text-surface-500 whitespace-nowrap">{{ p.completed }}/{{ p.target }}</span>
-                                    </div>
-                                </div>
-                                <div class="text-center" style="min-width: 2.5rem;">
-                                    <div class="text-surface-500 text-xs">#</div>
-                                    <div class="font-bold">{{ p.rank }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div *ngIf="!participantsLoading && participants.length === 0 && stats" class="text-center text-surface-500 py-4">
-                        {{ 'common.no_data' | translate }}
-                    </div>
                 </div>
             </ng-template>
             <ng-template #footer>
+                <p-button *ngIf="!statsLoading && stats" [label]="'common.details' | translate" icon="pi pi-arrow-right" severity="info" (click)="goToStatsPage()" />
                 <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (click)="closeStatsDialog()" />
             </ng-template>
         </p-dialog>
@@ -259,8 +225,7 @@ export class EventsCrud implements OnInit {
     statsDialog: boolean = false;
     statsLoading: boolean = false;
     stats: EventStats | null = null;
-    participants: EventParticipant[] = [];
-    participantsLoading: boolean = false;
+    private statsEventId: string | null = null;
 
     @ViewChild('dt') dt!: Table;
 
@@ -345,13 +310,11 @@ export class EventsCrud implements OnInit {
 
     viewStats(ev: EventModel) {
         this.stats = null;
-        this.participants = [];
+        this.statsEventId = ev.id as string;
         this.statsDialog = true;
         this.statsLoading = true;
-        this.participantsLoading = true;
-        const eventId = ev.id as string;
 
-        this.eventService.getStats(eventId).subscribe({
+        this.eventService.getStats(this.statsEventId).subscribe({
             next: (stats) => {
                 this.stats = stats;
                 this.statsLoading = false;
@@ -360,16 +323,15 @@ export class EventsCrud implements OnInit {
                 this.statsLoading = false;
             }
         });
+    }
 
-        this.eventService.getParticipants(eventId).subscribe({
-            next: (participants) => {
-                this.participants = participants ?? [];
-                this.participantsLoading = false;
-            },
-            error: () => {
-                this.participantsLoading = false;
-            }
-        });
+    goToStatsPage() {
+        if (this.statsEventId) {
+            this.statsDialog = false;
+            document.body.classList.remove('blocked-scroll');
+            document.body.style.removeProperty('overflow');
+            this.router.navigate(['/events', this.statsEventId, 'stats']);
+        }
     }
 
     closeStatsDialog() {

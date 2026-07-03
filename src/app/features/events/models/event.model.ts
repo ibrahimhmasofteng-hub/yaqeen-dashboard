@@ -53,3 +53,5 @@ export interface EventParticipant {
     qualified: boolean;
     rank: number;
 }
+
+

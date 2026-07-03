@@ -84,7 +84,10 @@ export class EventService {
         return this.api.get<EventProgress>(`events/${id}/my-progress`);
     }
 
-    getParticipants(id: string | number): Observable<EventParticipant[]> {
-        return this.api.get<EventParticipant[]>(`events/${id}/participants`);
+    getParticipants(id: string | number, page?: number, perPage?: number): Observable<EventParticipant[]> {
+        const params: Record<string, number> = {};
+        if (page) params['page'] = page;
+        if (perPage) params['perPage'] = perPage;
+        return this.api.get<EventParticipant[]>(`events/${id}/participants`, { params });
     }
 }
