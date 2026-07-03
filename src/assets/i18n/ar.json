@@ -222,7 +222,9 @@
         "event": "فعالية",
         "events": "الفعاليات",
         "post": "منشور",
-        "posts": "المنشورات"
+        "posts": "المنشورات",
+        "note": "ملاحظة",
+        "notes": "الملاحظات"
     },
     "roles": {
         "permissions_loading": "جاري تحميل الصلاحيات...",
@@ -247,7 +249,13 @@
         },
         "students": {
             "manage_title": "إدارة الطلاب",
-            "details_title": "تفاصيل الطالب"
+            "details_title": "تفاصيل الطالب",
+            "notes_title": "ملاحظات الطالب",
+            "add_note": "إضافة ملاحظة",
+            "edit_note": "تعديل الملاحظة",
+            "note_placeholder": "اكتب ملاحظة...",
+            "no_notes": "لا توجد ملاحظات بعد",
+            "note_deleted": "تم حذف الملاحظة"
         },
         "courses": {
             "manage_title": "إدارة الدورات",

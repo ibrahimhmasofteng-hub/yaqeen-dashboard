@@ -222,7 +222,9 @@
         "event": "Event",
         "events": "Events",
         "post": "Post",
-        "posts": "Posts"
+        "posts": "Posts",
+        "note": "Note",
+        "notes": "Notes"
     },
     "roles": {
         "permissions_loading": "Loading permissions...",
@@ -247,7 +249,13 @@
         },
         "students": {
             "manage_title": "Manage Students",
-            "details_title": "Student Details"
+            "details_title": "Student Details",
+            "notes_title": "Student Notes",
+            "add_note": "Add Note",
+            "edit_note": "Edit Note",
+            "note_placeholder": "Write a note...",
+            "no_notes": "No notes yet",
+            "note_deleted": "Note Deleted"
         },
         "courses": {
             "manage_title": "Manage Courses",

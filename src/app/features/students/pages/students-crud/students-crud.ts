@@ -9,6 +9,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
@@ -31,6 +32,8 @@ import { RoleName } from '@/app/core/constants/role-name.enum';
 import { ImportResult } from '@/app/features/students/models/import-result.model';
 import { ApiService } from '@/app/core/services/api.service';
 import { DataManagementService } from '@/app/core/services/data-management.service';
+import { NoteService } from '@/app/features/students/services/note.service';
+import { Note } from '@/app/features/students/models/note.model';
 
 interface Column {
     field: string;
@@ -70,7 +73,8 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
         PasswordModule,
         FormErrors,
         TagModule,
-        TranslateModule
+        TranslateModule,
+        TextareaModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
@@ -152,6 +156,7 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewStudent(student)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editStudent(student)" />
+                        <p-button icon="pi pi-book" class="mr-2" [rounded]="true" [outlined]="true" severity="info" (click)="openNotes(student)" />
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteStudent(student)" />
                     </td>
                 </tr>
@@ -475,6 +480,58 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
             </ng-template>
         </p-dialog>
 
+        <p-dialog [(visible)]="notesDialogVisible" [style]="{ width: '600px' }" [header]="'pages.students.notes_title' | translate" [modal]="true" [draggable]="false">
+            <ng-template #content>
+                <div class="flex flex-col gap-4">
+                    <div class="flex justify-end">
+                        <p-button [label]="'pages.students.add_note' | translate" icon="pi pi-plus" severity="secondary" (onClick)="openAddNote()" [disabled]="notesLoading" />
+                    </div>
+
+                    <div *ngIf="notesLoading" class="flex justify-center py-4">
+                        <i class="pi pi-spin pi-spinner text-2xl"></i>
+                    </div>
+
+                    <div *ngIf="!notesLoading && notes().length === 0" class="text-center py-6 text-surface-500">
+                        {{ 'pages.students.no_notes' | translate }}
+                    </div>
+
+                    <div *ngFor="let note of notes()" class="card p-3 border border-surface-200 rounded">
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="flex-1">
+                                <p class="m-0 text-sm whitespace-pre-wrap">{{ note.note }}</p>
+                                <div class="flex gap-3 mt-2 text-xs text-surface-400">
+                                    <span>{{ 'fields.created_at' | translate }}: {{ note.createdAt | date:'medium' }}</span>
+                                    <span *ngIf="note.createdBy?.username">{{ 'fields.actor_name' | translate }}: {{ note.createdBy?.username }}</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-1 shrink-0">
+                                <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="openEditNote(note)" />
+                                <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="deleteNote(note)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="noteFormDialogVisible" [style]="{ width: '500px' }" [header]="(editingNoteId ? 'pages.students.edit_note' : 'pages.students.add_note') | translate" [modal]="true" [draggable]="false">
+            <ng-template #content>
+                <form [formGroup]="noteForm">
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <label class="block font-bold mb-2">{{ 'fields.note' | translate }} <span class="text-red-500">*</span></label>
+                            <textarea pInputTextarea id="noteContent" formControlName="note" [fluid]="true" [rows]="5" [disabled]="noteSubmitting" [placeholder]="'pages.students.note_placeholder' | translate"></textarea>
+                            <app-form-errors [control]="noteForm.get('note')" [show]="noteFormSubmitted"></app-form-errors>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+            <ng-template #footer>
+                <p-button [label]="'common.cancel' | translate" icon="pi pi-times" text (onClick)="closeNoteForm()" [disabled]="noteSubmitting" />
+                <p-button [label]="'common.save' | translate" icon="pi pi-check" (onClick)="saveNote()" [loading]="noteSubmitting" [disabled]="noteSubmitting" />
+            </ng-template>
+        </p-dialog>
+
         <p-confirmdialog [style]="{ width: '450px' }" />
 
         <p-dialog [header]="'fields.image_id' | translate" [(visible)]="imageDialogVisible" [modal]="true" [style]="{ width: '400px' }">
@@ -542,6 +599,17 @@ export class StudentsCrud implements OnInit {
     imagePreviewUrl: string | null = null;
     imageDialogVisible = false;
 
+    notesDialogVisible: boolean = false;
+    notesLoading: boolean = false;
+    notes = signal<Note[]>([]);
+    selectedStudentForNotes: Student | null = null;
+
+    noteFormDialogVisible: boolean = false;
+    noteForm: FormGroup;
+    noteFormSubmitted: boolean = false;
+    noteSubmitting: boolean = false;
+    editingNoteId: string | null = null;
+
     constructor(
         private studentService: StudentService,
         private dataManagementService: DataManagementService,
@@ -551,8 +619,13 @@ export class StudentsCrud implements OnInit {
         private translate: TranslateService,
         private confirmationService: ConfirmationService,
         private api: ApiService,
+        private noteService: NoteService,
         private fb: FormBuilder
     ) {
+        this.noteForm = this.fb.group({
+            note: ['', Validators.required]
+        });
+
         this.studentForm = this.fb.group({
             username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
             password: [''],
@@ -1442,6 +1515,99 @@ export class StudentsCrud implements OnInit {
             },
             error: () => {
                 this.submitting = false;
+            }
+        });
+    }
+
+    openNotes(student: Student) {
+        this.selectedStudentForNotes = student;
+        this.notesDialogVisible = true;
+        this.loadNotes();
+    }
+
+    loadNotes() {
+        if (!this.selectedStudentForNotes || this.notesLoading) return;
+        this.notesLoading = true;
+        this.noteService.list({ studentId: this.selectedStudentForNotes.id, perPage: 100 }).subscribe({
+            next: (res) => {
+                this.notes.set(res?.data ?? []);
+                this.notesLoading = false;
+            },
+            error: () => {
+                this.notesLoading = false;
+            }
+        });
+    }
+
+    openAddNote() {
+        this.editingNoteId = null;
+        this.noteForm.reset({ note: '' });
+        this.noteFormSubmitted = false;
+        this.noteFormDialogVisible = true;
+    }
+
+    openEditNote(note: Note) {
+        this.editingNoteId = note.id;
+        this.noteForm.reset({ note: note.note });
+        this.noteFormSubmitted = false;
+        this.noteFormDialogVisible = true;
+    }
+
+    closeNoteForm() {
+        this.noteFormDialogVisible = false;
+        this.noteFormSubmitted = false;
+        this.noteSubmitting = false;
+    }
+
+    saveNote() {
+        this.noteFormSubmitted = true;
+        if (this.noteForm.invalid || this.noteSubmitting || !this.selectedStudentForNotes) return;
+
+        this.noteSubmitting = true;
+        const noteValue = this.noteForm.get('note')?.value ?? '';
+
+        if (this.editingNoteId) {
+            this.noteService.update(this.editingNoteId, { note: noteValue }).subscribe({
+                next: () => {
+                    this.noteSubmitting = false;
+                    this.closeNoteForm();
+                    this.loadNotes();
+                },
+                error: () => {
+                    this.noteSubmitting = false;
+                }
+            });
+        } else {
+            this.noteService.create({ note: noteValue, studentId: this.selectedStudentForNotes.id }).subscribe({
+                next: () => {
+                    this.noteSubmitting = false;
+                    this.closeNoteForm();
+                    this.loadNotes();
+                },
+                error: () => {
+                    this.noteSubmitting = false;
+                }
+            });
+        }
+    }
+
+    deleteNote(note: Note) {
+        this.confirmationService.confirm({
+            message: this.translate.instant('common.delete_one_confirm', { name: this.translate.instant('entities.note') }),
+            header: this.translate.instant('common.confirm'),
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.noteService.delete(note.id).subscribe({
+                    next: () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: this.translate.instant('common.successful'),
+                            detail: this.translate.instant('common.deleted', { entity: this.translate.instant('entities.note') }),
+                            life: 3000
+                        });
+                        this.loadNotes();
+                    }
+                });
             }
         });
     }
