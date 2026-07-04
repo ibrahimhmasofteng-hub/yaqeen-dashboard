@@ -180,6 +180,11 @@ const USER_ROLE_FILTER = RoleName.Admin;
                                 [disabled]="submitting || viewOnly"
                                 [placeholder]="'common.select_role' | translate"
                                 fluid
+                                [filter]="true"
+                                [virtualScroll]="true"
+                                [virtualScrollItemSize]="38"
+                                [lazy]="true"
+                                (onLazyLoad)="onRoleLazyLoad($event)"
                             />
                         </div>
                         <div>
@@ -230,6 +235,8 @@ export class UsersCrud implements OnInit {
     loading: boolean = false;
     roles = signal<Role[]>([]);
     rolesLoading: boolean = false;
+    rolesPage = 1;
+    rolesAllLoaded = false;
 
     userForm: FormGroup;
     currentUserId?: string;
@@ -290,9 +297,28 @@ export class UsersCrud implements OnInit {
     loadRoles() {
         if (this.rolesLoading) return;
         this.rolesLoading = true;
-        this.roleService.list(1, 100).subscribe({
+        this.rolesPage = 1;
+        this.rolesAllLoaded = false;
+        this.roles.set([]);
+        this.loadRolesPage();
+    }
+
+    onRoleLazyLoad(event: { first: number; last: number }) {
+        if (this.rolesLoading || this.rolesAllLoaded) return;
+        if (event.last >= this.roles().length - 5) {
+            this.rolesPage++;
+            this.loadRolesPage();
+        }
+    }
+
+    private loadRolesPage() {
+        this.roleService.list(this.rolesPage, 30).subscribe({
             next: (res) => {
-                this.roles.set(res?.data ?? []);
+                const data = res?.data ?? [];
+                this.roles.update((current) => [...current, ...data]);
+                if (data.length < 30 || !res?.meta?.nextPage) {
+                    this.rolesAllLoaded = true;
+                }
                 this.rolesLoading = false;
             },
             error: () => {
@@ -385,7 +411,8 @@ export class UsersCrud implements OnInit {
             if (this.roles().length) {
                 patchForm();
             } else {
-                this.roleService.list(1, 100).subscribe(() => patchForm());
+                this.loadRoles();
+                patchForm();
             }
         });
     }
@@ -415,7 +442,8 @@ export class UsersCrud implements OnInit {
             if (this.roles().length) {
                 patchForm();
             } else {
-                this.roleService.list(1, 100).subscribe(() => patchForm());
+                this.loadRoles();
+                patchForm();
             }
         });
     }
@@ -557,6 +585,7 @@ export class UsersCrud implements OnInit {
     onPage(event: { first: number; rows: number }) {
         const page = Math.floor(event.first / event.rows) + 1;
         const perPage = event.rows;
+        if (page === this.meta().page && perPage === this.meta().perPage) return;
         this.loadUsers(page, perPage);
     }
 

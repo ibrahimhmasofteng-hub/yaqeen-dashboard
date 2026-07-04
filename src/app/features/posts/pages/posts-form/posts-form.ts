@@ -70,6 +70,11 @@ interface AttachedFile {
                             [placeholder]="'common.select_course' | translate"
                             [loading]="coursesLoading"
                             fluid
+                            [filter]="true"
+                            [virtualScroll]="true"
+                            [virtualScrollItemSize]="38"
+                            [lazy]="true"
+                            (onLazyLoad)="onCourseLazyLoad($event)"
                         />
                         <app-form-errors [control]="postForm.get('courseId')" [show]="submitted"></app-form-errors>
                     </div>
@@ -123,6 +128,8 @@ export class PostsForm implements OnInit {
 
     courses = signal<Course[]>([]);
     coursesLoading = false;
+    coursesPage = 1;
+    coursesAllLoaded = false;
 
     attachedFiles: AttachedFile[] = [];
 
@@ -163,9 +170,28 @@ export class PostsForm implements OnInit {
 
     loadCourses() {
         this.coursesLoading = true;
-        this.courseService.list(1, 100).subscribe({
+        this.coursesPage = 1;
+        this.coursesAllLoaded = false;
+        this.courses.set([]);
+        this.loadCoursesPage();
+    }
+
+    onCourseLazyLoad(event: { first: number; last: number }) {
+        if (this.coursesLoading || this.coursesAllLoaded) return;
+        if (event.last >= this.courses().length - 5) {
+            this.coursesPage++;
+            this.loadCoursesPage();
+        }
+    }
+
+    private loadCoursesPage() {
+        this.courseService.list(this.coursesPage, 30).subscribe({
             next: (res) => {
-                this.courses.set(res?.data ?? []);
+                const data = res?.data ?? [];
+                this.courses.update((current) => [...current, ...data]);
+                if (data.length < 30 || !res?.meta?.nextPage) {
+                    this.coursesAllLoaded = true;
+                }
                 this.coursesLoading = false;
             },
             error: () => { this.coursesLoading = false; }

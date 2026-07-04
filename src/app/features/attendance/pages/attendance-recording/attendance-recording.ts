@@ -300,7 +300,9 @@ export class AttendanceRecording implements OnInit {
     }
 
     onPage(event: { first: number; rows: number }) {
-        this.loadAttendance(Math.floor(event.first / event.rows) + 1, event.rows);
+        const page = Math.floor(event.first / event.rows) + 1;
+        if (page === this.meta().page && event.rows === this.meta().perPage) return;
+        this.loadAttendance(page, event.rows);
     }
 
     onFilterCourseChange() {

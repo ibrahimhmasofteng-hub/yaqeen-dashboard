@@ -278,7 +278,9 @@ export class PostsCrud implements OnInit {
     }
 
     onPage(event: { first: number; rows: number }) {
-        this.loadPosts(Math.floor(event.first / event.rows) + 1, event.rows);
+        const page = Math.floor(event.first / event.rows) + 1;
+        if (page === this.meta().page && event.rows === this.meta().perPage) return;
+        this.loadPosts(page, event.rows);
     }
 
     private setColumns() {

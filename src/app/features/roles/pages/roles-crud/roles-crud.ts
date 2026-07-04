@@ -430,6 +430,7 @@ export class RolesCrud implements OnInit {
     onPage(event: { first: number; rows: number }) {
         const page = Math.floor(event.first / event.rows) + 1;
         const perPage = event.rows;
+        if (page === this.meta().page && perPage === this.meta().perPage) return;
         this.loadRoles(page, perPage);
     }
 

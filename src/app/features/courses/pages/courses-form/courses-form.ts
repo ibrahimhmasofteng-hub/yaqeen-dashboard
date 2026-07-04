@@ -289,6 +289,11 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                 [maxSelectedLabels]="200"
                 appendTo="body"
                 styleClass="w-full"
+                [filter]="true"
+                [virtualScroll]="true"
+                [virtualScrollItemSize]="38"
+                [lazy]="true"
+                (onLazyLoad)="onSupervisorLazyLoad($event)"
             >
                 <ng-template let-supervisor pTemplate="item">
                     <div class="flex items-center justify-between w-full">
@@ -324,6 +329,11 @@ const STUDENT_ROLE_FILTER = RoleName.Student;
                         (onChange)="onAddExistingGroup()"
                         styleClass="min-w-[16rem]"
                         [disabled]="viewOnly"
+                        [loading]="availGroupsLoading"
+                        [virtualScroll]="true"
+                        [virtualScrollItemSize]="38"
+                        [lazy]="true"
+                        (onLazyLoad)="onAvailGroupLazyLoad($event)"
                     />
                     <p-button [label]="'common.create_group' | translate" icon="pi pi-plus" severity="secondary" (onClick)="openCreateGroup()" [disabled]="viewOnly"></p-button>
                 </div>
@@ -692,6 +702,8 @@ export class CoursesForm implements OnInit {
     supervisors = signal<Supervisor[]>([]);
     roles = signal<Role[]>([]);
     supervisorsLoading = false;
+    supervisorsPage = 1;
+    supervisorsAllLoaded = false;
     assigningSupervisors = false;
     selectedSupervisorIds: string[] = [];
 
@@ -720,6 +732,9 @@ export class CoursesForm implements OnInit {
 
     groups: Group[] = [];
     availableGroupOptions: { label: string; value: string }[] = [];
+    availGroupsLoading = false;
+    availGroupsPage = 1;
+    availGroupsAllLoaded = false;
     selectedExistingGroupId: string | null = null;
     teachers: Person[] = [];
     students: Person[] = [];
@@ -1434,9 +1449,15 @@ export class CoursesForm implements OnInit {
     }
 
     private loadGroups(courseId: string | number) {
-        this.courseGroupsService.listByCourse(courseId, 1, 100).subscribe({
+        this.groups = [];
+        this.loadGroupsPage(courseId, 1);
+    }
+
+    private loadGroupsPage(courseId: string | number, page: number) {
+        this.courseGroupsService.listByCourse(courseId, page, 10).subscribe({
             next: (res) => {
-                this.groups = (res?.data ?? []).map((group) => ({
+                const data = res?.data ?? [];
+                const newGroups = data.map((group) => ({
                     id: String(group.id),
                     name: group.name,
                     teachers: [],
@@ -1444,19 +1465,50 @@ export class CoursesForm implements OnInit {
                     teacherCount: group.teacherCount,
                     studentCount: group.studentCount
                 }));
-                this.loadAvailableGroups(String(courseId));
+                this.groups = [...this.groups, ...newGroups];
+                if (data.length === 10 && res?.meta?.nextPage) {
+                    this.loadGroupsPage(courseId, res.meta.nextPage);
+                } else {
+                    this.loadAvailableGroups(String(courseId));
+                }
             },
             error: () => {}
         });
     }
 
+    onAvailGroupLazyLoad(event: { first: number; last: number }) {
+        if (this.availGroupsLoading || this.availGroupsAllLoaded) return;
+        if (event.last >= this.availableGroupOptions.length - 5) {
+            this.availGroupsPage++;
+            this.loadAvailGroupsPage();
+        }
+    }
+
     private loadAvailableGroups(currentCourseId: string) {
-        this.courseGroupsService.list(1, 100).subscribe({
+        this.availGroupsLoading = true;
+        this.availGroupsPage = 1;
+        this.availGroupsAllLoaded = false;
+        this.availableGroupOptions = [];
+        this.loadAvailGroupsPage();
+    }
+
+    private loadAvailGroupsPage() {
+        this.availGroupsLoading = true;
+        this.courseGroupsService.list(this.availGroupsPage, 10).subscribe({
             next: (res) => {
+                const data = res?.data ?? [];
                 const currentIds = new Set(this.groups.map((g) => g.id));
-                this.availableGroupOptions = (res?.data ?? [])
+                const newOptions = data
                     .filter((g) => !currentIds.has(String(g.id)))
                     .map((g) => ({ label: `${g.name} (${g.courseName ?? g.courseId})`, value: String(g.id) }));
+                this.availableGroupOptions = [...this.availableGroupOptions, ...newOptions];
+                if (data.length < 10 || !res?.meta?.nextPage) {
+                    this.availGroupsAllLoaded = true;
+                }
+                this.availGroupsLoading = false;
+            },
+            error: () => {
+                this.availGroupsLoading = false;
             }
         });
     }
@@ -1488,9 +1540,28 @@ export class CoursesForm implements OnInit {
     private loadSupervisors() {
         if (this.supervisorsLoading) return;
         this.supervisorsLoading = true;
-        this.supervisorService.list(1, 100, { role: SUPERVISOR_ROLE_FILTER }).subscribe({
+        this.supervisorsPage = 1;
+        this.supervisorsAllLoaded = false;
+        this.supervisors.set([]);
+        this.loadSupervisorPage();
+    }
+
+    onSupervisorLazyLoad(event: { first: number; last: number }) {
+        if (this.supervisorsLoading || this.supervisorsAllLoaded) return;
+        if (event.last >= this.supervisors().length - 5) {
+            this.supervisorsPage++;
+            this.loadSupervisorPage();
+        }
+    }
+
+    private loadSupervisorPage() {
+        this.supervisorService.list(this.supervisorsPage, 30, { role: SUPERVISOR_ROLE_FILTER }).subscribe({
             next: (res) => {
-                this.supervisors.set(res?.data ?? []);
+                const data = res?.data ?? [];
+                this.supervisors.update((current) => [...current, ...data]);
+                if (data.length < 30 || !res?.meta?.nextPage) {
+                    this.supervisorsAllLoaded = true;
+                }
                 this.supervisorsLoading = false;
             },
             error: () => {
