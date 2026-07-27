@@ -81,6 +81,6 @@ export const appConfig: ApplicationConfig = {
         provideZonelessChangeDetection(),
         providePrimeNG({ theme: { preset: CustomAura, options: { darkModeSelector: '.app-dark' } } }),
         MessageService,
-        { provide: API_BASE_URL, useValue: 'http://82.112.254.98:3000/api/v1' }
+        { provide: API_BASE_URL, useValue: 'http://82.112.254.98:3210/api/v1' }
     ]
 };

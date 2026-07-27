@@ -74,30 +74,30 @@ jobs:
             # Reload Nginx
             sudo systemctl reload nginx
 
-  notify:
-    needs: deploy
-    if: always()
-    runs-on: ubuntu-latest
+#   notify:
+#     needs: deploy
+#     if: always()
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Notify CI/CD result
-        run: |
-          DEPLOY_STATUS="${{ needs.deploy.result }}"
+#     steps:
+#       - name: Notify CI/CD result
+#         run: |
+#           DEPLOY_STATUS="${{ needs.deploy.result }}"
 
-          if [ "$DEPLOY_STATUS" = "success" ]; then
-            ICON="🚀✅"
-            STATUS="Build & Deploy succeeded"
-          else
-            ICON="❌"
-            STATUS="Pipeline failed"
-          fi
+#           if [ "$DEPLOY_STATUS" = "success" ]; then
+#             ICON="🚀✅"
+#             STATUS="Build & Deploy succeeded"
+#           else
+#             ICON="❌"
+#             STATUS="Pipeline failed"
+#           fi
 
-          MESSAGE="$ICON CI/CD Finished
-          Repo: ${{ github.repository }}
-          Branch: ${{ github.ref_name }}
-          Deploy: $DEPLOY_STATUS"
+#           MESSAGE="$ICON CI/CD Finished
+#           Repo: ${{ github.repository }}
+#           Branch: ${{ github.ref_name }}
+#           Deploy: $DEPLOY_STATUS"
 
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d message_thread_id=${{ secrets.TELEGRAM_TOPIC_ID }} \
-            -d text="$MESSAGE"
+#           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+#             -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+#             -d message_thread_id=${{ secrets.TELEGRAM_TOPIC_ID }} \
+#             -d text="$MESSAGE"

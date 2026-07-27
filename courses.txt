@@ -40,7 +40,7 @@ End hour (e.g., 15.30)
 
 request
 curl -X 'POST' \
-  'http://82.112.254.98:3000/api/v1/courses' \
+  'http://82.112.254.98:3210/api/v1/courses' \
   -H 'accept: application/json' \
   -H 'Accept-Language: en' \
   -H 'Content-Type: application/json' \

@@ -31,7 +31,7 @@ This file is authoritative for all future work (features, refactors, fixes).
 - Avoid editing template SCSS unless explicitly required.
 
 ## Auth / Login (API Contract)
-- Base URL: `http://82.112.254.98:3000/api/v1`.
+- Base URL: `http://82.112.254.98:3210/api/v1`.
 - Login endpoint: `POST /authentication/login`.
 - Request body:
   - `username: string`
