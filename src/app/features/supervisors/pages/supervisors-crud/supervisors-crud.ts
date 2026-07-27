@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +16,7 @@ import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SupervisorService } from '@/app/features/supervisors/services/supervisor.service';
@@ -60,7 +62,8 @@ const SUPERVISOR_ROLE_FILTER = RoleName.Supervisor;
         ConfirmDialogModule,
         TagModule,
         FormErrors,
-        TranslateModule
+        TranslateModule,
+        TooltipModule
     ],
     template: `
         <p-toolbar styleClass="mb-6">
@@ -140,6 +143,7 @@ const SUPERVISOR_ROLE_FILTER = RoleName.Supervisor;
                     <td style="min-width: 14rem">{{ displayValue(supervisor.phone) }}</td>
                     <td style="min-width: 10rem">{{ accountStatusLabel(supervisor.accountStatus) }}</td>
                     <td>
+                        <p-button icon="pi pi-book" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewCourses(supervisor)" [pTooltip]="'pages.supervisors.view_courses' | translate" />
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewSupervisor(supervisor)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editSupervisor(supervisor)" />
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteSupervisor(supervisor)" />
@@ -305,7 +309,8 @@ export class SupervisorsCrud implements OnInit {
         private messageService: MessageService,
         private translate: TranslateService,
         private confirmationService: ConfirmationService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private router: Router
     ) {
         this.supervisorForm = this.fb.group({
             username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
@@ -454,6 +459,10 @@ export class SupervisorsCrud implements OnInit {
             passwordControl?.updateValueAndValidity();
             this.supervisorForm.disable();
         });
+    }
+
+    viewCourses(supervisor: Supervisor) {
+        this.router.navigate(['/supervisors', supervisor.id, 'courses']);
     }
 
     deleteSelectedSupervisors() {

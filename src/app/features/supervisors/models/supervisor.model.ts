@@ -47,3 +47,16 @@ export interface SupervisorsListResponse {
     data: Supervisor[];
     meta: SupervisorsMeta;
 }
+
+export interface SupervisedCourseSummary {
+    courseId: string;
+    courseName: string;
+    studentCount: number;
+    groupCount: number;
+    attendanceRate: number;
+    isActive: boolean;
+}
+
+export interface SupervisorCoursesResponse {
+    courses: SupervisedCourseSummary[];
+}

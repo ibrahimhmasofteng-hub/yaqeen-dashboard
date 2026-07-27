@@ -200,7 +200,10 @@
         "author": "الكاتب",
         "published": "النشر",
         "files": "الملفات",
-        "attachments": "المرفقات"
+        "attachments": "المرفقات",
+        "students": "الطلاب",
+        "groups": "الحلقات",
+        "attendance_rate": "نسبة الحضور"
     },
     "entities": {
         "user": "المستخدم",
@@ -243,7 +246,11 @@
         },
         "supervisors": {
             "manage_title": "إدارة المشرفين",
-            "details_title": "تفاصيل المشرف"
+            "details_title": "تفاصيل المشرف",
+            "courses_title": "دورات المشرف",
+            "supervisor_info": "معلومات المشرف",
+            "supervised_courses": "الدورات المُشرَف عليها",
+            "view_courses": "عرض الدورات"
         },
         "teachers": {
             "manage_title": "إدارة المعلمين",

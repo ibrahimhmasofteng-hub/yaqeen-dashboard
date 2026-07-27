@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Supervisor, SupervisorProfile, SupervisorsListResponse } from '@/app/features/supervisors/models/supervisor.model';
+import { Supervisor, SupervisorProfile, SupervisorsListResponse, SupervisorCoursesResponse } from '@/app/features/supervisors/models/supervisor.model';
 import { ActorFilters, buildActorParams } from '@/app/features/students/services/student.service';
 
 @Injectable({ providedIn: 'root' })
@@ -42,5 +42,9 @@ export class SupervisorService {
 
     delete(id: string | number): Observable<unknown> {
         return this.api.delete<unknown>(`actors/${id}`);
+    }
+
+    getCourses(supervisorId: string): Observable<SupervisorCoursesResponse> {
+        return this.api.get<SupervisorCoursesResponse>(`statistics/supervisor/${supervisorId}/courses`);
     }
 }

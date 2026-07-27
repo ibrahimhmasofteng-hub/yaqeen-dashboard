@@ -200,7 +200,10 @@
         "author": "Author",
         "published": "Published",
         "files": "Files",
-        "attachments": "Attachments"
+        "attachments": "Attachments",
+        "students": "Students",
+        "groups": "Groups",
+        "attendance_rate": "Attendance Rate"
     },
     "entities": {
         "user": "User",
@@ -243,7 +246,11 @@
         },
         "supervisors": {
             "manage_title": "Manage Supervisors",
-            "details_title": "Supervisor Details"
+            "details_title": "Supervisor Details",
+            "courses_title": "Supervisor Courses",
+            "supervisor_info": "Supervisor Information",
+            "supervised_courses": "Supervised Courses",
+            "view_courses": "View Courses"
         },
         "teachers": {
             "manage_title": "Manage Teachers",
