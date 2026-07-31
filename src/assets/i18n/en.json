@@ -188,6 +188,9 @@
         "event_name": "Event Name",
         "event_type": "Event Type",
         "course": "Course",
+        "group": "Group",
+        "status": "Status",
+        "notes": "Notes",
         "points_reward": "Points Reward",
         "target_criteria": "Target Criteria",
         "is_active": "Active",
@@ -208,7 +211,11 @@
         "students_assigned": "Students Assigned",
         "type": "Type",
         "group_id": "Group ID",
-        "assigned_at": "Assigned At"
+        "assigned_at": "Assigned At",
+        "attendance_count": "Attendance Count",
+        "recitation_count": "Recitation Count",
+        "average_evaluation": "Average Evaluation",
+        "memoized_parts": "Memorized Parts"
     },
     "entities": {
         "user": "User",
@@ -277,7 +284,13 @@
             "edit_note": "Edit Note",
             "note_placeholder": "Write a note...",
             "no_notes": "No notes yet",
-            "note_deleted": "Note Deleted"
+            "note_deleted": "Note Deleted",
+            "courses_title": "Student Courses",
+            "no_courses": "No courses found",
+            "view_courses": "View Courses",
+            "attendance_title": "Student Attendance",
+            "no_attendance": "No attendance records found",
+            "view_attendance": "View Attendance"
         },
         "courses": {
             "manage_title": "Manage Courses",

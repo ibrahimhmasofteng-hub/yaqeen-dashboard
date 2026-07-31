@@ -188,6 +188,9 @@
         "event_name": "اسم الفعالية",
         "event_type": "نوع الفعالية",
         "course": "الدورة",
+        "group": "الحلقة",
+        "status": "الحالة",
+        "notes": "الملاحظات",
         "points_reward": "نقاط المكافأة",
         "target_criteria": "معيار الهدف",
         "is_active": "نشط",
@@ -208,7 +211,11 @@
         "students_assigned": "الطلاب المُعيَّنون",
         "type": "النوع",
         "group_id": "معرّف الحلقة",
-        "assigned_at": "تاريخ التعيين"
+        "assigned_at": "تاريخ التعيين",
+        "attendance_count": "عدد مرات الحضور",
+        "recitation_count": "عدد التلاوات",
+        "average_evaluation": "متوسط التقييم",
+        "memoized_parts": "الأجزاء المحفوظة"
     },
     "entities": {
         "user": "المستخدم",
@@ -277,7 +284,13 @@
             "edit_note": "تعديل الملاحظة",
             "note_placeholder": "اكتب ملاحظة...",
             "no_notes": "لا توجد ملاحظات بعد",
-            "note_deleted": "تم حذف الملاحظة"
+            "note_deleted": "تم حذف الملاحظة",
+            "courses_title": "دورات الطالب",
+            "no_courses": "لم يتم العثور على دورات",
+            "view_courses": "عرض الدورات",
+            "attendance_title": "حضور الطالب",
+            "no_attendance": "لم يتم العثور على سجلات الحضور",
+            "view_attendance": "عرض الحضور"
         },
         "courses": {
             "manage_title": "إدارة الدورات",
@@ -433,8 +446,8 @@
             "ON_TIME": "حاضر",
             "EARLY": "مبكر",
             "LATE": "متأخر",
-            "JUSTIFIED_ABSENCE": "غيب بعذر",
-            "UNJUSTIFIED_ABSENCE": "غيب بلا عذر"
+            "JUSTIFIED_ABSENCE": "غياب بعذر",
+            "UNJUSTIFIED_ABSENCE": "غياب بلا عذر"
         },
         "event_type": {
             "Recitations": "التلاوات",

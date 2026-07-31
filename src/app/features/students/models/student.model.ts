@@ -47,3 +47,16 @@ export interface StudentsListResponse {
     data: Student[];
     meta: StudentsMeta;
 }
+
+export interface CoursePerformance {
+    courseId: string;
+    courseName: string;
+    attendanceCount: number;
+    recitationCount: number;
+    averageEvaluation: string;
+    memoizedParts: number;
+}
+
+export interface StudentCoursesResponse {
+    courses: CoursePerformance[];
+}

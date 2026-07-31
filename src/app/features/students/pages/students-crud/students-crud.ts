@@ -22,7 +22,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { FormErrors } from '@/app/shared/components/form-errors/form-errors';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StudentService } from '@/app/features/students/services/student.service';
-import { Student, StudentsMeta } from '@/app/features/students/models/student.model';
+import { Student, StudentsMeta, CoursePerformance } from '@/app/features/students/models/student.model';
 import { AccountStatus } from '@/app/features/users/models/account-status.enum';
 import { RoleService } from '@/app/features/roles/services/role.service';
 import { Role } from '@/app/features/roles/models/role.model';
@@ -34,6 +34,9 @@ import { ApiService } from '@/app/core/services/api.service';
 import { DataManagementService } from '@/app/core/services/data-management.service';
 import { NoteService } from '@/app/features/students/services/note.service';
 import { Note } from '@/app/features/students/models/note.model';
+import { AttendanceService } from '@/app/features/attendance/services/attendance.service';
+import { AttendanceEntity, AttendanceMeta } from '@/app/features/attendance/models/attendance.model';
+import { AttendanceStatus } from '@/app/features/attendance/models/attendance-status.enum';
 
 interface Column {
     field: string;
@@ -157,6 +160,8 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewStudent(student)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editStudent(student)" />
                         <p-button icon="pi pi-book" class="mr-2" [rounded]="true" [outlined]="true" severity="info" (click)="openNotes(student)" />
+                        <p-button icon="pi pi-list" class="mr-2" [rounded]="true" [outlined]="true" severity="success" (click)="openCourses(student)" [title]="'pages.students.view_courses' | translate" />
+                        <p-button icon="pi pi-calendar" class="mr-2" [rounded]="true" [outlined]="true" severity="warn" (click)="openAttendance(student)" [title]="'pages.students.view_attendance' | translate" />
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteStudent(student)" />
                     </td>
                 </tr>
@@ -628,6 +633,94 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
             </ng-template>
         </p-dialog>
 
+        <p-dialog [(visible)]="coursesDialogVisible" [style]="{ width: '700px' }" [header]="'pages.students.courses_title' | translate" [modal]="true" [draggable]="false">
+            <ng-template #content>
+                <div class="flex flex-col gap-4">
+                    <div *ngIf="coursesLoading" class="flex justify-center py-4">
+                        <i class="pi pi-spin pi-spinner text-2xl"></i>
+                    </div>
+
+                    <div *ngIf="!coursesLoading && studentCourses().length === 0" class="text-center py-6 text-surface-500">
+                        {{ 'pages.students.no_courses' | translate }}
+                    </div>
+
+                    <div *ngFor="let course of studentCourses()" class="card p-4 border border-surface-200 rounded">
+                        <div class="flex flex-col gap-2">
+                            <h5 class="m-0 font-semibold">{{ course.courseName }}</h5>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                <div class="flex flex-col">
+                                    <span class="text-surface-500">{{ 'fields.attendance_count' | translate }}</span>
+                                    <span class="font-medium">{{ course.attendanceCount }}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-surface-500">{{ 'fields.recitation_count' | translate }}</span>
+                                    <span class="font-medium">{{ course.recitationCount }}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-surface-500">{{ 'fields.average_evaluation' | translate }}</span>
+                                    <span class="font-medium">{{ course.averageEvaluation }}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-surface-500">{{ 'fields.memoized_parts' | translate }}</span>
+                                    <span class="font-medium">{{ course.memoizedParts }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="attendanceDialogVisible" [style]="{ width: '800px' }" [header]="'pages.students.attendance_title' | translate" [modal]="true" [draggable]="false">
+            <ng-template #content>
+                <div class="flex flex-col gap-4">
+                    <div *ngIf="attendanceLoading" class="flex justify-center py-4">
+                        <i class="pi pi-spin pi-spinner text-2xl"></i>
+                    </div>
+
+                    <div *ngIf="!attendanceLoading && studentAttendance().length === 0" class="text-center py-6 text-surface-500">
+                        {{ 'pages.students.no_attendance' | translate }}
+                    </div>
+
+                    <p-table
+                        *ngIf="!attendanceLoading"
+                        [value]="studentAttendance()"
+                        [paginator]="true"
+                        [rows]="5"
+                        [first]="attendanceFirst"
+                        [totalRecords]="attendanceMeta().total"
+                        [lazy]="true"
+                        [rowsPerPageOptions]="[5, 10, 20]"
+                        [showCurrentPageReport]="true"
+                        [currentPageReportTemplate]="'common.page_report' | translate"
+                        (onPage)="onAttendancePage($event)"
+                        dataKey="id"
+                    >
+                        <ng-template #header>
+                            <tr>
+                                <th>{{ 'fields.course' | translate }}</th>
+                                <th>{{ 'fields.group' | translate }}</th>
+                                <th>{{ 'fields.status' | translate }}</th>
+                                <th>{{ 'fields.attended_at' | translate }}</th>
+                                <th>{{ 'fields.notes' | translate }}</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-record>
+                            <tr>
+                                <td>{{ displayValue(record.course?.name) }}</td>
+                                <td>{{ displayValue(record.group?.name) }}</td>
+                                <td>
+                                    <p-tag [value]="attendanceStatusLabel(record.status)" [severity]="attendanceStatusSeverity(record.status)" />
+                                </td>
+                                <td>{{ record.attendedAt | date:'short' }}</td>
+                                <td>{{ displayValue(record.notes) }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </ng-template>
+        </p-dialog>
+
         <p-toast />
     `,
     providers: [MessageService, ConfirmationService]
@@ -696,6 +789,18 @@ export class StudentsCrud implements OnInit {
     notes = signal<Note[]>([]);
     selectedStudentForNotes: Student | null = null;
 
+    coursesDialogVisible: boolean = false;
+    coursesLoading: boolean = false;
+    studentCourses = signal<CoursePerformance[]>([]);
+    selectedStudentForCourses: Student | null = null;
+
+    attendanceDialogVisible: boolean = false;
+    attendanceLoading: boolean = false;
+    studentAttendance = signal<AttendanceEntity[]>([]);
+    attendanceMeta = signal<AttendanceMeta>({ page: 1, perPage: 5, nextPage: null, previousPage: null, total: 0 });
+    selectedStudentForAttendance: Student | null = null;
+    attendanceFirst: number = 0;
+
     noteFormDialogVisible: boolean = false;
     noteForm: FormGroup;
     noteFormSubmitted: boolean = false;
@@ -712,6 +817,7 @@ export class StudentsCrud implements OnInit {
         private confirmationService: ConfirmationService,
         private api: ApiService,
         private noteService: NoteService,
+        private attendanceService: AttendanceService,
         private fb: FormBuilder
     ) {
         this.noteForm = this.fb.group({
@@ -1774,6 +1880,71 @@ export class StudentsCrud implements OnInit {
         this.selectedStudentForNotes = student;
         this.notesDialogVisible = true;
         this.loadNotes();
+    }
+
+    openCourses(student: Student) {
+        this.selectedStudentForCourses = student;
+        this.coursesDialogVisible = true;
+        this.loadStudentCourses();
+    }
+
+    openAttendance(student: Student) {
+        this.selectedStudentForAttendance = student;
+        this.attendanceFirst = 0;
+        this.attendanceDialogVisible = true;
+        this.loadStudentAttendance(1, 5);
+    }
+
+    loadStudentAttendance(page: number, perPage: number) {
+        if (!this.selectedStudentForAttendance || this.attendanceLoading) return;
+        this.attendanceLoading = true;
+        this.attendanceService.list({ studentId: this.selectedStudentForAttendance.id, page, perPage }).subscribe({
+            next: (res) => {
+                this.studentAttendance.set(res?.data ?? []);
+                this.attendanceMeta.set(res?.meta ?? { page, perPage, nextPage: null, previousPage: null, total: 0 });
+                this.attendanceLoading = false;
+            },
+            error: () => {
+                this.attendanceLoading = false;
+            }
+        });
+    }
+
+    onAttendancePage(event: { first: number; rows: number }) {
+        this.attendanceFirst = event.first;
+        const page = Math.floor(event.first / event.rows) + 1;
+        const perPage = event.rows;
+        if (page === this.attendanceMeta().page && perPage === this.attendanceMeta().perPage) return;
+        this.loadStudentAttendance(page, perPage);
+    }
+
+    attendanceStatusLabel(status: AttendanceStatus): string {
+        return this.translate.instant(`enums.attendance_status.${status}`);
+    }
+
+    attendanceStatusSeverity(status: AttendanceStatus): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
+        switch (status) {
+            case AttendanceStatus.OnTime: return 'success';
+            case AttendanceStatus.Early: return 'info';
+            case AttendanceStatus.Late: return 'warn';
+            case AttendanceStatus.JustifiedAbsence: return 'secondary';
+            case AttendanceStatus.UnjustifiedAbsence: return 'danger';
+            default: return 'secondary';
+        }
+    }
+
+    loadStudentCourses() {
+        if (!this.selectedStudentForCourses || this.coursesLoading) return;
+        this.coursesLoading = true;
+        this.studentService.getStudentCourses(this.selectedStudentForCourses.id).subscribe({
+            next: (res) => {
+                this.studentCourses.set(res?.courses ?? []);
+                this.coursesLoading = false;
+            },
+            error: () => {
+                this.coursesLoading = false;
+            }
+        });
     }
 
     loadNotes() {

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Student, StudentProfile, StudentsListResponse } from '@/app/features/students/models/student.model';
+import { Student, StudentProfile, StudentsListResponse, StudentCoursesResponse } from '@/app/features/students/models/student.model';
 import { RoleName } from '@/app/core/constants/role-name.enum';
 
 export interface ActorFilters {
@@ -63,5 +63,9 @@ export class StudentService {
 
     listGuardians(page: number, perPage: number): Observable<StudentsListResponse> {
         return this.api.get<StudentsListResponse>('actors', { params: buildActorParams(page, perPage, { role: RoleName.Guardian }) });
+    }
+
+    getStudentCourses(studentId: string): Observable<StudentCoursesResponse> {
+        return this.api.get<StudentCoursesResponse>(`statistics/student/${studentId}/courses`);
     }
 }
