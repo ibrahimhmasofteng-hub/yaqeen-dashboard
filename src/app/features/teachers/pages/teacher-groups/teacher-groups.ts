@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { TeacherService } from '@/app/features/teachers/services/teacher.service';
 import { CourseGroupsService } from '@/app/features/courses/services/course-groups.service';
 import { Teacher, TeacherGroupAssignment } from '@/app/features/teachers/models/teacher.model';
@@ -17,6 +18,7 @@ import { Teacher, TeacherGroupAssignment } from '@/app/features/teachers/models/
         ButtonModule,
         TableModule,
         TagModule,
+        TooltipModule,
         TranslateModule
     ],
     template: `

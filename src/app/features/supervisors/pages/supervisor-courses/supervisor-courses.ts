@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { SupervisorService } from '@/app/features/supervisors/services/supervisor.service';
 import { SupervisedCourseSummary, Supervisor } from '@/app/features/supervisors/models/supervisor.model';
 
@@ -16,6 +17,7 @@ import { SupervisedCourseSummary, Supervisor } from '@/app/features/supervisors/
         ButtonModule,
         TableModule,
         TagModule,
+        TooltipModule,
         TranslateModule
     ],
     template: `
