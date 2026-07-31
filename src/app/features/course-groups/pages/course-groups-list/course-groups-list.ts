@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
@@ -480,6 +481,7 @@ export class CourseGroupsList implements OnInit {
     editFilteredStudents: Person[] = [];
 
     constructor(
+        private route: ActivatedRoute,
         private groupsService: CourseGroupsListService,
         private courseGroupsService: CourseGroupsService,
         private courseService: CourseService,
@@ -501,6 +503,15 @@ export class CourseGroupsList implements OnInit {
             this.setColumns();
             this.setTeacherTypeOptions();
         });
+
+        const viewGroupId = this.route.snapshot.queryParamMap.get('viewGroupId');
+        if (viewGroupId) {
+            this.courseGroupsService.get(viewGroupId).subscribe({
+                next: (group) => {
+                    if (group) this.viewGroup(group);
+                }
+            });
+        }
     }
 
     exportCSV() {

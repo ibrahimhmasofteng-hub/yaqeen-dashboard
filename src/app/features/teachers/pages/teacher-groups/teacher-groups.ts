@@ -7,7 +7,6 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { TeacherService } from '@/app/features/teachers/services/teacher.service';
-import { CourseGroupsService } from '@/app/features/courses/services/course-groups.service';
 import { Teacher, TeacherGroupAssignment } from '@/app/features/teachers/models/teacher.model';
 
 @Component({
@@ -112,7 +111,6 @@ export class TeacherGroups implements OnInit {
 
     constructor(
         private teacherService: TeacherService,
-        private courseGroupsService: CourseGroupsService,
         private translate: TranslateService,
         private route: ActivatedRoute,
         private router: Router
@@ -173,10 +171,6 @@ export class TeacherGroups implements OnInit {
     }
 
     viewGroup(group: TeacherGroupAssignment) {
-        this.courseGroupsService.get(group.groupId).subscribe({
-            next: (g) => {
-                this.router.navigate(['/courses', g.courseId, 'edit']);
-            }
-        });
+        this.router.navigate(['/groups'], { queryParams: { viewGroupId: group.groupId } });
     }
 }
