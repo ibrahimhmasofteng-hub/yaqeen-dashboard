@@ -47,3 +47,37 @@ export interface TeachersListResponse {
     data: Teacher[];
     meta: TeachersMeta;
 }
+
+export interface TeacherCourseSummary {
+    courseId: string;
+    courseName: string;
+    groupCount: number;
+    studentsAssigned: number;
+    recitationsAssessed: number;
+}
+
+export interface TeacherOverviewResponse {
+    courses: TeacherCourseSummary[];
+    totalRecitationsAssessed: number;
+    evaluationDistribution: Record<string, number>;
+}
+
+export interface TeacherGroupAssignment {
+    id: string;
+    groupId: string;
+    teacherId: string;
+    assignedAt: string;
+    type: 'MAIN' | 'ASSISTANT';
+    teacher?: any;
+}
+
+export interface TeacherGroupsResponse {
+    data: TeacherGroupAssignment[];
+    meta: {
+        page: number;
+        perPage: number;
+        nextPage: number | null;
+        previousPage: number | null;
+        total: number;
+    };
+}

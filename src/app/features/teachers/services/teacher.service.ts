@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Teacher, TeacherProfile, TeachersListResponse } from '@/app/features/teachers/models/teacher.model';
+import { Teacher, TeacherProfile, TeachersListResponse, TeacherOverviewResponse, TeacherGroupsResponse } from '@/app/features/teachers/models/teacher.model';
 import { ActorFilters, buildActorParams } from '@/app/features/students/services/student.service';
 
 @Injectable({ providedIn: 'root' })
@@ -42,5 +42,13 @@ export class TeacherService {
 
     delete(id: string | number): Observable<unknown> {
         return this.api.delete<unknown>(`actors/${id}`);
+    }
+
+    getOverview(teacherId: string): Observable<TeacherOverviewResponse> {
+        return this.api.get<TeacherOverviewResponse>(`statistics/teacher/${teacherId}/overview`);
+    }
+
+    getGroups(teacherId: string, page: number = 1, perPage: number = 10): Observable<TeacherGroupsResponse> {
+        return this.api.get<TeacherGroupsResponse>(`group-teachers/by-teacher/${teacherId}`, { params: { page, perPage } });
     }
 }

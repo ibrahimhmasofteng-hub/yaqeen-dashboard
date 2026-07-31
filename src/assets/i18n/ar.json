@@ -203,7 +203,12 @@
         "attachments": "المرفقات",
         "students": "الطلاب",
         "groups": "الحلقات",
-        "attendance_rate": "نسبة الحضور"
+        "attendance_rate": "نسبة الحضور",
+        "recitations_assessed": "التلاوات المُقيَّمة",
+        "students_assigned": "الطلاب المُعيَّنون",
+        "type": "النوع",
+        "group_id": "معرّف الحلقة",
+        "assigned_at": "تاريخ التعيين"
     },
     "entities": {
         "user": "المستخدم",
@@ -254,7 +259,15 @@
         },
         "teachers": {
             "manage_title": "إدارة المعلمين",
-            "details_title": "تفاصيل المعلم"
+            "details_title": "تفاصيل المعلم",
+            "courses_title": "دورات المعلم",
+            "groups_title": "حلقات المعلم",
+            "teacher_info": "معلومات المعلم",
+            "supervised_courses": "الدورات المُشرَف عليها",
+            "assigned_groups": "الحلقات المُعيَّنة",
+            "view_courses": "عرض الدورات",
+            "view_groups": "عرض الحلقات",
+            "total_recitations": "إجمالي التلاوات المُقيَّمة"
         },
         "students": {
             "manage_title": "إدارة الطلاب",

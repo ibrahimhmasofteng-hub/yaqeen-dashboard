@@ -1,30 +1,30 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { SupervisorService } from '@/app/features/supervisors/services/supervisor.service';
-import { SupervisedCourseSummary, Supervisor } from '@/app/features/supervisors/models/supervisor.model';
+import { CardModule } from 'primeng/card';
+import { TeacherService } from '@/app/features/teachers/services/teacher.service';
+import { Teacher, TeacherCourseSummary } from '@/app/features/teachers/models/teacher.model';
 
 @Component({
-    selector: 'app-supervisor-courses',
+    selector: 'app-teacher-courses',
     standalone: true,
     imports: [
         CommonModule,
         ButtonModule,
         TableModule,
-        TagModule,
+        CardModule,
         TranslateModule
     ],
     template: `
         <div class="mb-6 flex items-start justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-semibold">{{ 'pages.supervisors.courses_title' | translate }}</h2>
-                <p class="text-surface-500">{{ supervisor()?.username ?? '' }}</p>
+                <h2 class="text-2xl font-semibold">{{ 'pages.teachers.courses_title' | translate }}</h2>
+                <p class="text-surface-500">{{ teacher()?.username ?? '' }}</p>
             </div>
-            <p-button [label]="'common.cancel' | translate" icon="pi pi-arrow-left" text (onClick)="goBack()"></p-button>
+            <p-button [label]="'common.back' | translate" icon="pi pi-arrow-left" text (onClick)="goBack()"></p-button>
         </div>
 
         <div *ngIf="loading" class="flex justify-center items-center py-12">
@@ -33,25 +33,30 @@ import { SupervisedCourseSummary, Supervisor } from '@/app/features/supervisors/
 
         <ng-container *ngIf="!loading">
             <div class="card mb-6">
-                <h3 class="text-lg font-semibold mb-4">{{ 'pages.supervisors.supervisor_info' | translate }}</h3>
+                <h3 class="text-lg font-semibold mb-4">{{ 'pages.teachers.teacher_info' | translate }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     <div>
                         <div class="text-surface-500 text-sm mb-1">{{ 'fields.username' | translate }}</div>
-                        <div class="font-semibold">{{ supervisor()?.username ?? '-' }}</div>
+                        <div class="font-semibold">{{ teacher()?.username ?? '-' }}</div>
                     </div>
                     <div>
                         <div class="text-surface-500 text-sm mb-1">{{ 'fields.email' | translate }}</div>
-                        <div class="font-semibold">{{ supervisor()?.email ?? '-' }}</div>
+                        <div class="font-semibold">{{ teacher()?.email ?? '-' }}</div>
                     </div>
                     <div>
                         <div class="text-surface-500 text-sm mb-1">{{ 'fields.phone' | translate }}</div>
-                        <div class="font-semibold">{{ supervisor()?.phone ?? '-' }}</div>
+                        <div class="font-semibold">{{ teacher()?.phone ?? '-' }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <h3 class="text-lg font-semibold mb-4">{{ 'pages.supervisors.supervised_courses' | translate }}</h3>
+            <div class="card mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">{{ 'pages.teachers.supervised_courses' | translate }}</h3>
+                    <div class="text-surface-500 text-sm">
+                        {{ 'fields.total' | translate }}: {{ courses().length }}
+                    </div>
+                </div>
 
                 <div *ngIf="coursesLoading" class="flex justify-center py-6">
                     <i class="pi pi-spin pi-spinner text-xl"></i>
@@ -65,44 +70,43 @@ import { SupervisedCourseSummary, Supervisor } from '@/app/features/supervisors/
                     <ng-template #header>
                         <tr>
                             <th>{{ 'fields.course_name' | translate }}</th>
-                            <th>{{ 'fields.students' | translate }}</th>
                             <th>{{ 'fields.groups' | translate }}</th>
-                            <th>{{ 'fields.attendance_rate' | translate }}</th>
-                            <th>{{ 'common.status' | translate }}</th>
-                            <th style="width: 5rem"></th>
+                            <th>{{ 'fields.students' | translate }}</th>
+                            <th>{{ 'fields.recitations_assessed' | translate }}</th>
                         </tr>
                     </ng-template>
                     <ng-template #body let-course>
                         <tr>
                             <td class="font-semibold">{{ course.courseName }}</td>
-                            <td>{{ course.studentCount }}</td>
                             <td>{{ course.groupCount }}</td>
-                            <td>{{ course.attendanceRate }}%</td>
-                            <td>
-                                <p-tag [value]="course.isActive ? ('common.active' | translate) : ('common.inactive' | translate)" [severity]="course.isActive ? 'success' : 'danger'" />
-                            </td>
-                            <td>
-                                <p-button icon="pi pi-eye" [rounded]="true" [outlined]="true" (click)="viewCourse(course)" pTooltip="{{ 'common.details' | translate }}" tooltipPosition="top" />
-                            </td>
+                            <td>{{ course.studentsAssigned }}</td>
+                            <td>{{ course.recitationsAssessed }}</td>
                         </tr>
                     </ng-template>
                 </p-table>
             </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">{{ 'pages.teachers.total_recitations' | translate }}</h3>
+                    <span class="text-2xl font-bold text-primary">{{ totalRecitations() }}</span>
+                </div>
+            </div>
         </ng-container>
     `
 })
-export class SupervisorCourses implements OnInit {
-    supervisor = signal<Supervisor | null>(null);
-    courses = signal<SupervisedCourseSummary[]>([]);
+export class TeacherCourses implements OnInit {
+    teacher = signal<Teacher | null>(null);
+    courses = signal<TeacherCourseSummary[]>([]);
+    totalRecitations = signal<number>(0);
 
     loading = false;
     coursesLoading = false;
 
-    private supervisorId?: string;
+    private teacherId?: string;
 
     constructor(
-        private supervisorService: SupervisorService,
-        private translate: TranslateService,
+        private teacherService: TeacherService,
         private route: ActivatedRoute,
         private router: Router
     ) {}
@@ -111,18 +115,18 @@ export class SupervisorCourses implements OnInit {
         this.route.paramMap.subscribe((params) => {
             const id = params.get('id');
             if (id) {
-                this.supervisorId = id;
-                this.loadSupervisor(id);
+                this.teacherId = id;
+                this.loadTeacher(id);
                 this.loadCourses(id);
             }
         });
     }
 
-    loadSupervisor(id: string) {
+    loadTeacher(id: string) {
         this.loading = true;
-        this.supervisorService.get(id).subscribe({
+        this.teacherService.get(id).subscribe({
             next: (data) => {
-                this.supervisor.set(data);
+                this.teacher.set(data);
                 this.loading = false;
             },
             error: () => {
@@ -133,9 +137,10 @@ export class SupervisorCourses implements OnInit {
 
     loadCourses(id: string) {
         this.coursesLoading = true;
-        this.supervisorService.getCourses(id).subscribe({
+        this.teacherService.getOverview(id).subscribe({
             next: (res) => {
                 this.courses.set(res?.courses ?? []);
+                this.totalRecitations.set(res?.totalRecitationsAssessed ?? 0);
                 this.coursesLoading = false;
             },
             error: () => {
@@ -145,10 +150,6 @@ export class SupervisorCourses implements OnInit {
     }
 
     goBack() {
-        this.router.navigate(['/supervisors']);
-    }
-
-    viewCourse(course: SupervisedCourseSummary) {
-        this.router.navigate(['/courses', course.courseId, 'edit']);
+        this.router.navigate(['/teachers']);
     }
 }

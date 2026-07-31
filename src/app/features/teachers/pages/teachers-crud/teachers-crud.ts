@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -27,6 +28,7 @@ import { ApiService } from '@/app/core/services/api.service';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ImageModule } from 'primeng/image';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { DataManagementService } from '@/app/core/services/data-management.service';
 import { ImportResult } from '@/app/features/students/models/import-result.model';
 
@@ -64,6 +66,7 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
         FileUploadModule,
         ImageModule,
         TagModule,
+        TooltipModule,
         StepperModule,
         PasswordModule,
         FormErrors,
@@ -147,6 +150,8 @@ const TEACHER_ROLE_FILTER = RoleName.Teacher;
                     <td style="min-width: 14rem">{{ displayValue(teacher.phone) }}</td>
                     <td style="min-width: 10rem">{{ accountStatusLabel(teacher.accountStatus) }}</td>
                     <td>
+                        <p-button icon="pi pi-book" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewCourses(teacher)" pTooltip="{{ 'pages.teachers.view_courses' | translate }}" tooltipPosition="top" />
+                        <p-button icon="pi pi-users" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewGroups(teacher)" pTooltip="{{ 'pages.teachers.view_groups' | translate }}" tooltipPosition="top" />
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewTeacher(teacher)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editTeacher(teacher)" />
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteTeacher(teacher)" />
@@ -420,7 +425,8 @@ export class TeachersCrud implements OnInit {
         private translate: TranslateService,
         private confirmationService: ConfirmationService,
         private api: ApiService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private router: Router
     ) {
         this.teacherForm = this.fb.group({
             username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
@@ -969,6 +975,14 @@ export class TeachersCrud implements OnInit {
 
     displayValue(value: unknown) {
         return value === null || value === undefined || value === '' ? '-' : value;
+    }
+
+    viewCourses(teacher: Teacher) {
+        this.router.navigate(['/teachers', teacher.id, 'courses']);
+    }
+
+    viewGroups(teacher: Teacher) {
+        this.router.navigate(['/teachers', teacher.id, 'groups']);
     }
 
     private stripEmpty<T extends Record<string, any>>(value: T): Partial<T> {

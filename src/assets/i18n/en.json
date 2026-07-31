@@ -203,7 +203,12 @@
         "attachments": "Attachments",
         "students": "Students",
         "groups": "Groups",
-        "attendance_rate": "Attendance Rate"
+        "attendance_rate": "Attendance Rate",
+        "recitations_assessed": "Recitations Assessed",
+        "students_assigned": "Students Assigned",
+        "type": "Type",
+        "group_id": "Group ID",
+        "assigned_at": "Assigned At"
     },
     "entities": {
         "user": "User",
@@ -254,7 +259,15 @@
         },
         "teachers": {
             "manage_title": "Manage Teachers",
-            "details_title": "Teacher Details"
+            "details_title": "Teacher Details",
+            "courses_title": "Teacher Courses",
+            "groups_title": "Teacher Groups",
+            "teacher_info": "Teacher Information",
+            "supervised_courses": "Supervised Courses",
+            "assigned_groups": "Assigned Groups",
+            "view_courses": "View Courses",
+            "view_groups": "View Groups",
+            "total_recitations": "Total Recitations Assessed"
         },
         "students": {
             "manage_title": "Manage Students",
