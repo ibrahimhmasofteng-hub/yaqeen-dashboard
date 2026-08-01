@@ -1,4 +1,4 @@
-﻿{
+{
     "menu": {
         "main": "الرئيسية",
         "dashboard": "لوحة التحكم",
@@ -70,6 +70,10 @@
         "import_errors": "أخطاء الاستيراد",
         "search": "بحث...",
         "confirm": "تأكيد",
+        "yes": "نعم",
+        "no": "لا",
+        "confirm_delete": "هل أنت متأكد من الحذف؟",
+        "confirm_reactivate": "هل أنت متأكد من إعادة تفعيل ولي الأمر؟",
         "cancel": "إلغاء",
         "back": "رجوع",
         "next": "التالي",
@@ -290,7 +294,9 @@
             "view_courses": "عرض الدورات",
             "attendance_title": "حضور الطالب",
             "no_attendance": "لم يتم العثور على سجلات الحضور",
-            "view_attendance": "عرض الحضور"
+            "view_attendance": "عرض الحضور",
+            "add_guardian": "إضافة ولي أمر",
+            "no_guardians": "لم تتم إضافة أولياء أمر بعد"
         },
         "courses": {
             "manage_title": "إدارة الدورات",
@@ -361,8 +367,10 @@
         "account": "الحساب",
         "profile": "الملف الشخصي",
         "additional": "إضافي",
-        "guardian_1": "ولي الأمر 1",
-        "guardian_2": "ولي الأمر 2"
+        "guardians": "أولياء الأمور"
+    },
+    "errors": {
+        "duplicate_family_relation": "صلة القرابة موجودة مسبقاً. إما أعد تفعيلها أو احذف القديمة وأضفها من جديد."
     },
     "topbar": {
         "calendar": "التقويم",

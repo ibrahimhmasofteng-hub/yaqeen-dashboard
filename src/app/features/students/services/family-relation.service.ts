@@ -23,6 +23,7 @@ export interface FamilyRelation {
     relationType?: RelationType | string;
     studentId?: string;
     familyMemberId?: string;
+    isActive?: boolean;
     student?: FamilyRelationActor;
     familyMember?: FamilyRelationActor;
 }
@@ -50,6 +51,10 @@ export class FamilyRelationService {
 
     update(id: string, payload: { relationType?: RelationType; isActive?: boolean }): Observable<unknown> {
         return this.api.patch<unknown>(`family-relations/${id}`, payload);
+    }
+
+    remove(id: string): Observable<unknown> {
+        return this.api.delete<unknown>(`family-relations/${id}`);
     }
 
     listByStudent(studentId: string, page = 1, perPage = 10): Observable<FamilyRelationsResponse> {

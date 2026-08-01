@@ -13,6 +13,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
+import { AccordionModule } from 'primeng/accordion';
 import { StepperModule } from 'primeng/stepper';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -73,6 +74,7 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
         FileUploadModule,
         ImageModule,
         StepperModule,
+        AccordionModule,
         PasswordModule,
         FormErrors,
         TagModule,
@@ -176,8 +178,7 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                             <p-step [value]="1">{{ 'wizard.account' | translate }}</p-step>
                             <p-step [value]="2">{{ 'wizard.profile' | translate }}</p-step>
                             <p-step [value]="3">{{ 'wizard.additional' | translate }}</p-step>
-                            <p-step [value]="4" [disabled]="!studentCreatedId">{{ 'wizard.guardian_1' | translate }}</p-step>
-                            <p-step [value]="5" [disabled]="!studentCreatedId">{{ 'wizard.guardian_2' | translate }}</p-step>
+                            <p-step [value]="4" [disabled]="!studentCreatedId">{{ 'wizard.guardians' | translate }}</p-step>
                         </p-step-list>
                         <p-step-panels>
                             <p-step-panel [value]="1">
@@ -315,199 +316,159 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                             </p-step-panel>
                             <p-step-panel [value]="4">
                                 <ng-template #content>
-                                    <div class="flex gap-2 mb-4">
-                                        <p-button [label]="'common.create_new' | translate" [outlined]="guardianMode1 !== 'new'" [severity]="guardianMode1 === 'new' ? 'primary' : 'secondary'" (onClick)="setGuardianMode(1, 'new')" [disabled]="submitting || viewOnly" size="small" />
-                                        <p-button [label]="'common.select_existing' | translate" [outlined]="guardianMode1 !== 'existing'" [severity]="guardianMode1 === 'existing' ? 'primary' : 'secondary'" (onClick)="setGuardianMode(1, 'existing')" [disabled]="submitting || viewOnly" size="small" />
+                                    <div *ngIf="!viewOnly && !showAddGuardianForm" class="mb-4">
+                                        <p-button [label]="'pages.students.add_guardian' | translate" icon="pi pi-plus" (onClick)="showAddGuardianForm = true" size="small" />
                                     </div>
-                                    <div [formGroup]="guardianForm1">
-                                        <ng-container *ngIf="guardianMode1 === 'existing'">
-                                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        [options]="relationTypeOptions"
-                                                        optionLabel="label"
-                                                        optionValue="value"
-                                                        formControlName="relationType"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'common.select_relation' | translate"
-                                                        fluid
-                                                    />
-                                                    <app-form-errors [control]="guardianForm1.get('relationType')" [show]="guardian1Submitted"></app-form-errors>
+
+                                    <div *ngIf="showAddGuardianForm" class="card p-4 mb-4 border border-surface-200 rounded">
+                                        <div class="flex gap-2 mb-4">
+                                            <p-button [label]="'common.create_new' | translate" [outlined]="addGuardianMode !== 'new'" [severity]="addGuardianMode === 'new' ? 'primary' : 'secondary'" (onClick)="setAddGuardianMode('new')" size="small" />
+                                            <p-button [label]="'common.select_existing' | translate" [outlined]="addGuardianMode !== 'existing'" [severity]="addGuardianMode === 'existing' ? 'primary' : 'secondary'" (onClick)="setAddGuardianMode('existing')" size="small" />
+                                        </div>
+                                        <div [formGroup]="addGuardianForm">
+                                            <ng-container *ngIf="addGuardianMode === 'existing'">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
+                                                        <p-select
+                                                            [options]="relationTypeOptions"
+                                                            optionLabel="label"
+                                                            optionValue="value"
+                                                            formControlName="relationType"
+                                                            appendTo="body"
+                                                            [placeholder]="'common.select_relation' | translate"
+                                                            fluid
+                                                        />
+                                                        <app-form-errors [control]="addGuardianForm.get('relationType')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
+                                                        <p-select
+                                                            [options]="existingGuardians"
+                                                            optionLabel="displayName"
+                                                            optionValue="id"
+                                                            formControlName="existingGuardianId"
+                                                            appendTo="body"
+                                                            [placeholder]="'entities.guardian' | translate"
+                                                            fluid
+                                                            [filter]="true"
+                                                            [virtualScroll]="true"
+                                                            [virtualScrollItemSize]="38"
+                                                            [lazy]="true"
+                                                            (onLazyLoad)="onGuardianLazyLoad($event)"
+                                                        />
+                                                        <app-form-errors [control]="addGuardianForm.get('existingGuardianId')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        [options]="existingGuardians"
-                                                        optionLabel="displayName"
-                                                        optionValue="id"
-                                                        formControlName="existingGuardianId"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'entities.guardian' | translate"
-                                                        fluid
-                                                        [filter]="true"
-                                                        [virtualScroll]="true"
-                                                        [virtualScrollItemSize]="38"
-                                                        [lazy]="true"
-                                                        (onLazyLoad)="onGuardianLazyLoad($event)"
-                                                    />
-                                                    <app-form-errors [control]="guardianForm1.get('existingGuardianId')" [show]="guardian1Submitted"></app-form-errors>
+                                            </ng-container>
+                                            <ng-container *ngIf="addGuardianMode === 'new'">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
+                                                        <input type="text" pInputText formControlName="firstName" required fluid />
+                                                        <app-form-errors [control]="addGuardianForm.get('firstName')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
+                                                        <input type="text" pInputText formControlName="lastName" required fluid />
+                                                        <app-form-errors [control]="addGuardianForm.get('lastName')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.phone' | translate }} <span class="text-red-500">*</span></label>
+                                                        <input type="text" pInputText formControlName="phone" required fluid />
+                                                        <app-form-errors [control]="addGuardianForm.get('phone')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
+                                                    <input type="hidden" formControlName="roleId" />
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
+                                                        <input type="text" pInputText formControlName="username" required fluid />
+                                                        <app-form-errors [control]="addGuardianForm.get('username')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
+                                                        <p-password formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true"></p-password>
+                                                        <app-form-errors [control]="addGuardianForm.get('password')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
+                                                        <p-select
+                                                            [options]="relationTypeOptions"
+                                                            optionLabel="label"
+                                                            optionValue="value"
+                                                            formControlName="relationType"
+                                                            appendTo="body"
+                                                            [placeholder]="'common.select_relation' | translate"
+                                                            fluid
+                                                        />
+                                                        <app-form-errors [control]="addGuardianForm.get('relationType')" [show]="addGuardianSubmitted"></app-form-errors>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </ng-container>
-                                        <ng-container *ngIf="guardianMode1 === 'new'">
-                                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label for="guardian1FirstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian1FirstName" formControlName="firstName" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm1.get('firstName')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian1LastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian1LastName" formControlName="lastName" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm1.get('lastName')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian1Phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian1Phone" formControlName="phone" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm1.get('phone')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                                <input type="hidden" formControlName="roleId" />
-                                                <div>
-                                                    <label for="guardian1Username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian1Username" formControlName="username" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm1.get('username')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian1Password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-password id="guardian1Password" formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true" [disabled]="submitting || viewOnly"></p-password>
-                                                    <app-form-errors [control]="guardianForm1.get('password')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian1RelationType" class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        id="guardian1RelationType"
-                                                        [options]="relationTypeOptions"
-                                                        optionLabel="label"
-                                                        optionValue="value"
-                                                        formControlName="relationType"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'common.select_relation' | translate"
-                                                        fluid
-                                                    />
-                                                    <app-form-errors [control]="guardianForm1.get('relationType')" [show]="guardian1Submitted"></app-form-errors>
-                                                </div>
-                                            </div>
-                                        </ng-container>
+                                            </ng-container>
+                                        </div>
+                                        <div class="flex justify-end gap-2 mt-4">
+                                            <p-button [label]="'common.cancel' | translate" text (click)="cancelAddGuardian()" [disabled]="submitting" />
+                                            <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="saveNewGuardian()" [loading]="submitting" [disabled]="submitting" />
+                                        </div>
                                     </div>
+
+                                    <div *ngIf="guardiansLoading" class="flex justify-center py-4">
+                                        <i class="pi pi-spin pi-spinner text-2xl"></i>
+                                    </div>
+
+                                    <div *ngIf="!guardiansLoading && studentGuardians.length === 0 && !showAddGuardianForm" class="text-center py-6 text-surface-500">
+                                        {{ 'pages.students.no_guardians' | translate }}
+                                    </div>
+
+                                    <p-accordion *ngIf="studentGuardians.length > 0" [multiple]="true">
+                                        <p-accordion-panel *ngFor="let relation of studentGuardians" [value]="relation.id" [style]="relation.isActive === false ? { opacity: '0.6' } : {}">
+                                            <p-accordion-header>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-semibold">{{ displayValue(relation.familyMember?.profile?.firstName) }} {{ displayValue(relation.familyMember?.profile?.lastName) }}</span>
+                                                    <p-tag [value]="getRelationLabel(relation.relationType)" severity="info" styleClass="text-xs" />
+                                                    <p-tag *ngIf="relation.isActive === false" value="Inactive" severity="danger" styleClass="text-xs" />
+                                                </div>
+                                            </p-accordion-header>
+                                                <div class="flex flex-col gap-3">
+                                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                                        <div>
+                                                            <span class="text-surface-500">{{ 'fields.phone' | translate }}:</span>
+                                                            <span class="ml-2 font-medium">{{ displayValue(relation.familyMember?.phone) }}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-surface-500">{{ 'fields.username' | translate }}:</span>
+                                                            <span class="ml-2 font-medium">{{ displayValue(relation.familyMember?.username) }}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div *ngIf="editingGuardianId === relation.id" class="mt-2">
+                                                        <label class="block font-bold mb-2">{{ 'fields.relation_type' | translate }}</label>
+                                                        <p-select
+                                                            [options]="relationTypeOptions"
+                                                            optionLabel="label"
+                                                            optionValue="value"
+                                                            [(ngModel)]="editingRelationType"
+                                                            appendTo="body"
+                                                            [placeholder]="'common.select_relation' | translate"
+                                                            styleClass="w-full md:w-14rem"
+                                                        />
+                                                        <div class="flex justify-end gap-2 mt-3">
+                                                            <p-button [label]="'common.cancel' | translate" text (click)="editingGuardianId = null" size="small" />
+                                                            <p-button [label]="'common.save' | translate" icon="pi pi-check" (click)="saveEditGuardian(relation)" [loading]="submitting" [disabled]="submitting" size="small" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div *ngIf="editingGuardianId !== relation.id && !viewOnly" class="flex gap-2">
+                                                        <p-button *ngIf="relation.isActive === false" icon="pi pi-refresh" [rounded]="true" [outlined]="true" severity="success" size="small" (click)="reactivateGuardian(relation)" [title]="'common.reactivate' | translate" />
+                                                        <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" size="small" (click)="startEditGuardian(relation)" [title]="'common.edit' | translate" />
+                                                        <p-button icon="pi pi-trash" [rounded]="true" [outlined]="true" severity="danger" size="small" (click)="deleteGuardian(relation)" [title]="'common.delete' | translate" />
+                                                    </div>
+                                                </div>
+                                        </p-accordion-panel>
+                                    </p-accordion>
+
                                     <div class="flex justify-between gap-2 mt-6">
                                         <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="goToStep(3)" [disabled]="submitting"></p-button>
-                                        <div class="flex gap-2">
-                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (click)="finishGuardianFlow()" [disabled]="submitting"></p-button>
-                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (click)="saveGuardian1()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
-                                        </div>
-                                    </div>
-                                </ng-template>
-                            </p-step-panel>
-                            <p-step-panel [value]="5">
-                                <ng-template #content>
-                                    <div class="flex gap-2 mb-4">
-                                        <p-button [label]="'common.create_new' | translate" [outlined]="guardianMode2 !== 'new'" [severity]="guardianMode2 === 'new' ? 'primary' : 'secondary'" (onClick)="setGuardianMode(2, 'new')" [disabled]="submitting || viewOnly" size="small" />
-                                        <p-button [label]="'common.select_existing' | translate" [outlined]="guardianMode2 !== 'existing'" [severity]="guardianMode2 === 'existing' ? 'primary' : 'secondary'" (onClick)="setGuardianMode(2, 'existing')" [disabled]="submitting || viewOnly" size="small" />
-                                    </div>
-                                    <div [formGroup]="guardianForm2">
-                                        <ng-container *ngIf="guardianMode2 === 'existing'">
-                                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        [options]="relationTypeOptions"
-                                                        optionLabel="label"
-                                                        optionValue="value"
-                                                        formControlName="relationType"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'common.select_relation' | translate"
-                                                        fluid
-                                                    />
-                                                    <app-form-errors [control]="guardianForm2.get('relationType')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label class="block font-bold mb-3">{{ 'entities.guardian' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        [options]="existingGuardians"
-                                                        optionLabel="displayName"
-                                                        optionValue="id"
-                                                        formControlName="existingGuardianId"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'entities.guardian' | translate"
-                                                        fluid
-                                                        [filter]="true"
-                                                        [virtualScroll]="true"
-                                                        [virtualScrollItemSize]="38"
-                                                        [lazy]="true"
-                                                        (onLazyLoad)="onGuardianLazyLoad($event)"
-                                                    />
-                                                    <app-form-errors [control]="guardianForm2.get('existingGuardianId')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                            </div>
-                                        </ng-container>
-                                        <ng-container *ngIf="guardianMode2 === 'new'">
-                                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                                <div>
-                                                    <label for="guardian2FirstName" class="block font-bold mb-3">{{ 'fields.first_name' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian2FirstName" formControlName="firstName" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm2.get('firstName')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian2LastName" class="block font-bold mb-3">{{ 'fields.last_name' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian2LastName" formControlName="lastName" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm2.get('lastName')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian2Phone" class="block font-bold mb-3">{{ 'fields.phone' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian2Phone" formControlName="phone" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm2.get('phone')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <input type="hidden" formControlName="roleId" />
-                                                <div>
-                                                    <label for="guardian2Username" class="block font-bold mb-3">{{ 'fields.username' | translate }} <span class="text-red-500">*</span></label>
-                                                    <input type="text" pInputText id="guardian2Username" formControlName="username" required fluid [disabled]="submitting || viewOnly" />
-                                                    <app-form-errors [control]="guardianForm2.get('username')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian2Password" class="block font-bold mb-3">{{ 'fields.password' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-password id="guardian2Password" formControlName="password" [toggleMask]="true" [feedback]="false" [fluid]="true" [disabled]="submitting || viewOnly"></p-password>
-                                                    <app-form-errors [control]="guardianForm2.get('password')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                                <div>
-                                                    <label for="guardian2RelationType" class="block font-bold mb-3">{{ 'fields.relation_type' | translate }} <span class="text-red-500">*</span></label>
-                                                    <p-select
-                                                        id="guardian2RelationType"
-                                                        [options]="relationTypeOptions"
-                                                        optionLabel="label"
-                                                        optionValue="value"
-                                                        formControlName="relationType"
-                                                        appendTo="body"
-                                                        [disabled]="submitting || viewOnly"
-                                                        [placeholder]="'common.select_relation' | translate"
-                                                        fluid
-                                                    />
-                                                    <app-form-errors [control]="guardianForm2.get('relationType')" [show]="guardian2Submitted"></app-form-errors>
-                                                </div>
-                                            </div>
-                                        </ng-container>
-                                    </div>
-                                    <div class="flex justify-between gap-2 mt-6">
-                                        <p-button class="wizard-nav-btn" [label]="'common.back' | translate" icon="pi pi-arrow-left" (click)="goToStep(4)" [disabled]="submitting"></p-button>
-                                        <div class="flex gap-2">
-                                            <p-button class="wizard-nav-btn" [label]="'common.skip' | translate" text (click)="finishGuardianFlow()" [disabled]="submitting"></p-button>
-                                            <p-button [label]="'common.save_guardian' | translate" icon="pi pi-check" (click)="saveGuardian2()" *ngIf="!viewOnly" [loading]="submitting" [disabled]="submitting"></p-button>
-                                        </div>
+                                        <p-button [label]="'common.finish' | translate" icon="pi pi-check" (click)="finishGuardianStep()" [disabled]="submitting"></p-button>
                                     </div>
                                 </ng-template>
                             </p-step-panel>
@@ -735,18 +696,18 @@ export class StudentsCrud implements OnInit {
     guardianRoleId: string = '';
 
     studentForm: FormGroup;
-    guardianForm1: FormGroup;
-    guardianForm2: FormGroup;
-    guardianMode1: 'new' | 'existing' = 'new';
-    guardianMode2: 'new' | 'existing' = 'new';
+    addGuardianForm: FormGroup;
+    addGuardianMode: 'new' | 'existing' = 'new';
+    addGuardianSubmitted = false;
     existingGuardians: (Student & { displayName: string })[] = [];
     guardianLoading = false;
     guardianPage = 1;
     guardianAllLoaded = false;
-    guardian1RelationId?: string;
-    guardian2RelationId?: string;
-    guardian1MemberId?: string;
-    guardian2MemberId?: string;
+    studentGuardians: FamilyRelation[] = [];
+    guardiansLoading = false;
+    showAddGuardianForm = false;
+    editingGuardianId: string | null = null;
+    editingRelationType: RelationType | null = null;
     currentStudentId?: string;
     studentCreatedId?: string;
 
@@ -764,8 +725,6 @@ export class StudentsCrud implements OnInit {
     activeStep = 1;
     step1Submitted = false;
     step2Submitted = false;
-    guardian1Submitted = false;
-    guardian2Submitted = false;
 
     @ViewChild('dt') dt!: Table;
 
@@ -848,18 +807,7 @@ export class StudentsCrud implements OnInit {
             })
         });
 
-        this.guardianForm1 = this.fb.group({
-            firstName: ['', Validators.required],
-            lastName: ['', Validators.required],
-            phone: ['', Validators.required],
-            roleId: ['', Validators.required],
-            username: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(20)]],
-            password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
-            relationType: [null, Validators.required],
-            existingGuardianId: ['']
-        });
-
-        this.guardianForm2 = this.fb.group({
+        this.addGuardianForm = this.fb.group({
             firstName: ['', Validators.required],
             lastName: ['', Validators.required],
             phone: ['', Validators.required],
@@ -888,13 +836,8 @@ export class StudentsCrud implements OnInit {
             this.setRelationOptions();
         });
 
-        this.guardianForm1.get('relationType')?.valueChanges.subscribe(() => {
-            if (this.guardianMode1 === 'existing') {
-                this.loadAllGuardians();
-            }
-        });
-        this.guardianForm2.get('relationType')?.valueChanges.subscribe(() => {
-            if (this.guardianMode2 === 'existing') {
+        this.addGuardianForm.get('relationType')?.valueChanges.subscribe(() => {
+            if (this.addGuardianMode === 'existing') {
                 this.loadAllGuardians();
             }
         });
@@ -959,10 +902,6 @@ export class StudentsCrud implements OnInit {
         this.studentCreatedId = undefined;
         this.step1Submitted = false;
         this.step2Submitted = false;
-        this.guardian1Submitted = false;
-        this.guardian2Submitted = false;
-        this.guardianMode1 = 'new';
-        this.guardianMode2 = 'new';
         this.activeStep = 1;
         this.studentForm.reset({
             username: '',
@@ -988,24 +927,7 @@ export class StudentsCrud implements OnInit {
             }
         });
         this.imagePreviewUrl = null;
-        this.guardianForm1.reset({
-            firstName: '',
-            lastName: '',
-            phone: '',
-            roleId: this.guardianRoleId,
-            username: '',
-            password: '',
-            relationType: null
-        });
-        this.guardianForm2.reset({
-            firstName: '',
-            lastName: '',
-            phone: '',
-            roleId: this.guardianRoleId,
-            username: '',
-            password: '',
-            relationType: null
-        });
+        this.resetAddGuardianForm();
         const passwordControl = this.studentForm.get('password');
         passwordControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(20)]);
         passwordControl?.updateValueAndValidity();
@@ -1013,19 +935,12 @@ export class StudentsCrud implements OnInit {
         roleControl?.setValidators([Validators.required]);
         roleControl?.updateValueAndValidity();
         this.studentForm.enable();
-        this.guardianForm1.enable();
-        this.guardianForm2.enable();
-        this.guardian1RelationId = undefined;
-        this.guardian2RelationId = undefined;
-        this.guardian1MemberId = undefined;
-        this.guardian2MemberId = undefined;
-        this.applyRoleId();
-        this.applyGuardianRoleId();
-        this.updateGuardianFormValidators(this.guardianForm1, 'new');
-        this.updateGuardianFormValidators(this.guardianForm2, 'new');
+        this.studentGuardians = [];
+        this.showAddGuardianForm = false;
         this.existingGuardians = [];
         this.guardianPage = 1;
         this.guardianAllLoaded = false;
+        this.applyRoleId();
         this.studentDialog = true;
     }
 
@@ -1035,14 +950,9 @@ export class StudentsCrud implements OnInit {
         this.studentDialog = true;
         this.step1Submitted = false;
         this.step2Submitted = false;
-        this.guardian1Submitted = false;
-        this.guardian2Submitted = false;
         this.studentCreatedId = student.id;
-        this.guardian1RelationId = undefined;
-        this.guardian2RelationId = undefined;
-        this.guardian1MemberId = undefined;
-        this.guardian2MemberId = undefined;
-        this.resetGuardians();
+        this.showAddGuardianForm = false;
+        this.resetAddGuardianForm();
         this.studentService.get(student.id).subscribe((data) => {
             this.currentStudentId = data.id;
             this.studentForm.reset({
@@ -1077,7 +987,7 @@ export class StudentsCrud implements OnInit {
             roleControl?.updateValueAndValidity();
             this.studentForm.enable();
             if (data.id) {
-                this.loadGuardians(data.id);
+                this.loadStudentGuardians(data.id);
             }
         });
     }
@@ -1088,14 +998,9 @@ export class StudentsCrud implements OnInit {
         this.studentDialog = true;
         this.step1Submitted = false;
         this.step2Submitted = false;
-        this.guardian1Submitted = false;
-        this.guardian2Submitted = false;
         this.studentCreatedId = student.id;
-        this.guardian1RelationId = undefined;
-        this.guardian2RelationId = undefined;
-        this.guardian1MemberId = undefined;
-        this.guardian2MemberId = undefined;
-        this.resetGuardians();
+        this.showAddGuardianForm = false;
+        this.resetAddGuardianForm();
         this.studentService.get(student.id).subscribe((data) => {
             this.currentStudentId = data.id;
             this.studentForm.reset({
@@ -1126,10 +1031,8 @@ export class StudentsCrud implements OnInit {
             passwordControl?.clearValidators();
             passwordControl?.updateValueAndValidity();
             this.studentForm.disable();
-            this.guardianForm1.disable();
-            this.guardianForm2.disable();
             if (data.id) {
-                this.loadGuardians(data.id);
+                this.loadStudentGuardians(data.id);
             }
         });
     }
@@ -1172,14 +1075,12 @@ export class StudentsCrud implements OnInit {
         this.studentDialog = false;
         this.step1Submitted = false;
         this.step2Submitted = false;
-        this.guardian1Submitted = false;
-        this.guardian2Submitted = false;
         this.activeStep = 1;
         this.viewOnly = false;
         this.submitting = false;
         this.studentForm.enable();
-        this.guardianForm1.enable();
-        this.guardianForm2.enable();
+        this.showAddGuardianForm = false;
+        this.resetAddGuardianForm();
     }
 
     deleteStudent(student: Student) {
@@ -1316,28 +1217,22 @@ export class StudentsCrud implements OnInit {
         this.imagePreviewUrl = null;
     }
 
-    saveGuardian1() {
-        this.guardian1Submitted = true;
+    saveNewGuardian() {
+        this.addGuardianSubmitted = true;
         if (this.submitting || !this.studentCreatedId) return;
-        this.applyGuardianRoleId();
-        if (this.guardianForm1.invalid) {
+        const roleId = this.guardianRoleId || this.getGuardianRoleId();
+        if (!this.addGuardianForm.get('roleId')?.value && roleId) {
+            this.addGuardianForm.get('roleId')?.setValue(roleId);
+        }
+        if (this.addGuardianForm.invalid) {
             return;
         }
 
-        const formValue = this.guardianForm1.getRawValue();
+        const formValue = this.addGuardianForm.getRawValue();
         this.submitting = true;
-        this.guardianForm1.disable();
+        this.addGuardianForm.disable();
 
-        if (this.guardian1MemberId && this.guardian1RelationId) {
-            this.updateGuardian(this.guardian1MemberId, formValue, this.guardian1RelationId, () => {
-                this.activeStep = 5;
-                this.submitting = false;
-                this.guardianForm1.enable();
-            });
-            return;
-        }
-
-        if (this.guardianMode1 === 'existing') {
+        if (this.addGuardianMode === 'existing') {
             this.familyRelationService.create({
                 studentId: this.studentCreatedId,
                 familyMemberId: formValue.existingGuardianId,
@@ -1350,13 +1245,13 @@ export class StudentsCrud implements OnInit {
                         detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.guardian') }),
                         life: 3000
                     });
-                    this.activeStep = 5;
                     this.submitting = false;
-                    this.guardianForm1.enable();
+                    this.cancelAddGuardian();
+                    this.loadStudentGuardians(this.studentCreatedId!);
                 },
                 error: () => {
                     this.submitting = false;
-                    this.guardianForm1.enable();
+                    this.addGuardianForm.enable();
                 }
             });
             return;
@@ -1391,128 +1286,100 @@ export class StudentsCrud implements OnInit {
                                 detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.guardian') }),
                                 life: 3000
                             });
-                            this.activeStep = 5;
                             this.submitting = false;
-                            this.guardianForm1.enable();
+                            this.cancelAddGuardian();
+                            this.loadStudentGuardians(this.studentCreatedId!);
                         },
                         error: () => {
                             this.submitting = false;
-                            this.guardianForm1.enable();
+                            this.addGuardianForm.enable();
                         }
                     });
             },
             error: () => {
                 this.submitting = false;
-                this.guardianForm1.enable();
+                this.addGuardianForm.enable();
             }
         });
     }
 
-    saveGuardian2() {
-        this.guardian2Submitted = true;
-        if (this.submitting || !this.studentCreatedId) return;
-        this.applyGuardianRoleId();
-        if (this.guardianForm2.invalid) {
-            return;
-        }
-
-        const formValue = this.guardianForm2.getRawValue();
-        this.submitting = true;
-        this.guardianForm2.disable();
-
-        if (this.guardian2MemberId && this.guardian2RelationId) {
-            this.updateGuardian(this.guardian2MemberId, formValue, this.guardian2RelationId, () => {
-                this.studentDialog = false;
-                this.loadStudents(this.meta().page, this.meta().perPage);
-                this.submitting = false;
-                this.guardianForm2.enable();
-            });
-            return;
-        }
-
-        if (this.guardianMode2 === 'existing') {
-            this.familyRelationService.create({
-                studentId: this.studentCreatedId,
-                familyMemberId: formValue.existingGuardianId,
-                relationType: formValue.relationType
-            }).subscribe({
-                next: () => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: this.translate.instant('common.successful'),
-                        detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.guardian') }),
-                        life: 3000
-                    });
-                    this.studentDialog = false;
-                    this.loadStudents(this.meta().page, this.meta().perPage);
-                    this.submitting = false;
-                    this.guardianForm2.enable();
-                },
-                error: () => {
-                    this.submitting = false;
-                    this.guardianForm2.enable();
-                }
-            });
-            return;
-        }
-
-        const payload: any = this.stripEmpty({
-            username: formValue.username,
-            phone: formValue.phone,
-            roleId: formValue.roleId,
-            profile: this.stripEmpty({
-                firstName: formValue.firstName,
-                lastName: formValue.lastName
-            })
-        });
-        if (formValue.password) {
-            payload.password = formValue.password;
-        }
-
-        this.studentService.create(payload).subscribe({
-            next: (guardian) => {
-                this.familyRelationService
-                    .create({
-                        studentId: this.studentCreatedId as string,
-                        familyMemberId: guardian.id,
-                        relationType: formValue.relationType
-                    })
-                    .subscribe({
-                        next: () => {
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: this.translate.instant('common.successful'),
-                                detail: this.translate.instant('common.created', { entity: this.translate.instant('entities.guardian') }),
-                                life: 3000
-                            });
-                            this.studentDialog = false;
-                            this.loadStudents(this.meta().page, this.meta().perPage);
-                            this.submitting = false;
-                            this.guardianForm2.enable();
-                        },
-                        error: () => {
-                            this.submitting = false;
-                            this.guardianForm2.enable();
-                        }
-                    });
-            },
-            error: () => {
-                this.submitting = false;
-                this.guardianForm2.enable();
+    deleteGuardian(relation: FamilyRelation) {
+        this.confirmationService.confirm({
+            message: this.translate.instant('common.confirm_delete'),
+            header: this.translate.instant('common.confirm'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: this.translate.instant('common.yes'),
+            rejectLabel: this.translate.instant('common.no'),
+            accept: () => {
+                this.familyRelationService.remove(relation.id!).subscribe({
+                    next: () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: this.translate.instant('common.successful'),
+                            detail: this.translate.instant('common.deleted', { entity: this.translate.instant('entities.guardian') }),
+                            life: 3000
+                        });
+                        this.loadStudentGuardians(this.studentCreatedId!);
+                    }
+                });
             }
         });
     }
 
-    finishGuardianFlow() {
+    reactivateGuardian(relation: FamilyRelation) {
+        this.confirmationService.confirm({
+            message: this.translate.instant('common.confirm_reactivate'),
+            header: this.translate.instant('common.confirm'),
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.familyRelationService.update(relation.id!, { isActive: true }).subscribe({
+                    next: () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: this.translate.instant('common.successful'),
+                            detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.guardian') }),
+                            life: 3000
+                        });
+                        this.loadStudentGuardians(this.studentCreatedId!);
+                    }
+                });
+            }
+        });
+    }
+
+    startEditGuardian(relation: FamilyRelation) {
+        this.editingGuardianId = relation.id!;
+        this.editingRelationType = relation.relationType as RelationType;
+    }
+
+    saveEditGuardian(relation: FamilyRelation) {
+        this.familyRelationService.update(relation.id!, { relationType: this.editingRelationType! }).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: this.translate.instant('common.successful'),
+                    detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.guardian') }),
+                    life: 3000
+                });
+                this.editingGuardianId = null;
+                this.loadStudentGuardians(this.studentCreatedId!);
+            }
+        });
+    }
+
+    cancelAddGuardian() {
+        this.showAddGuardianForm = false;
+        this.addGuardianSubmitted = false;
+        this.addGuardianMode = 'new';
+        this.resetAddGuardianForm();
+    }
+
+    finishGuardianStep() {
         this.studentDialog = false;
         this.studentCreatedId = undefined;
         this.activeStep = 1;
-        this.guardian1Submitted = false;
-        this.guardian2Submitted = false;
         this.submitting = false;
         this.studentForm.enable();
-        this.guardianForm1.enable();
-        this.guardianForm2.enable();
         this.loadStudents(this.meta().page, this.meta().perPage);
     }
 
@@ -1672,21 +1539,12 @@ export class StudentsCrud implements OnInit {
         return role?.id !== undefined && role?.id !== null ? String(role.id) : '';
     }
 
-    private applyGuardianRoleId() {
-        const roleId = this.guardianRoleId || this.getGuardianRoleId();
-        if (!roleId) return;
-        if (!this.guardianForm1.get('roleId')?.value) {
-            this.guardianForm1.get('roleId')?.setValue(roleId);
-        }
-        if (!this.guardianForm2.get('roleId')?.value) {
-            this.guardianForm2.get('roleId')?.setValue(roleId);
-        }
-    }
-
-    private resetGuardians() {
-        this.guardianMode1 = 'new';
-        this.guardianMode2 = 'new';
-        this.guardianForm1.reset({
+    private resetAddGuardianForm() {
+        this.addGuardianMode = 'new';
+        this.addGuardianSubmitted = false;
+        this.editingGuardianId = null;
+        this.editingRelationType = null;
+        this.addGuardianForm.reset({
             firstName: '',
             lastName: '',
             phone: '',
@@ -1696,34 +1554,19 @@ export class StudentsCrud implements OnInit {
             relationType: null,
             existingGuardianId: ''
         });
-        this.guardianForm2.reset({
-            firstName: '',
-            lastName: '',
-            phone: '',
-            roleId: this.guardianRoleId,
-            username: '',
-            password: '',
-            relationType: null,
-            existingGuardianId: ''
-        });
-        this.guardianForm1.enable();
-        this.guardianForm2.enable();
-        this.updateGuardianFormValidators(this.guardianForm1, 'new');
-        this.updateGuardianFormValidators(this.guardianForm2, 'new');
+        this.addGuardianForm.enable();
+        this.updateGuardianFormValidators(this.addGuardianForm, 'new');
     }
 
-    private loadGuardians(studentId: string) {
+    loadStudentGuardians(studentId: string) {
+        this.guardiansLoading = true;
         this.familyRelationService.listGuardians(studentId, 1, 100).subscribe({
             next: (res) => {
-                const relations = res?.data ?? [];
-                const first = relations[0];
-                const second = relations[1];
-                if (first) {
-                    this.setGuardianForm(this.guardianForm1, first, 1);
-                }
-                if (second) {
-                    this.setGuardianForm(this.guardianForm2, second, 2);
-                }
+                this.studentGuardians = res?.data ?? [];
+                this.guardiansLoading = false;
+            },
+            error: () => {
+                this.guardiansLoading = false;
             }
         });
     }
@@ -1764,29 +1607,23 @@ export class StudentsCrud implements OnInit {
         }
     }
 
-    setGuardianMode(index: 1 | 2, mode: 'new' | 'existing') {
-        if (index === 1) {
-            this.guardianMode1 = mode;
-            this.updateGuardianFormValidators(this.guardianForm1, mode);
-            if (mode === 'existing') {
-                this.loadAllGuardians();
-            }
-        } else {
-            this.guardianMode2 = mode;
-            this.updateGuardianFormValidators(this.guardianForm2, mode);
-            if (mode === 'existing') {
-                this.loadAllGuardians();
-            }
+    setAddGuardianMode(mode: 'new' | 'existing') {
+        this.addGuardianMode = mode;
+        this.addGuardianSubmitted = false;
+        this.updateGuardianFormValidators(this.addGuardianForm, mode);
+        if (mode === 'existing') {
+            this.loadAllGuardians();
         }
     }
 
     goToStep(step: number) {
         this.activeStep = step;
-        if (step === 4 && this.guardianMode1 === 'existing') {
-            this.loadAllGuardians();
-        } else if (step === 5 && this.guardianMode2 === 'existing') {
-            this.loadAllGuardians();
-        }
+    }
+
+    getRelationLabel(relationType?: RelationType | string): string {
+        if (!relationType) return '';
+        const option = this.relationTypeOptions.find(o => o.value === relationType);
+        return option?.label ?? String(relationType);
     }
 
     private updateGuardianFormValidators(form: FormGroup, mode: 'new' | 'existing') {
@@ -1809,72 +1646,6 @@ export class StudentsCrud implements OnInit {
         existingField?.updateValueAndValidity();
     }
 
-    private setGuardianForm(form: FormGroup, relation: FamilyRelation, index: 1 | 2) {
-        const member = relation.familyMember;
-        const roleId = member?.role?.id ?? this.guardianRoleId;
-        form.reset({
-            firstName: member?.profile?.firstName ?? '',
-            lastName: member?.profile?.lastName ?? '',
-            phone: member?.phone ?? '',
-            roleId: roleId ? String(roleId) : '',
-            username: member?.username ?? '',
-            password: '',
-            relationType: relation.relationType ?? null
-        });
-        if (index === 1) {
-            this.guardian1RelationId = relation.id ?? undefined;
-            this.guardian1MemberId = member?.id ?? undefined;
-        } else {
-            this.guardian2RelationId = relation.id ?? undefined;
-            this.guardian2MemberId = member?.id ?? undefined;
-        }
-        if (this.viewOnly) {
-            form.disable();
-        } else {
-            const passwordControl = form.get('password');
-            passwordControl?.clearValidators();
-            passwordControl?.updateValueAndValidity();
-            form.enable();
-        }
-    }
-
-    private updateGuardian(memberId: string, formValue: any, relationId: string, onDone: () => void) {
-        const profile = this.stripEmpty({
-            firstName: formValue.firstName,
-            lastName: formValue.lastName
-        });
-        const payload: any = this.stripEmpty({
-            username: formValue.username,
-            phone: formValue.phone,
-            roleId: formValue.roleId,
-            profile
-        });
-        if (formValue.password) {
-            payload.password = formValue.password;
-        }
-
-        this.studentService.update(memberId, payload).subscribe({
-            next: () => {
-                this.familyRelationService.update(relationId, { relationType: formValue.relationType }).subscribe({
-                    next: () => {
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: this.translate.instant('common.successful'),
-                            detail: this.translate.instant('common.updated', { entity: this.translate.instant('entities.guardian') }),
-                            life: 3000
-                        });
-                        onDone();
-                    },
-                    error: () => {
-                        this.submitting = false;
-                    }
-                });
-            },
-            error: () => {
-                this.submitting = false;
-            }
-        });
-    }
 
     openNotes(student: Student) {
         this.selectedStudentForNotes = student;

@@ -1,4 +1,4 @@
-﻿{
+{
     "menu": {
         "main": "Main",
         "dashboard": "Dashboard",
@@ -70,6 +70,10 @@
         "import_errors": "Import Errors",
         "search": "Search...",
         "confirm": "Confirm",
+        "yes": "Yes",
+        "no": "No",
+        "confirm_delete": "Are you sure you want to delete this?",
+        "confirm_reactivate": "Are you sure you want to reactivate this guardian?",
         "cancel": "Cancel",
         "back": "Back",
         "next": "Next",
@@ -290,7 +294,9 @@
             "view_courses": "View Courses",
             "attendance_title": "Student Attendance",
             "no_attendance": "No attendance records found",
-            "view_attendance": "View Attendance"
+            "view_attendance": "View Attendance",
+            "add_guardian": "Add Guardian",
+            "no_guardians": "No guardians added yet"
         },
         "courses": {
             "manage_title": "Manage Courses",
@@ -361,8 +367,10 @@
         "account": "Account",
         "profile": "Profile",
         "additional": "Additional",
-        "guardian_1": "Guardian 1",
-        "guardian_2": "Guardian 2"
+        "guardians": "Guardians"
+    },
+    "errors": {
+        "duplicate_family_relation": "This guardian is already linked to this student. Reactivate the existing one or delete it and add a new one."
     },
     "topbar": {
         "calendar": "Calendar",
