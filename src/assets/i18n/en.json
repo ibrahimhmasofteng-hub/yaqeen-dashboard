@@ -301,7 +301,9 @@
         },
         "guardians": {
             "manage_title": "Manage Guardians",
-            "details_title": "Guardian Details"
+            "details_title": "Guardian Details",
+            "students_title": "Guardian Students",
+            "view_students": "View Students"
         },
         "courses": {
             "manage_title": "Manage Courses",

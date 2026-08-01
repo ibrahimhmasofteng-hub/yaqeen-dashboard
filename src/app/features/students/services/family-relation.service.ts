@@ -74,4 +74,10 @@ export class FamilyRelationService {
             params: { page, perPage }
         });
     }
+
+    listStudents(guardianId: string, page = 1, perPage = 10): Observable<FamilyRelationsResponse> {
+        return this.api.get<FamilyRelationsResponse>(`family-relations/students/${guardianId}`, {
+            params: { page, perPage }
+        });
+    }
 }

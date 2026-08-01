@@ -301,7 +301,9 @@
         },
         "guardians": {
             "manage_title": "إدارة أولياء الأمور",
-            "details_title": "تفاصيل ولي الأمر"
+            "details_title": "تفاصيل ولي الأمر",
+            "students_title": "طلاب ولي الأمر",
+            "view_students": "عرض الطلاب"
         },
         "courses": {
             "manage_title": "إدارة الدورات",

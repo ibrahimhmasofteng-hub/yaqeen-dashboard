@@ -1,4 +1,5 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -14,6 +15,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '@/app/features/users/services/user.service';
 import { User, UsersMeta } from '@/app/features/users/models/user.model';
@@ -51,6 +53,7 @@ interface ExportColumn {
         IconFieldModule,
         ConfirmDialogModule,
         TagModule,
+        TooltipModule,
         FormErrors,
         TranslateModule
     ],
@@ -135,6 +138,7 @@ interface ExportColumn {
                     <td>
                         <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewItem(item)" />
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editItem(item)" />
+                        <p-button icon="pi pi-users" class="mr-2" [rounded]="true" [outlined]="true" (click)="viewStudents(item)" pTooltip="{{ 'pages.guardians.view_students' | translate }}" tooltipPosition="top" />
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteItem(item)" />
                     </td>
                 </tr>
@@ -236,7 +240,8 @@ export class GuardiansCrud implements OnInit {
         private messageService: MessageService,
         private translate: TranslateService,
         private confirmationService: ConfirmationService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private router: Router
     ) {
         this.form = this.fb.group({
             username: ['', Validators.required],
@@ -363,6 +368,10 @@ export class GuardiansCrud implements OnInit {
             this.form.disable();
             this.dialog = true;
         });
+    }
+
+    viewStudents(item: User) {
+        this.router.navigate(['/guardians', item.id, 'students']);
     }
 
     deleteSelected() {
