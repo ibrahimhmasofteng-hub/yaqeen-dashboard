@@ -8,6 +8,7 @@
         "supervisors": "المشرفون",
         "teachers": "المعلمون",
         "students": "الطلاب",
+        "guardians": "أولياء الأمور",
         "courses": "الدورات",
         "events": "الفعاليات",
         "posts": "المنشورات",
@@ -297,6 +298,10 @@
             "view_attendance": "عرض الحضور",
             "add_guardian": "إضافة ولي أمر",
             "no_guardians": "لم تتم إضافة أولياء أمر بعد"
+        },
+        "guardians": {
+            "manage_title": "إدارة أولياء الأمور",
+            "details_title": "تفاصيل ولي الأمر"
         },
         "courses": {
             "manage_title": "إدارة الدورات",

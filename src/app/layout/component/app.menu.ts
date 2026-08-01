@@ -35,7 +35,8 @@ export class AppMenu {
                             { label: 'menu.users', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
                             { label: 'menu.supervisors', icon: 'pi pi-fw pi-user-plus', routerLink: ['/supervisors'] },
                             { label: 'menu.teachers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/teachers'] },
-                            { label: 'menu.students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] }
+                            { label: 'menu.students', icon: 'pi pi-fw pi-users', routerLink: ['/students'] },
+                            { label: 'menu.guardians', icon: 'pi pi-fw pi-shield', routerLink: ['/guardians'] }
                         ]
                     },
                     { label: 'menu.courses', icon: 'pi pi-fw pi-book', routerLink: ['/courses'] },

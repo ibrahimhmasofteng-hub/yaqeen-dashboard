@@ -19,6 +19,7 @@ export const appRoutes: Routes = [
             { path: 'supervisors', loadChildren: () => import('./app/features/supervisors/supervisors.routes') },
             { path: 'teachers', loadChildren: () => import('./app/features/teachers/teachers.routes') },
             { path: 'students', loadChildren: () => import('./app/features/students/students.routes') },
+            { path: 'guardians', loadChildren: () => import('./app/features/guardians/guardians.routes') },
             { path: 'courses', loadChildren: () => import('./app/features/courses/courses.routes') },
             { path: 'groups', loadChildren: () => import('./app/features/course-groups/course-groups.routes') },
             { path: 'attendance', loadChildren: () => import('./app/features/attendance/attendance.routes') },

@@ -8,6 +8,7 @@
         "supervisors": "Supervisors",
         "teachers": "Teachers",
         "students": "Students",
+        "guardians": "Guardians",
         "courses": "Courses",
         "events": "Events",
         "posts": "Posts",
@@ -297,6 +298,10 @@
             "view_attendance": "View Attendance",
             "add_guardian": "Add Guardian",
             "no_guardians": "No guardians added yet"
+        },
+        "guardians": {
+            "manage_title": "Manage Guardians",
+            "details_title": "Guardian Details"
         },
         "courses": {
             "manage_title": "Manage Courses",
