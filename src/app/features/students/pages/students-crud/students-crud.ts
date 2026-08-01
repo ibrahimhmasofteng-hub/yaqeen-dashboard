@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -777,7 +778,8 @@ export class StudentsCrud implements OnInit {
         private api: ApiService,
         private noteService: NoteService,
         private attendanceService: AttendanceService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private route: ActivatedRoute
     ) {
         this.noteForm = this.fb.group({
             note: ['', Validators.required]
@@ -841,6 +843,11 @@ export class StudentsCrud implements OnInit {
                 this.loadAllGuardians();
             }
         });
+
+        const viewStudentId = this.route.snapshot.queryParamMap.get('viewStudentId');
+        if (viewStudentId) {
+            this.viewStudent({ id: viewStudentId } as Student);
+        }
     }
 
     loadStudents(page: number, perPage: number) {

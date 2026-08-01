@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { UserService } from '@/app/features/users/services/user.service';
 import { User } from '@/app/features/users/models/user.model';
 import { FamilyRelation, FamilyRelationService } from '@/app/features/students/services/family-relation.service';
@@ -13,7 +14,7 @@ import { RelationType } from '@/app/features/students/models/relation-type.enum'
 @Component({
     selector: 'app-guardian-students',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TableModule, TagModule, TranslateModule],
+    imports: [CommonModule, ButtonModule, TableModule, TagModule, TooltipModule, TranslateModule],
     template: `
         <div class="mb-6 flex items-start justify-between gap-4">
             <div>
@@ -52,6 +53,7 @@ import { RelationType } from '@/app/features/students/models/relation-type.enum'
                         <th>{{ 'fields.email' | translate }}</th>
                         <th>{{ 'fields.phone' | translate }}</th>
                         <th>{{ 'fields.relation_type' | translate }}</th>
+                        <th style="width: 5rem"></th>
                     </tr>
                 </ng-template>
                 <ng-template #body let-relation>
@@ -61,6 +63,9 @@ import { RelationType } from '@/app/features/students/models/relation-type.enum'
                         <td>{{ relation.student?.phone ?? '-' }}</td>
                         <td>
                             <p-tag [value]="relationLabel(relation.relationType)" severity="info" />
+                        </td>
+                        <td>
+                            <p-button icon="pi pi-eye" [rounded]="true" [outlined]="true" (click)="viewStudent(relation)" pTooltip="{{ 'common.details' | translate }}" tooltipPosition="top" />
                         </td>
                     </tr>
                 </ng-template>
@@ -138,6 +143,12 @@ export class GuardianStudents implements OnInit {
 
     goBack() {
         this.router.navigate(['/guardians']);
+    }
+
+    viewStudent(relation: FamilyRelation) {
+        const studentId = relation.student?.id;
+        if (!studentId) return;
+        this.router.navigate(['/students'], { queryParams: { viewStudentId: studentId } });
     }
 
     relationLabel(relationType?: RelationType | string): string {
