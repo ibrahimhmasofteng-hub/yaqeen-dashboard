@@ -644,7 +644,7 @@ const GUARDIAN_ROLE_FILTER = RoleName.Guardian;
                     </div>
 
                     <p-table
-                        *ngIf="!attendanceLoading"
+                        *ngIf="!attendanceLoading && studentAttendance().length > 0"
                         [value]="studentAttendance()"
                         [paginator]="true"
                         [rows]="5"
